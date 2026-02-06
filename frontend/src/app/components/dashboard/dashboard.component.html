@@ -1,0 +1,75 @@
+<div class="dashboard-container">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <h1>Candidex</h1>
+    </div>
+    <div class="navbar-menu">
+      <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+      <a routerLink="/applications" routerLinkActive="active">Applications</a>
+      <a routerLink="/kanban" routerLinkActive="active">Kanban</a>
+      <button class="btn-logout" (click)="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="dashboard-content">
+    <div class="welcome-section">
+      <h2>Welcome back, {{ userName }}!</h2>
+      <p>Here's your job application overview</p>
+    </div>
+
+    <div *ngIf="isLoading" class="loading">
+      Loading statistics...
+    </div>
+
+    <div *ngIf="!isLoading && stats" class="stats-grid">
+      <div class="stat-card total">
+        <div class="stat-icon">📊</div>
+        <div class="stat-info">
+          <h3>{{ stats.totalApplications }}</h3>
+          <p>Total Applications</p>
+        </div>
+      </div>
+
+      <div class="stat-card applied">
+        <div class="stat-icon">📝</div>
+        <div class="stat-info">
+          <h3>{{ stats.appliedCount }}</h3>
+          <p>Applied</p>
+        </div>
+      </div>
+
+      <div class="stat-card interview">
+        <div class="stat-icon">💼</div>
+        <div class="stat-info">
+          <h3>{{ stats.interviewCount }}</h3>
+          <p>Interviews</p>
+        </div>
+      </div>
+
+      <div class="stat-card offer">
+        <div class="stat-icon">🎉</div>
+        <div class="stat-info">
+          <h3>{{ stats.offerCount }}</h3>
+          <p>Offers</p>
+        </div>
+      </div>
+
+      <div class="stat-card rejected">
+        <div class="stat-icon">❌</div>
+        <div class="stat-info">
+          <h3>{{ stats.rejectedCount }}</h3>
+          <p>Rejected</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions-section">
+      <button class="btn btn-primary" (click)="navigateToApplications()">
+        View All Applications
+      </button>
+      <button class="btn btn-secondary" (click)="navigateToKanban()">
+        Open Kanban Board
+      </button>
+    </div>
+  </div>
+</div>

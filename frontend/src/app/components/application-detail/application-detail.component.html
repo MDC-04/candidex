@@ -1,0 +1,122 @@
+<div class="detail-container">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <h1>Candidex</h1>
+    </div>
+    <div class="navbar-menu">
+      <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+      <a routerLink="/applications" routerLinkActive="active">Applications</a>
+      <a routerLink="/kanban" routerLinkActive="active">Kanban</a>
+      <button class="btn-logout" (click)="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="detail-content">
+    <button class="btn-back" (click)="goBack()">← Back to Applications</button>
+
+    <div *ngIf="isLoading" class="loading">Loading application details...</div>
+
+    <div *ngIf="!isLoading && application" class="detail-wrapper">
+      <div class="app-info-section">
+        <div class="info-header">
+          <h2>{{ application.position }}</h2>
+          <span class="status-badge" [ngClass]="application.status.toLowerCase()">
+            {{ application.status }}
+          </span>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Company</label>
+            <p>{{ application.company }}</p>
+          </div>
+          <div class="info-item" *ngIf="application.location">
+            <label>Location</label>
+            <p>{{ application.location }}</p>
+          </div>
+          <div class="info-item" *ngIf="application.salary">
+            <label>Salary</label>
+            <p>{{ application.salary }}</p>
+          </div>
+          <div class="info-item" *ngIf="application.jobUrl">
+            <label>Job URL</label>
+            <p><a [href]="application.jobUrl" target="_blank">View Job Posting</a></p>
+          </div>
+          <div class="info-item" *ngIf="application.contactPerson">
+            <label>Contact Person</label>
+            <p>{{ application.contactPerson }}</p>
+          </div>
+          <div class="info-item" *ngIf="application.contactEmail">
+            <label>Contact Email</label>
+            <p><a [href]="'mailto:' + application.contactEmail">{{ application.contactEmail }}</a></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="notes-reminders-section">
+        <div class="notes-section">
+          <h3>Notes</h3>
+          <div class="add-note">
+            <textarea
+              [(ngModel)]="newNote"
+              placeholder="Add a note..."
+              rows="3"
+            ></textarea>
+            <button class="btn btn-primary" (click)="addNote()">Add Note</button>
+          </div>
+          <div class="notes-list">
+            <div *ngFor="let note of application.notes" class="note-item">
+              <p>{{ note.content }}</p>
+              <div class="note-footer">
+                <small>{{ note.createdAt | date:'short' }}</small>
+                <button class="btn-delete-small" (click)="deleteNote(note.id)">Delete</button>
+              </div>
+            </div>
+            <div *ngIf="!application.notes || application.notes.length === 0" class="empty-state">
+              No notes yet
+            </div>
+          </div>
+        </div>
+
+        <div class="reminders-section">
+          <h3>Reminders</h3>
+          <div class="add-reminder">
+            <input
+              type="text"
+              [(ngModel)]="newReminder.title"
+              placeholder="Reminder title"
+            />
+            <input
+              type="text"
+              [(ngModel)]="newReminder.description"
+              placeholder="Description (optional)"
+            />
+            <input
+              type="datetime-local"
+              [(ngModel)]="newReminder.dueDate"
+            />
+            <button class="btn btn-primary" (click)="addReminder()">Add Reminder</button>
+          </div>
+          <div class="reminders-list">
+            <div *ngFor="let reminder of application.reminders" class="reminder-item" [class.completed]="reminder.completed">
+              <input
+                type="checkbox"
+                [checked]="reminder.completed"
+                (change)="toggleReminder(reminder)"
+              />
+              <div class="reminder-content">
+                <h4>{{ reminder.title }}</h4>
+                <p *ngIf="reminder.description">{{ reminder.description }}</p>
+                <small>Due: {{ reminder.dueDate | date:'short' }}</small>
+              </div>
+              <button class="btn-delete-small" (click)="deleteReminder(reminder.id)">Delete</button>
+            </div>
+            <div *ngIf="!application.reminders || application.reminders.length === 0" class="empty-state">
+              No reminders yet
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
