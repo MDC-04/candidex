@@ -11,8 +11,8 @@ Candidex is a data-driven SaaS application designed to help users track, manage,
 - **Maven** - Build and dependency management
 
 ### Frontend
-- **Angular 17** - Modern web application framework
-- **TypeScript** - Type-safe JavaScript
+- **Angular 19** - Modern web application framework (upgraded for security patches)
+- **TypeScript 5.7** - Type-safe JavaScript
 - **RxJS** - Reactive programming
 - **CSS** - Styling
 
