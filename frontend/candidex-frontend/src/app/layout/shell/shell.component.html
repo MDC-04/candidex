@@ -1,0 +1,23 @@
+<mat-sidenav-container class="app">
+  <mat-sidenav mode="side" opened>
+    <div class="brand">Candidex</div>
+
+    <mat-nav-list>
+      <a mat-list-item routerLink="/dashboard">Dashboard</a>
+      <a mat-list-item routerLink="/applications">Applications</a>
+      <a mat-list-item routerLink="/pipeline">Pipeline</a>
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar color="primary">
+      <span></span>
+      <span class="spacer"></span>
+      <a mat-button routerLink="/login">Login</a>
+    </mat-toolbar>
+
+    <div class="content">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

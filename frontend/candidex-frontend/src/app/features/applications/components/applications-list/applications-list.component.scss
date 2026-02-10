@@ -1,0 +1,159 @@
+.applications-list-container {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 500;
+    }
+
+    button {
+      mat-icon {
+        margin-right: 8px;
+      }
+    }
+  }
+
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+  }
+
+  .table-container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+
+    .empty-state {
+      text-align: center;
+      padding: 80px 24px;
+
+      mat-icon {
+        font-size: 64px;
+        width: 64px;
+        height: 64px;
+        color: #ccc;
+        margin-bottom: 16px;
+      }
+
+      p {
+        font-size: 18px;
+        color: #666;
+        margin-bottom: 24px;
+      }
+    }
+
+    .applications-table {
+      width: 100%;
+
+      th {
+        font-weight: 600;
+        background-color: #f5f5f5;
+      }
+
+      td, th {
+        padding: 16px;
+      }
+
+      td {
+        strong {
+          font-weight: 500;
+        }
+      }
+
+      // Status chips
+      mat-chip {
+        font-size: 12px;
+        min-height: 28px;
+        padding: 4px 12px;
+
+        &.status-applied {
+          background-color: #e3f2fd;
+          color: #1976d2;
+        }
+
+        &.status-interview {
+          background-color: #fff3e0;
+          color: #f57c00;
+        }
+
+        &.status-offer {
+          background-color: #e8f5e9;
+          color: #388e3c;
+        }
+
+        &.status-rejected {
+          background-color: #ffebee;
+          color: #d32f2f;
+        }
+
+        &.status-ghosted {
+          background-color: #f5f5f5;
+          color: #757575;
+        }
+      }
+
+      .source-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        background-color: #f0f0f0;
+        border-radius: 4px;
+        font-size: 13px;
+        color: #555;
+      }
+    }
+
+    .pagination-info {
+      padding: 16px 24px;
+      text-align: center;
+      border-top: 1px solid #e0e0e0;
+      background-color: #fafafa;
+
+      p {
+        margin: 0;
+        color: #666;
+        font-size: 14px;
+      }
+    }
+  }
+}
+
+// Responsive design for mobile
+@media (max-width: 768px) {
+  .applications-list-container {
+    padding: 16px;
+
+    .header {
+      flex-direction: column;
+      align-items: flex-start;
+
+      h1 {
+        font-size: 24px;
+        margin-bottom: 16px;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+
+    .table-container {
+      overflow-x: auto;
+
+      .applications-table {
+        min-width: 800px; // Force horizontal scroll on small screens
+      }
+    }
+  }
+}

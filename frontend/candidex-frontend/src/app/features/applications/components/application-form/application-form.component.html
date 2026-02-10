@@ -1,0 +1,110 @@
+<h2 mat-dialog-title>{{ isEditMode ? 'Edit Application' : 'New Application' }}</h2>
+
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <mat-dialog-content>
+    <div class="form-grid">
+      
+      <!-- Company Name (Required) -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Company Name</mat-label>
+        <input matInput formControlName="companyName" placeholder="e.g., Google" required>
+        <mat-error>{{ getErrorMessage('companyName') }}</mat-error>
+      </mat-form-field>
+
+      <!-- Role Title (Required) -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Role Title</mat-label>
+        <input matInput formControlName="roleTitle" placeholder="e.g., Software Engineer" required>
+        <mat-error>{{ getErrorMessage('roleTitle') }}</mat-error>
+      </mat-form-field>
+
+      <!-- Location -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Location</mat-label>
+        <input matInput formControlName="location" placeholder="e.g., Paris, Remote">
+        <mat-error>{{ getErrorMessage('location') }}</mat-error>
+      </mat-form-field>
+
+      <!-- Source (Required) -->
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Source</mat-label>
+        <mat-select formControlName="source" required>
+          <mat-option *ngFor="let source of sourceOptions" [value]="source">
+            {{ source.replace('_', ' ') }}
+          </mat-option>
+        </mat-select>
+        <mat-error>{{ getErrorMessage('source') }}</mat-error>
+      </mat-form-field>
+
+      <!-- Status (Required) -->
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Status</mat-label>
+        <mat-select formControlName="status" required>
+          <mat-option *ngFor="let status of statusOptions" [value]="status">
+            {{ status.replace('_', ' ') }}
+          </mat-option>
+        </mat-select>
+        <mat-error>{{ getErrorMessage('status') }}</mat-error>
+      </mat-form-field>
+
+      <!-- Applied Date -->
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Applied Date</mat-label>
+        <input matInput [matDatepicker]="picker" formControlName="appliedDate">
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+      </mat-form-field>
+
+      <!-- Currency -->
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Currency</mat-label>
+        <mat-select formControlName="currency">
+          <mat-option *ngFor="let curr of currencyOptions" [value]="curr">
+            {{ curr }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Salary Min -->
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Minimum Salary</mat-label>
+        <input matInput type="number" formControlName="salaryMin" placeholder="e.g., 50000">
+        <mat-error>{{ getErrorMessage('salaryMin') }}</mat-error>
+      </mat-form-field>
+
+      <!-- Salary Max -->
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Maximum Salary</mat-label>
+        <input matInput type="number" formControlName="salaryMax" placeholder="e.g., 70000">
+        <mat-error>{{ getErrorMessage('salaryMax') }}</mat-error>
+      </mat-form-field>
+
+      <!-- Notes -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Notes</mat-label>
+        <textarea 
+          matInput 
+          formControlName="notes" 
+          rows="4" 
+          placeholder="Add any notes about this application...">
+        </textarea>
+        <mat-hint align="end">{{ form.get('notes')?.value?.length || 0 }} / 5000</mat-hint>
+        <mat-error>{{ getErrorMessage('notes') }}</mat-error>
+      </mat-form-field>
+
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="onCancel()" [disabled]="isSubmitting">
+      Cancel
+    </button>
+    <button 
+      mat-raised-button 
+      color="primary" 
+      type="submit" 
+      [disabled]="form.invalid || isSubmitting">
+      {{ isSubmitting ? 'Saving...' : (isEditMode ? 'Update' : 'Create') }}
+    </button>
+  </mat-dialog-actions>
+</form>

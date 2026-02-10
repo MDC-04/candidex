@@ -1,0 +1,157 @@
+<div class="application-detail-container" *ngIf="application$ | async as app; else loading">
+  
+  <!-- Header with back button -->
+  <div class="header">
+    <button mat-icon-button (click)="goBack()" class="back-button">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1>Application Details</h1>
+  </div>
+
+  <!-- Main info card -->
+  <mat-card class="main-card">
+    <mat-card-header>
+      <mat-card-title>{{ app.roleTitle }}</mat-card-title>
+      <mat-card-subtitle>{{ app.companyName }}</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="info-grid">
+        
+        <!-- Status -->
+        <div class="info-item">
+          <label>Status</label>
+          <mat-chip-set>
+            <mat-chip [class]="getStatusClass(app.status)">
+              {{ getStatusLabel(app) }}
+            </mat-chip>
+          </mat-chip-set>
+        </div>
+
+        <!-- Source -->
+        <div class="info-item">
+          <label>Source</label>
+          <span class="source-badge">{{ getSourceLabel(app) }}</span>
+        </div>
+
+        <!-- Location -->
+        <div class="info-item">
+          <label>Location</label>
+          <span>{{ app.location || 'N/A' }}</span>
+        </div>
+
+        <!-- Applied Date -->
+        <div class="info-item">
+          <label>Applied Date</label>
+          <span>{{ app.appliedDate || 'N/A' }}</span>
+        </div>
+
+        <!-- Salary Range -->
+        <div class="info-item" *ngIf="app.salaryMin || app.salaryMax">
+          <label>Salary Range</label>
+          <span>
+            <span *ngIf="app.salaryMin">{{ app.salaryMin | number }}</span>
+            <span *ngIf="app.salaryMin && app.salaryMax"> - </span>
+            <span *ngIf="app.salaryMax">{{ app.salaryMax | number }}</span>
+            <span *ngIf="app.currency"> {{ app.currency }}</span>
+          </span>
+        </div>
+
+        <!-- Currency (if no salary) -->
+        <div class="info-item" *ngIf="!app.salaryMin && !app.salaryMax && app.currency">
+          <label>Currency</label>
+          <span>{{ app.currency }}</span>
+        </div>
+
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- Tags -->
+      <div class="section" *ngIf="app.tags && app.tags.length > 0">
+        <h3>Tags</h3>
+        <mat-chip-set>
+          <mat-chip *ngFor="let tag of app.tags">{{ tag }}</mat-chip>
+        </mat-chip-set>
+      </div>
+
+      <!-- Links -->
+      <div class="section" *ngIf="app.links">
+        <h3>Links</h3>
+        <div class="links-list">
+          <a *ngIf="app.links.jobPostingUrl" [href]="app.links.jobPostingUrl" target="_blank" mat-stroked-button>
+            <mat-icon>link</mat-icon>
+            Job Posting
+          </a>
+          <a *ngIf="app.links.companyWebsiteUrl" [href]="app.links.companyWebsiteUrl" target="_blank" mat-stroked-button>
+            <mat-icon>business</mat-icon>
+            Company Website
+          </a>
+          <a *ngIf="app.links.resumeUrl" [href]="app.links.resumeUrl" target="_blank" mat-stroked-button>
+            <mat-icon>description</mat-icon>
+            Resume
+          </a>
+          <a *ngIf="app.links.coverLetterUrl" [href]="app.links.coverLetterUrl" target="_blank" mat-stroked-button>
+            <mat-icon>mail</mat-icon>
+            Cover Letter
+          </a>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="section" *ngIf="app.notes">
+        <h3>Notes</h3>
+        <p class="notes-text">{{ app.notes }}</p>
+      </div>
+
+      <!-- Next Action -->
+      <div class="section next-action" *ngIf="app.nextAction">
+        <h3>Next Action</h3>
+        <div class="next-action-card">
+          <mat-icon>calendar_today</mat-icon>
+          <div class="next-action-content">
+            <div class="next-action-date">{{ app.nextAction.date }}</div>
+            <div class="next-action-note" *ngIf="app.nextAction.note">{{ app.nextAction.note }}</div>
+            <div class="next-action-status">
+              <mat-chip [color]="app.nextAction.done ? 'primary' : 'warn'">
+                {{ app.nextAction.done ? 'Done' : 'Pending' }}
+              </mat-chip>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Metadata -->
+      <mat-divider></mat-divider>
+      <div class="metadata">
+        <small>Created: {{ app.createdAt | date:'medium' }}</small>
+        <small>Updated: {{ app.updatedAt | date:'medium' }}</small>
+      </div>
+
+    </mat-card-content>
+
+    <mat-card-actions>
+      <button mat-button (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+        Back to List
+      </button>
+      <span class="spacer"></span>
+      <button mat-stroked-button color="primary" (click)="onEdit()">
+        <mat-icon>edit</mat-icon>
+        Edit
+      </button>
+      <button mat-stroked-button color="warn" (click)="onDelete()">
+        <mat-icon>delete</mat-icon>
+        Delete
+      </button>
+    </mat-card-actions>
+  </mat-card>
+
+</div>
+
+<!-- Loading state -->
+<ng-template #loading>
+  <div class="loading-container">
+    <mat-spinner></mat-spinner>
+  </div>
+</ng-template>
