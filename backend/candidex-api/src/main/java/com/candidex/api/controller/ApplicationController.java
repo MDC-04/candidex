@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -32,20 +33,19 @@ public class ApplicationController {
     
     private final ApplicationService applicationService;
     
-    // TODO: Replace with actual authenticated user ID from JWT token
-    private static final String MOCK_USER_ID = "user-123";
-    
     /**
      * List applications (paginated)
      * GET /api/v1/applications?page=1&size=20&sort=updatedAt,desc
      */
     @GetMapping
     public ResponseEntity<Map<String, Object>> listApplications(
+            Authentication authentication,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "updatedAt,desc") String sort
     ) {
-        log.info("GET /api/v1/applications - page: {}, size: {}, sort: {}", page, size, sort);
+        String userId = authentication.getName();
+        log.info("GET /api/v1/applications - userId: {}, page: {}, size: {}, sort: {}", userId, page, size, sort);
         
         // Parse sort parameter
         String[] sortParams = sort.split(",");
@@ -57,7 +57,7 @@ public class ApplicationController {
         // Create pageable (page is 1-based in API, 0-based in Spring)
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(direction, sortField));
         
-        Page<Application> pageResult = applicationService.getAllApplications(MOCK_USER_ID, pageable);
+        Page<Application> pageResult = applicationService.getAllApplications(userId, pageable);
         
         // Build response matching API.md section 2.2
         Map<String, Object> response = new HashMap<>();
@@ -75,10 +75,14 @@ public class ApplicationController {
      * GET /api/v1/applications/{id}
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Application> getApplicationById(@PathVariable String id) {
-        log.info("GET /api/v1/applications/{}", id);
+    public ResponseEntity<Application> getApplicationById(
+            Authentication authentication,
+            @PathVariable String id
+    ) {
+        String userId = authentication.getName();
+        log.info("GET /api/v1/applications/{} - userId: {}", id, userId);
         
-        Application application = applicationService.getApplicationById(id, MOCK_USER_ID);
+        Application application = applicationService.getApplicationById(id, userId);
         return ResponseEntity.ok(application);
     }
     
@@ -87,10 +91,14 @@ public class ApplicationController {
      * POST /api/v1/applications
      */
     @PostMapping
-    public ResponseEntity<Application> createApplication(@Valid @RequestBody CreateApplicationDto dto) {
-        log.info("POST /api/v1/applications - company: {}", dto.getCompanyName());
+    public ResponseEntity<Application> createApplication(
+            Authentication authentication,
+            @Valid @RequestBody CreateApplicationDto dto
+    ) {
+        String userId = authentication.getName();
+        log.info("POST /api/v1/applications - userId: {}, company: {}", userId, dto.getCompanyName());
         
-        Application created = applicationService.createApplication(dto, MOCK_USER_ID);
+        Application created = applicationService.createApplication(dto, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
     
@@ -100,12 +108,14 @@ public class ApplicationController {
      */
     @PatchMapping("/{id}")
     public ResponseEntity<Application> updateApplication(
+            Authentication authentication,
             @PathVariable String id,
             @Valid @RequestBody UpdateApplicationDto dto
     ) {
-        log.info("PATCH /api/v1/applications/{}", id);
+        String userId = authentication.getName();
+        log.info("PATCH /api/v1/applications/{} - userId: {}", id, userId);
         
-        Application updated = applicationService.updateApplication(id, dto, MOCK_USER_ID);
+        Application updated = applicationService.updateApplication(id, dto, userId);
         return ResponseEntity.ok(updated);
     }
     
@@ -114,10 +124,14 @@ public class ApplicationController {
      * DELETE /api/v1/applications/{id}
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteApplication(@PathVariable String id) {
-        log.info("DELETE /api/v1/applications/{}", id);
+    public ResponseEntity<Void> deleteApplication(
+            Authentication authentication,
+            @PathVariable String id
+    ) {
+        String userId = authentication.getName();
+        log.info("DELETE /api/v1/applications/{} - userId: {}", id, userId);
         
-        applicationService.deleteApplication(id, MOCK_USER_ID);
+        applicationService.deleteApplication(id, userId);
         return ResponseEntity.noContent().build();
     }
 }
