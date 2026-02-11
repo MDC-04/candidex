@@ -1,1 +1,124 @@
-<h1>Dashboard</h1>
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h1>Dashboard</h1>
+    @if (loading) {
+      <mat-spinner diameter="32"></mat-spinner>
+    }
+  </div>
+  
+  @if (!loading) {
+    <!-- Summary Cards -->
+    <div class="summary-cards">
+      <mat-card class="stat-card primary">
+        <mat-card-content>
+          <mat-icon>work</mat-icon>
+          <div class="stat-value">{{ stats.total }}</div>
+          <div class="stat-label">Total Applications</div>
+        </mat-card-content>
+      </mat-card>
+      
+      <mat-card class="stat-card info">
+        <mat-card-content>
+          <mat-icon>send</mat-icon>
+          <div class="stat-value">{{ stats.applied }}</div>
+          <div class="stat-label">Applied</div>
+        </mat-card-content>
+      </mat-card>
+      
+      <mat-card class="stat-card warning">
+        <mat-card-content>
+          <mat-icon>event</mat-icon>
+          <div class="stat-value">{{ stats.interviewing }}</div>
+          <div class="stat-label">Interviewing</div>
+        </mat-card-content>
+      </mat-card>
+      
+      <mat-card class="stat-card success">
+        <mat-card-content>
+          <mat-icon>local_offer</mat-icon>
+          <div class="stat-value">{{ stats.offers }}</div>
+          <div class="stat-label">Offers</div>
+        </mat-card-content>
+      </mat-card>
+      
+      <mat-card class="stat-card rate">
+        <mat-card-content>
+          <mat-icon>trending_up</mat-icon>
+          <div class="stat-value">{{ stats.responseRate }}%</div>
+          <div class="stat-label">Response Rate</div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+    
+    <!-- Status Distribution & Recent Applications -->
+    <div class="dashboard-content">
+      <!-- Status Distribution -->
+      <mat-card class="status-card">
+        <mat-card-header>
+          <mat-card-title>Applications by Status</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          @if (stats.total === 0) {
+            <div class="empty-state">
+              <mat-icon>inbox</mat-icon>
+              <p>No applications yet</p>
+              <button mat-raised-button color="primary" (click)="goToApplications()">
+                Add your first application
+              </button>
+            </div>
+          } @else {
+            <div class="status-list">
+              @for (stat of statusStats; track stat.status) {
+                <div class="status-item">
+                  <div class="status-info">
+                    <span class="status-label">{{ stat.label }}</span>
+                    <span class="status-count">{{ stat.count }}</span>
+                  </div>
+                  <div class="status-bar">
+                    <div class="status-bar-fill" [style.width.%]="stat.percentage" [style.background-color]="stat.color"></div>
+                  </div>
+                  <span class="status-percentage">{{ stat.percentage }}%</span>
+                </div>
+              }
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+      
+      <!-- Recent Applications -->
+      <mat-card class="recent-card">
+        <mat-card-header>
+          <mat-card-title>Recent Activity</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          @if (recentApplications.length === 0) {
+            <div class="empty-state">
+              <mat-icon>history</mat-icon>
+              <p>No recent activity</p>
+            </div>
+          } @else {
+            <div class="recent-list">
+              @for (app of recentApplications; track app.id) {
+                <div class="recent-item" (click)="viewApplication(app.id)">
+                  <div class="recent-icon">
+                    <mat-icon>business</mat-icon>
+                  </div>
+                  <div class="recent-info">
+                    <div class="recent-company">{{ app.companyName }}</div>
+                    <div class="recent-role">{{ app.roleTitle }}</div>
+                  </div>
+                  <div class="recent-meta">
+                    <mat-chip [style.background-color]="getStatusColor(app.status)">
+                      {{ getStatusLabel(app.status) }}
+                    </mat-chip>
+                    <div class="recent-date">{{ app.updatedAt | date: 'short' }}</div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+    </div>
+  }
+</div>

@@ -1,1 +1,63 @@
-<h1>Applications Kanban</h1>
+<div class="kanban-container">
+  <div class="kanban-header">
+    <h1>Pipeline</h1>
+    @if (loading) {
+      <mat-spinner diameter="32"></mat-spinner>
+    }
+  </div>
+  
+  <div class="kanban-board" cdkDropListGroup>
+    @for (column of columns; track column.status) {
+      <div class="kanban-column">
+        <div class="column-header" [style.background-color]="column.color">
+          <h3>{{ column.label }}</h3>
+          <span class="count">{{ column.applications.length }}</span>
+        </div>
+        
+        <div 
+          class="column-content"
+          cdkDropList
+          [cdkDropListData]="column.applications"
+          [id]="column.status"
+          (cdkDropListDropped)="drop($event, column)">
+          
+          @for (app of column.applications; track app.id) {
+            <mat-card class="application-card" cdkDrag>
+              <mat-card-header>
+                <mat-card-title class="card-title" (click)="viewApplication(app.id)">
+                  {{ app.companyName }}
+                </mat-card-title>
+              </mat-card-header>
+              
+              <mat-card-content>
+                <div class="role">{{ app.roleTitle }}</div>
+                @if (app.location) {
+                  <div class="location">
+                    <mat-icon>location_on</mat-icon>
+                    {{ app.location }}
+                  </div>
+                }
+                
+                <div class="metadata">
+                  <mat-chip class="source-chip">{{ sourceLabels[app.source] }}</mat-chip>
+                  @if (app.salaryMin && app.salaryMax) {
+                    <span class="salary">{{ app.salaryMin }}k - {{ app.salaryMax }}k {{ app.currency || 'EUR' }}</span>
+                  }
+                </div>
+                
+                <div class="date">Applied: {{ app.appliedDate | date: 'MMM d, y' }}</div>
+              </mat-card-content>
+            </mat-card>
+          }
+          
+          @if (column.applications.length === 0) {
+            <div class="empty-column">
+              <mat-icon>inbox</mat-icon>
+              <p>No applications</p>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

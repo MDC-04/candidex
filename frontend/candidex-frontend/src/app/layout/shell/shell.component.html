@@ -13,7 +13,12 @@
     <mat-toolbar color="primary">
       <span></span>
       <span class="spacer"></span>
-      <a mat-button routerLink="/login">Login</a>
+      @if (currentUser$ | async; as user) {
+        <span class="user-info">{{ user.email }}</span>
+        <button mat-icon-button (click)="logout()" title="Logout">
+          <mat-icon>logout</mat-icon>
+        </button>
+      }
     </mat-toolbar>
 
     <div class="content">
