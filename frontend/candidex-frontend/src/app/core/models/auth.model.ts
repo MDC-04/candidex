@@ -7,6 +7,10 @@ export interface RegisterDto {
   email: string;
   password: string;
   fullName: string;
+  currentPosition?: string;
+  company?: string;
+  location?: string;
+  phone?: string;
 }
 
 export interface LoginDto {
@@ -23,4 +27,39 @@ export interface UserInfo {
   id: string;
   email: string;
   fullName: string;
+  currentPosition?: string;
+  company?: string;
+  location?: string;
+  phone?: string;
+  bio?: string;
+  linkedinUrl?: string;
+  portfolioUrl?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface UserProfile {
+  id: string;
+  email: string;
+  fullName: string;
+  currentPosition?: string;
+  company?: string;
+  location?: string;
+  phone?: string;
+  bio?: string;
+  linkedinUrl?: string;
+  portfolioUrl?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface UpdateProfileDto {
+  fullName?: string;
+  currentPosition?: string;
+  company?: string;
+  location?: string;
+  phone?: string;
+  bio?: string;
+  linkedinUrl?: string;
+  portfolioUrl?: string;
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { MatCardModule } from '@angular/material/card';
@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 
 import { ApplicationsService } from '../../../features/applications/services/applications.service';
 import { Application, ApplicationStatus, ApplicationStatusLabels, ApplicationSourceLabels } from '../../../features/applications/models';
+import { NotificationService } from '../../../core/services/notification.service';
 
 interface KanbanColumn {
   status: ApplicationStatus;
@@ -47,6 +48,8 @@ export class ApplicationsKanbanComponent implements OnInit {
   loading = false;
   sourceLabels = ApplicationSourceLabels;
   
+  private notificationService = inject(NotificationService);
+  
   constructor(
     private applicationsService: ApplicationsService,
     private router: Router
@@ -74,7 +77,6 @@ export class ApplicationsKanbanComponent implements OnInit {
         this.loading = false;
       },
       error: (error) => {
-        console.error('Failed to load applications:', error);
         this.loading = false;
       }
     });
@@ -98,9 +100,10 @@ export class ApplicationsKanbanComponent implements OnInit {
             event.previousIndex,
             event.currentIndex
           );
+          this.notificationService.success(`Status updated to ${targetColumn.label}`);
         },
         error: (error) => {
-          console.error('Failed to update application status:', error);
+          this.notificationService.error('Échec de la mise à jour du statut. Veuillez réessayer.');
         }
       });
     }

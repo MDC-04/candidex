@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
 import { Router } from '@angular/router';
@@ -20,6 +20,7 @@ import {
 } from '../../models';
 import { ApplicationFormComponent } from '../application-form/application-form.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { NotificationService } from '../../../../core/services/notification.service';
 
 /**
  * Component for displaying a list of job applications
@@ -72,6 +73,8 @@ export class ApplicationsListComponent implements OnInit {
   statusLabels = ApplicationStatusLabels;
   sourceLabels = ApplicationSourceLabels;
 
+  private notificationService = inject(NotificationService);
+
   constructor(
     private applicationsService: ApplicationsService,
     private dialog: MatDialog,
@@ -103,7 +106,7 @@ export class ApplicationsListComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         // Application created, reload list
-        console.log('Application created:', result);
+        this.notificationService.success('Candidature créée avec succès !');
         this.loadApplications();
       }
     });
@@ -158,7 +161,7 @@ export class ApplicationsListComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         // Application updated, reload list
-        console.log('Application updated:', result);
+        this.notificationService.success('Candidature mise à jour avec succès !');
         this.loadApplications();
       }
     });
@@ -171,10 +174,10 @@ export class ApplicationsListComponent implements OnInit {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '450px',
       data: {
-        title: 'Delete Application',
-        message: `Are you sure you want to delete the application for "${application.roleTitle}" at "${application.companyName}"? This action cannot be undone.`,
-        confirmText: 'Delete',
-        cancelText: 'Cancel',
+        title: 'Supprimer la candidature',
+        message: `Êtes-vous sûr de vouloir supprimer la candidature pour "${application.roleTitle}" chez "${application.companyName}" ? Cette action est irréversible.`,
+        confirmText: 'Supprimer',
+        cancelText: 'Annuler',
         confirmColor: 'warn' as const
       }
     });
@@ -184,12 +187,11 @@ export class ApplicationsListComponent implements OnInit {
         // User confirmed deletion
         this.applicationsService.delete(application.id).subscribe({
           next: () => {
-            console.log('Application deleted:', application.id);
+            this.notificationService.success('Candidature supprimée avec succès !');
             this.loadApplications(); // Reload list
           },
           error: (err) => {
-            console.error('Error deleting application:', err);
-            // TODO: Show error snackbar
+            this.notificationService.error('Échec de la suppression. Veuillez réessayer.');
           }
         });
       }

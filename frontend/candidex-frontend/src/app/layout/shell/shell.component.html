@@ -1,23 +1,58 @@
 <mat-sidenav-container class="app">
-  <mat-sidenav mode="side" opened>
-    <div class="brand">Candidex</div>
+  <mat-sidenav mode="side" opened class="sidenav">
+    <div class="brand">
+      <mat-icon class="brand-icon">work</mat-icon>
+      <span>Candidex</span>
+    </div>
 
     <mat-nav-list>
-      <a mat-list-item routerLink="/dashboard">Dashboard</a>
-      <a mat-list-item routerLink="/applications">Applications</a>
-      <a mat-list-item routerLink="/pipeline">Pipeline</a>
+      <a mat-list-item routerLink="/dashboard" routerLinkActive="active">
+        <mat-icon>dashboard</mat-icon>
+        <span>Tableau de bord</span>
+      </a>
+      <a mat-list-item routerLink="/applications" routerLinkActive="active">
+        <mat-icon>list</mat-icon>
+        <span>Candidatures</span>
+      </a>
+      <a mat-list-item routerLink="/pipeline" routerLinkActive="active">
+        <mat-icon>view_kanban</mat-icon>
+        <span>Pipeline</span>
+      </a>
+      <a mat-list-item routerLink="/profile" routerLinkActive="active">
+        <mat-icon>person</mat-icon>
+        <span>Profil</span>
+      </a>
     </mat-nav-list>
   </mat-sidenav>
 
   <mat-sidenav-content>
-    <mat-toolbar color="primary">
-      <span></span>
+    <mat-toolbar color="primary" class="toolbar">
+      <span class="toolbar-title">Suivi des Candidatures</span>
       <span class="spacer"></span>
       @if (currentUser$ | async; as user) {
-        <span class="user-info">{{ user.email }}</span>
-        <button mat-icon-button (click)="logout()" title="Logout">
-          <mat-icon>logout</mat-icon>
+        <button mat-button [matMenuTriggerFor]="userMenu" class="user-button">
+          <span class="user-email">{{ user.email }}</span>
+          <div class="user-avatar">{{ getInitials(user.email) }}</div>
+          <mat-icon>arrow_drop_down</mat-icon>
         </button>
+        <mat-menu #userMenu="matMenu">
+          <div class="menu-header">
+            <div class="menu-avatar">{{ getInitials(user.email) }}</div>
+            <div class="menu-user-info">
+              <div class="menu-name">{{ user.fullName || 'User' }}</div>
+              <div class="menu-email">{{ user.email }}</div>
+            </div>
+          </div>
+          <mat-divider></mat-divider>
+          <button mat-menu-item routerLink="/profile">
+            <mat-icon>person</mat-icon>
+            <span>Mon Profil</span>
+          </button>
+          <button mat-menu-item (click)="logout()">
+            <mat-icon>logout</mat-icon>
+            <span>Déconnexion</span>
+          </button>
+        </mat-menu>
       }
     </mat-toolbar>
 

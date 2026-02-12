@@ -10,5 +10,6 @@ public enum ApplicationSource {
     REFERRAL,
     JOB_BOARD,
     EMAIL,
+    SCHOOL_FORUM,
     OTHER
 }

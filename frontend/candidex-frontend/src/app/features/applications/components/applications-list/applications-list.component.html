@@ -1,9 +1,9 @@
 <div class="applications-list-container">
   <div class="header">
-    <h1>Job Applications</h1>
+    <h1>Candidatures</h1>
     <button mat-raised-button color="primary" (click)="onCreateNew()">
       <mat-icon>add</mat-icon>
-      New Application
+      Nouvelle Candidature
     </button>
   </div>
 
@@ -18,10 +18,10 @@
     <!-- Empty state -->
     <div class="empty-state" *ngIf="data.items.length === 0">
       <mat-icon>inbox</mat-icon>
-      <p>No applications yet. Start tracking your job search!</p>
+      <p>Aucune candidature pour le moment. Commencez à suivre votre recherche d'emploi !</p>
       <button mat-raised-button color="primary" (click)="onCreateNew()">
         <mat-icon>add</mat-icon>
-        Add your first application
+        Ajouter votre première candidature
       </button>
     </div>
 
@@ -30,7 +30,7 @@
       
       <!-- Company Column -->
       <ng-container matColumnDef="companyName">
-        <th mat-header-cell *matHeaderCellDef>Company</th>
+        <th mat-header-cell *matHeaderCellDef>Entreprise</th>
         <td mat-cell *matCellDef="let app">
           <strong>{{ app.companyName }}</strong>
         </td>
@@ -38,13 +38,13 @@
 
       <!-- Role Column -->
       <ng-container matColumnDef="roleTitle">
-        <th mat-header-cell *matHeaderCellDef>Role</th>
+        <th mat-header-cell *matHeaderCellDef>Poste</th>
         <td mat-cell *matCellDef="let app">{{ app.roleTitle }}</td>
       </ng-container>
 
       <!-- Status Column -->
       <ng-container matColumnDef="status">
-        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <th mat-header-cell *matHeaderCellDef>Statut</th>
         <td mat-cell *matCellDef="let app">
           <mat-chip-set>
             <mat-chip [class]="getStatusClass(app.status)">
@@ -64,7 +64,7 @@
 
       <!-- Location Column -->
       <ng-container matColumnDef="location">
-        <th mat-header-cell *matHeaderCellDef>Location</th>
+        <th mat-header-cell *matHeaderCellDef>Localisation</th>
         <td mat-cell *matCellDef="let app">
           {{ app.location || 'N/A' }}
         </td>
@@ -72,7 +72,7 @@
 
       <!-- Applied Date Column -->
       <ng-container matColumnDef="appliedDate">
-        <th mat-header-cell *matHeaderCellDef>Applied Date</th>
+        <th mat-header-cell *matHeaderCellDef>Date de candidature</th>
         <td mat-cell *matCellDef="let app">
           {{ app.appliedDate || 'N/A' }}
         </td>
@@ -82,13 +82,13 @@
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef>Actions</th>
         <td mat-cell *matCellDef="let app">
-          <button mat-icon-button (click)="onViewDetails(app)" matTooltip="View details">
+          <button mat-icon-button (click)="onViewDetails(app)" matTooltip="Voir les détails">
             <mat-icon>visibility</mat-icon>
           </button>
-          <button mat-icon-button (click)="onEdit(app)" matTooltip="Edit">
+          <button mat-icon-button (click)="onEdit(app)" matTooltip="Modifier">
             <mat-icon>edit</mat-icon>
           </button>
-          <button mat-icon-button color="warn" (click)="onDelete(app)" matTooltip="Delete">
+          <button mat-icon-button color="warn" (click)="onDelete(app)" matTooltip="Supprimer">
             <mat-icon>delete</mat-icon>
           </button>
         </td>
@@ -100,7 +100,7 @@
 
     <!-- Pagination info -->
     <div class="pagination-info" *ngIf="data.items.length > 0">
-      <p>Showing {{ data.items.length }} of {{ data.totalItems }} applications</p>
+      <p>Affichage de {{ data.items.length }} sur {{ data.totalItems }} candidatures</p>
     </div>
   </div>
 </div>

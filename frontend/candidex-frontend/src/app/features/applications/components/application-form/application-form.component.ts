@@ -11,7 +11,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 
-import { Application, ApplicationSource, ApplicationStatus, CreateApplicationDto, UpdateApplicationDto } from '../../models';
+import { Application, ApplicationSource, ApplicationStatus, CreateApplicationDto, UpdateApplicationDto, ApplicationStatusLabels, ApplicationSourceLabels } from '../../models';
 import { ApplicationsService } from '../../services/applications.service';
 
 /**
@@ -99,13 +99,19 @@ export class ApplicationFormComponent implements OnInit {
   private initForm(): void {
     const app = this.data?.application;
 
+    // Convert string date to Date object for datepicker
+    let appliedDateValue = null;
+    if (app?.appliedDate) {
+      appliedDateValue = new Date(app.appliedDate);
+    }
+
     this.form = this.fb.group({
       companyName: [app?.companyName || '', [Validators.required, Validators.maxLength(120)]],
       roleTitle: [app?.roleTitle || '', [Validators.required, Validators.maxLength(120)]],
       location: [app?.location || '', Validators.maxLength(120)],
       source: [app?.source || ApplicationSource.LINKEDIN, Validators.required],
       status: [app?.status || ApplicationStatus.APPLIED, Validators.required],
-      appliedDate: [app?.appliedDate || ''],
+      appliedDate: [appliedDateValue],
       salaryMin: [app?.salaryMin || null, [Validators.min(0)]],
       salaryMax: [app?.salaryMax || null, [Validators.min(0)]],
       currency: [app?.currency || 'EUR'],
@@ -139,7 +145,7 @@ export class ApplicationFormComponent implements OnInit {
           this.dialogRef.close(updated); // Return updated application
         },
         error: (err) => {
-          console.error('Error updating application:', err);
+          alert(`Erreur ${err.status}: ${err.error?.message || err.message}`);
           this.isSubmitting = false;
         }
       });
@@ -155,7 +161,7 @@ export class ApplicationFormComponent implements OnInit {
           this.dialogRef.close(created); // Return created application
         },
         error: (err) => {
-          console.error('Error creating application:', err);
+          alert(`Erreur ${err.status || ''}: ${err.error?.message || err.message}`);
           this.isSubmitting = false;
         }
       });
@@ -174,7 +180,13 @@ export class ApplicationFormComponent implements OnInit {
    */
   private formatDate(date: Date | string): string {
     if (typeof date === 'string') return date;
-    return date.toISOString().split('T')[0];
+    
+    // Use local date to avoid timezone issues
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    
+    return `${year}-${month}-${day}`;
   }
 
   /**
@@ -188,15 +200,29 @@ export class ApplicationFormComponent implements OnInit {
     }
 
     if (field.errors['required']) {
-      return 'This field is required';
+      return 'Ce champ est requis';
     }
     if (field.errors['maxlength']) {
-      return `Maximum length is ${field.errors['maxlength'].requiredLength} characters`;
+      return `La longueur maximale est de ${field.errors['maxlength'].requiredLength} caractères`;
     }
     if (field.errors['min']) {
-      return `Minimum value is ${field.errors['min'].min}`;
+      return `La valeur minimale est ${field.errors['min'].min}`;
     }
 
-    return 'Invalid value';
+    return 'Valeur invalide';
+  }
+
+  /**
+   * Get French label for application status
+   */
+  getStatusLabel(status: ApplicationStatus): string {
+    return ApplicationStatusLabels[status];
+  }
+
+  /**
+   * Get French label for application source
+   */
+  getSourceLabel(source: ApplicationSource): string {
+    return ApplicationSourceLabels[source];
   }
 }

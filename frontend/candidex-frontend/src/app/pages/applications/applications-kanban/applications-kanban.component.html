@@ -45,7 +45,7 @@
                   }
                 </div>
                 
-                <div class="date">Applied: {{ app.appliedDate | date: 'MMM d, y' }}</div>
+                <div class="date">Candidature : {{ app.appliedDate | date: 'd MMM y' }}</div>
               </mat-card-content>
             </mat-card>
           }
@@ -53,7 +53,7 @@
           @if (column.applications.length === 0) {
             <div class="empty-column">
               <mat-icon>inbox</mat-icon>
-              <p>No applications</p>
+              <p>Aucune candidature</p>
             </div>
           }
         </div>

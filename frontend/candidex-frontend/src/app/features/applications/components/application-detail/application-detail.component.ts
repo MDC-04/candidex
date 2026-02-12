@@ -108,10 +108,10 @@ export class ApplicationDetailComponent implements OnInit {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '450px',
       data: {
-        title: 'Delete Application',
-        message: `Are you sure you want to delete the application for "${this.currentApplication.roleTitle}" at "${this.currentApplication.companyName}"? This action cannot be undone.`,
-        confirmText: 'Delete',
-        cancelText: 'Cancel',
+        title: 'Supprimer la candidature',
+        message: `Êtes-vous sûr de vouloir supprimer la candidature pour "${this.currentApplication.roleTitle}" chez "${this.currentApplication.companyName}" ? Cette action est irréversible.`,
+        confirmText: 'Supprimer',
+        cancelText: 'Annuler',
         confirmColor: 'warn' as const
       }
     });
@@ -120,12 +120,10 @@ export class ApplicationDetailComponent implements OnInit {
       if (confirmed && this.currentApplication) {
         this.applicationsService.delete(this.currentApplication.id).subscribe({
           next: () => {
-            console.log('Application deleted:', this.currentApplication!.id);
-            // Navigate back to list after successful deletion
-            this.router.navigate(['/applications']);
-          },
+              // Navigate back to list after successful deletion
+              this.router.navigate(['/applications']);
+            },
           error: (err) => {
-            console.error('Error deleting application:', err);
             // TODO: Show error snackbar
           }
         });

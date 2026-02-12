@@ -1,7 +1,5 @@
 package com.candidex.api.dto;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,28 +7,17 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * DTO for user registration
- * Based on API.md section 1.1
+ * DTO for updating user profile
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RegisterDto {
+public class UpdateProfileDto {
     
-    @NotBlank(message = "Email is required")
-    @Email(message = "Email must be valid")
-    private String email;
-    
-    @NotBlank(message = "Password is required")
-    @Size(min = 8, message = "Password must be at least 8 characters")
-    private String password;
-    
-    @NotBlank(message = "Full name is required")
     @Size(min = 1, max = 100)
     private String fullName;
     
-    // Optional profile fields
     @Size(max = 100)
     private String currentPosition;
     
@@ -42,4 +29,13 @@ public class RegisterDto {
     
     @Size(max = 20)
     private String phone;
+    
+    @Size(max = 500)
+    private String bio;
+    
+    @Size(max = 200)
+    private String linkedinUrl;
+    
+    @Size(max = 200)
+    private String portfolioUrl;
 }

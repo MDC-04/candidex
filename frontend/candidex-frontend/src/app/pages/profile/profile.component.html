@@ -1,0 +1,146 @@
+<div class="profile-container">
+  <div class="profile-header">
+    <h1>Mon profil</h1>
+    <p class="subtitle">Gérez vos informations personnelles et professionnelles</p>
+  </div>
+
+  @if (loading) {
+    <div class="loading-container">
+      <mat-spinner></mat-spinner>
+    </div>
+  } @else {
+    <form [formGroup]="profileForm" (ngSubmit)="onSave()" class="profile-form">
+      
+      <!-- Personal Information Card -->
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>person</mat-icon>
+            Informations personnelles
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Nom complet</mat-label>
+              <input matInput formControlName="fullName" placeholder="Jean Dupont">
+              <mat-icon matPrefix>badge</mat-icon>
+              <mat-error>Le nom complet est requis</mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Email</mat-label>
+              <input matInput [value]="profile?.email" readonly disabled>
+              <mat-icon matPrefix>email</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row two-columns">
+            <mat-form-field appearance="outline">
+              <mat-label>Localisation</mat-label>
+              <input matInput formControlName="location" placeholder="Paris, France">
+              <mat-icon matPrefix>location_on</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Téléphone</mat-label>
+              <input matInput formControlName="phone" placeholder="+33 6 12 34 56 78">
+              <mat-icon matPrefix>phone</mat-icon>
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Professional Information Card -->
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>work</mat-icon>
+            Informations professionnelles
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="form-row two-columns">
+            <mat-form-field appearance="outline">
+              <mat-label>Poste actuel</mat-label>
+              <input matInput formControlName="currentPosition" placeholder="Ingénieur logiciel">
+              <mat-icon matPrefix>work_outline</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Entreprise / École</mat-label>
+              <input matInput formControlName="company" placeholder="Tech Corp">
+              <mat-icon matPrefix>business</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Biographie</mat-label>
+              <textarea 
+                matInput 
+                formControlName="bio" 
+                rows="4"
+                placeholder="Parlez-nous de vous..."></textarea>
+              <mat-icon matPrefix>description</mat-icon>
+              <mat-hint align="end">{{profileForm.get('bio')?.value?.length || 0}}/500</mat-hint>
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Social Links Card -->
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>link</mat-icon>
+            Liens sociaux
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>URL LinkedIn</mat-label>
+              <input matInput formControlName="linkedinUrl" placeholder="https://linkedin.com/in/votre-profil">
+              <mat-icon matPrefix>link</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>URL Portfolio</mat-label>
+              <input matInput formControlName="portfolioUrl" placeholder="https://votre-portfolio.com">
+              <mat-icon matPrefix>language</mat-icon>
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Action Buttons -->
+      <div class="form-actions">
+        <button 
+          mat-raised-button 
+          type="button" 
+          (click)="onCancel()"
+          [disabled]="saving">
+          Annuler
+        </button>
+        <button 
+          mat-raised-button 
+          color="primary" 
+          type="submit"
+          [disabled]="profileForm.invalid || saving">
+          @if (saving) {
+            <mat-spinner diameter="20"></mat-spinner>
+          } @else {
+            <mat-icon>save</mat-icon>
+          }
+          Enregistrer
+        </button>
+      </div>
+
+    </form>
+  }
+</div>

@@ -8,6 +8,7 @@ export enum ApplicationSource {
   REFERRAL = 'REFERRAL',
   JOB_BOARD = 'JOB_BOARD',
   EMAIL = 'EMAIL',
+  SCHOOL_FORUM = 'SCHOOL_FORUM',
   OTHER = 'OTHER'
 }
 
@@ -16,9 +17,10 @@ export enum ApplicationSource {
  */
 export const ApplicationSourceLabels: Record<ApplicationSource, string> = {
   [ApplicationSource.LINKEDIN]: 'LinkedIn',
-  [ApplicationSource.COMPANY_WEBSITE]: 'Company Website',
-  [ApplicationSource.REFERRAL]: 'Referral',
-  [ApplicationSource.JOB_BOARD]: 'Job Board',
+  [ApplicationSource.COMPANY_WEBSITE]: 'Site entreprise',
+  [ApplicationSource.REFERRAL]: 'Recommandation',
+  [ApplicationSource.JOB_BOARD]: "Site d'emploi",
   [ApplicationSource.EMAIL]: 'Email',
-  [ApplicationSource.OTHER]: 'Other'
+  [ApplicationSource.SCHOOL_FORUM]: 'Forum école',
+  [ApplicationSource.OTHER]: 'Autre'
 };

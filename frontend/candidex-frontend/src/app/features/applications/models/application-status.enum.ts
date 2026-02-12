@@ -15,10 +15,10 @@ export enum ApplicationStatus {
  * Labels displayed in the UI
  */
 export const ApplicationStatusLabels: Record<ApplicationStatus, string> = {
-  [ApplicationStatus.APPLIED]: 'Applied',
-  [ApplicationStatus.HR_INTERVIEW]: 'HR Interview',
-  [ApplicationStatus.TECH_INTERVIEW]: 'Tech Interview',
-  [ApplicationStatus.OFFER]: 'Offer',
-  [ApplicationStatus.REJECTED]: 'Rejected',
-  [ApplicationStatus.GHOSTED]: 'Ghosted'
+  [ApplicationStatus.APPLIED]: 'Candidature envoyée',
+  [ApplicationStatus.HR_INTERVIEW]: 'Entretien RH',
+  [ApplicationStatus.TECH_INTERVIEW]: 'Entretien technique',
+  [ApplicationStatus.OFFER]: 'Offre reçue',
+  [ApplicationStatus.REJECTED]: 'Refusée',
+  [ApplicationStatus.GHOSTED]: 'Sans réponse'
 };

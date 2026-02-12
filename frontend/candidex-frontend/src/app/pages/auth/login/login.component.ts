@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -7,7 +7,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../../core/services/auth.service';
+import { NotificationService } from '../../../core/services/notification.service';
 
 @Component({
   selector: 'app-login',
@@ -20,13 +22,14 @@ import { AuthService } from '../../../core/services/auth.service';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatIconModule
   ],
   template: `
     <div class="login-container">
       <mat-card class="login-card">
         <mat-card-header>
-          <mat-card-title>Login to Candidex</mat-card-title>
+          <mat-card-title>Connexion à Candidex</mat-card-title>
         </mat-card-header>
         
         <mat-card-content>
@@ -35,18 +38,18 @@ import { AuthService } from '../../../core/services/auth.service';
               <mat-label>Email</mat-label>
               <input matInput type="email" formControlName="email" required>
               @if (loginForm.get('email')?.hasError('required')) {
-                <mat-error>Email is required</mat-error>
+                <mat-error>L'email est requis</mat-error>
               }
               @if (loginForm.get('email')?.hasError('email')) {
-                <mat-error>Please enter a valid email</mat-error>
+                <mat-error>Veuillez entrer un email valide</mat-error>
               }
             </mat-form-field>
             
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Password</mat-label>
+              <mat-label>Mot de passe</mat-label>
               <input matInput type="password" formControlName="password" required>
               @if (loginForm.get('password')?.hasError('required')) {
-                <mat-error>Password is required</mat-error>
+                <mat-error>Le mot de passe est requis</mat-error>
               }
             </mat-form-field>
             
@@ -56,13 +59,13 @@ import { AuthService } from '../../../core/services/auth.service';
             
             <button mat-raised-button color="primary" type="submit" 
                     [disabled]="loginForm.invalid || loading" class="full-width">
-              @if (!loading) { <span>Login</span> }
+              @if (!loading) { <span>Se connecter</span> }
               @if (loading) { <mat-spinner diameter="20"></mat-spinner> }
             </button>
           </form>
           
           <div class="register-link">
-            Don't have an account? <a routerLink="/auth/register">Register</a>
+            Pas encore de compte ? <a routerLink="/auth/register">S'inscrire</a>
           </div>
         </mat-card-content>
       </mat-card>
@@ -115,6 +118,8 @@ export class LoginComponent {
   loading = false;
   errorMessage = '';
   
+  private notificationService = inject(NotificationService);
+  
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
@@ -137,11 +142,13 @@ export class LoginComponent {
     this.authService.login(this.loginForm.value).subscribe({
       next: () => {
         this.loading = false;
+        this.notificationService.success('Connexion réussie ! Bienvenue.');
         this.router.navigate(['/applications']);
       },
       error: (error) => {
         this.loading = false;
-        this.errorMessage = error.error?.message || 'Login failed. Please check your credentials.';
+        this.errorMessage = error.error?.message || 'Échec de la connexion. Veuillez vérifier vos identifiants.';
+        this.notificationService.error(this.errorMessage);
       }
     });
   }

@@ -38,6 +38,15 @@ public class User {
     
     private String fullName;
     
+    // Additional profile fields
+    private String currentPosition; // Current job title
+    private String company; // Current company
+    private String location; // City, Country
+    private String phone; // Phone number
+    private String bio; // Short bio/description (max 500 chars)
+    private String linkedinUrl; // LinkedIn profile URL
+    private String portfolioUrl; // Personal website/portfolio
+    
     @CreatedDate
     private Instant createdAt;
     

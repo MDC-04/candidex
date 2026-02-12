@@ -44,6 +44,10 @@ public class AuthService {
                 .email(dto.getEmail())
                 .passwordHash(passwordEncoder.encode(dto.getPassword()))
                 .fullName(dto.getFullName())
+                .currentPosition(dto.getCurrentPosition())
+                .company(dto.getCompany())
+                .location(dto.getLocation())
+                .phone(dto.getPhone())
                 .createdAt(Instant.now())
                 .updatedAt(Instant.now())
                 .build();

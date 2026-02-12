@@ -7,6 +7,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
@@ -20,7 +22,9 @@ import { AuthService } from '../../core/services/auth.service';
     MatToolbarModule, 
     MatListModule, 
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    MatMenuModule,
+    MatDividerModule
   ],
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.scss',
@@ -36,5 +40,9 @@ export class ShellComponent {
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/auth/login']);
+  }
+  
+  getInitials(email: string): string {
+    return email.charAt(0).toUpperCase();
   }
 }

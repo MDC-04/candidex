@@ -1,4 +1,4 @@
-<h2 mat-dialog-title>{{ isEditMode ? 'Edit Application' : 'New Application' }}</h2>
+<h2 mat-dialog-title>{{ isEditMode ? 'Modifier la candidature' : 'Nouvelle candidature' }}</h2>
 
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
   <mat-dialog-content>
@@ -6,22 +6,22 @@
       
       <!-- Company Name (Required) -->
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Company Name</mat-label>
-        <input matInput formControlName="companyName" placeholder="e.g., Google" required>
+        <mat-label>Nom de l'entreprise</mat-label>
+        <input matInput formControlName="companyName" placeholder="ex: Google" required>
         <mat-error>{{ getErrorMessage('companyName') }}</mat-error>
       </mat-form-field>
 
       <!-- Role Title (Required) -->
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Role Title</mat-label>
-        <input matInput formControlName="roleTitle" placeholder="e.g., Software Engineer" required>
+        <mat-label>Intitulé du poste</mat-label>
+        <input matInput formControlName="roleTitle" placeholder="ex: Ingénieur logiciel" required>
         <mat-error>{{ getErrorMessage('roleTitle') }}</mat-error>
       </mat-form-field>
 
       <!-- Location -->
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Location</mat-label>
-        <input matInput formControlName="location" placeholder="e.g., Paris, Remote">
+        <mat-label>Localisation</mat-label>
+        <input matInput formControlName="location" placeholder="ex: Paris, Télétravail">
         <mat-error>{{ getErrorMessage('location') }}</mat-error>
       </mat-form-field>
 
@@ -30,7 +30,7 @@
         <mat-label>Source</mat-label>
         <mat-select formControlName="source" required>
           <mat-option *ngFor="let source of sourceOptions" [value]="source">
-            {{ source.replace('_', ' ') }}
+            {{ getSourceLabel(source) }}
           </mat-option>
         </mat-select>
         <mat-error>{{ getErrorMessage('source') }}</mat-error>
@@ -38,10 +38,10 @@
 
       <!-- Status (Required) -->
       <mat-form-field appearance="outline" class="half-width">
-        <mat-label>Status</mat-label>
+        <mat-label>Statut</mat-label>
         <mat-select formControlName="status" required>
           <mat-option *ngFor="let status of statusOptions" [value]="status">
-            {{ status.replace('_', ' ') }}
+            {{ getStatusLabel(status) }}
           </mat-option>
         </mat-select>
         <mat-error>{{ getErrorMessage('status') }}</mat-error>
@@ -49,15 +49,15 @@
 
       <!-- Applied Date -->
       <mat-form-field appearance="outline" class="half-width">
-        <mat-label>Applied Date</mat-label>
+        <mat-label>Date de candidature</mat-label>
         <input matInput [matDatepicker]="picker" formControlName="appliedDate">
-        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
         <mat-datepicker #picker></mat-datepicker>
       </mat-form-field>
 
       <!-- Currency -->
       <mat-form-field appearance="outline" class="half-width">
-        <mat-label>Currency</mat-label>
+        <mat-label>Devise</mat-label>
         <mat-select formControlName="currency">
           <mat-option *ngFor="let curr of currencyOptions" [value]="curr">
             {{ curr }}
@@ -67,15 +67,15 @@
 
       <!-- Salary Min -->
       <mat-form-field appearance="outline" class="half-width">
-        <mat-label>Minimum Salary</mat-label>
-        <input matInput type="number" formControlName="salaryMin" placeholder="e.g., 50000">
+        <mat-label>Salaire minimum</mat-label>
+        <input matInput type="number" formControlName="salaryMin" placeholder="ex: 50000">
         <mat-error>{{ getErrorMessage('salaryMin') }}</mat-error>
       </mat-form-field>
 
       <!-- Salary Max -->
       <mat-form-field appearance="outline" class="half-width">
-        <mat-label>Maximum Salary</mat-label>
-        <input matInput type="number" formControlName="salaryMax" placeholder="e.g., 70000">
+        <mat-label>Salaire maximum</mat-label>
+        <input matInput type="number" formControlName="salaryMax" placeholder="ex: 70000">
         <mat-error>{{ getErrorMessage('salaryMax') }}</mat-error>
       </mat-form-field>
 
@@ -86,7 +86,7 @@
           matInput 
           formControlName="notes" 
           rows="4" 
-          placeholder="Add any notes about this application...">
+          placeholder="Ajoutez des notes à propos de cette candidature...">
         </textarea>
         <mat-hint align="end">{{ form.get('notes')?.value?.length || 0 }} / 5000</mat-hint>
         <mat-error>{{ getErrorMessage('notes') }}</mat-error>
@@ -97,14 +97,14 @@
 
   <mat-dialog-actions align="end">
     <button mat-button type="button" (click)="onCancel()" [disabled]="isSubmitting">
-      Cancel
+      Annuler
     </button>
     <button 
       mat-raised-button 
       color="primary" 
       type="submit" 
       [disabled]="form.invalid || isSubmitting">
-      {{ isSubmitting ? 'Saving...' : (isEditMode ? 'Update' : 'Create') }}
+      {{ isSubmitting ? 'Enregistrement...' : (isEditMode ? 'Modifier' : 'Créer') }}
     </button>
   </mat-dialog-actions>
 </form>

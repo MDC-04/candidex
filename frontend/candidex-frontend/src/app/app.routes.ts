@@ -23,6 +23,7 @@ export const routes: Routes = [
       { path: 'applications', loadComponent: () => import('./features/applications/components/applications-list/applications-list.component').then(m => m.ApplicationsListComponent) },
       { path: 'pipeline', loadComponent: () => import('./pages/applications/applications-kanban/applications-kanban.component').then(m => m.ApplicationsKanbanComponent) },
       { path: 'applications/:id', loadComponent: () => import('./features/applications/components/application-detail/application-detail.component').then(m => m.ApplicationDetailComponent) },
+      { path: 'profile', loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent) },
       { path: '', pathMatch: 'full', redirectTo: 'applications' },
     ],
   },
