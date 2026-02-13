@@ -129,10 +129,145 @@ body {
 
 /* Material Card Enhancement */
 mat-card {
-  transition: box-shadow 0.3s ease, transform 0.2s ease;
+  transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   
   &:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  }
+}
+
+/* Button Enhancements */
+.mat-mdc-raised-button, .mat-mdc-unelevated-button, .mat-mdc-outlined-button {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:hover:not([disabled]) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  }
+  
+  &:active:not([disabled]) {
+    transform: translateY(0);
+  }
+}
+
+.mat-mdc-icon-button {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:hover:not([disabled]) {
+    transform: scale(1.1);
+    background-color: rgba(102, 126, 234, 0.08);
+  }
+}
+
+/* Chip Animations */
+.mat-mdc-chip {
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Input Focus Effects */
+.mat-mdc-form-field {
+  transition: all 0.3s ease;
+  
+  &:hover {
+    .mat-mdc-text-field-wrapper {
+      background-color: rgba(102, 126, 234, 0.02);
+    }
+  }
+}
+
+/* Tooltip Customization */
+.mat-mdc-tooltip {
+  font-size: 12px !important;
+  background-color: rgba(0, 0, 0, 0.9) !important;
+  padding: 8px 12px !important;
+  border-radius: 6px !important;
+}
+
+/* Menu Animations */
+.mat-mdc-menu-panel {
+  animation: menuEnter 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes menuEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Dialog Animations */
+.mat-mdc-dialog-container {
+  animation: dialogEnter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes dialogEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Link Hover Effects */
+a {
+  transition: color 0.2s ease, opacity 0.2s ease;
+  
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+/* Focus Visible Enhancement */
+*:focus-visible {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Skeleton Loading Animation */
+@keyframes skeletonPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.skeleton-loading {
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+/* Gradient Text Utility */
+.gradient-text {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Badge Pulse */
+.badge-pulse {
+  animation: badgePulse 2s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(102, 126, 234, 0);
   }
 }
 
@@ -147,10 +282,10 @@ mat-card {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #888;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
 }

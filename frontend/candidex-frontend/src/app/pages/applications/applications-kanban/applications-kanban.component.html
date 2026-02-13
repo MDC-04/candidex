@@ -9,9 +9,13 @@
   <div class="kanban-board" cdkDropListGroup>
     @for (column of columns; track column.status) {
       <div class="kanban-column">
-        <div class="column-header" [style.background-color]="column.color">
-          <h3>{{ column.label }}</h3>
-          <span class="count">{{ column.applications.length }}</span>
+        <div class="column-header" [style.border-color]="column.color">
+          <div class="header-content">
+            <h3>{{ column.label }}</h3>
+            <div class="count-badge" [style.background]="column.color">
+              {{ column.applications.length }}
+            </div>
+          </div>
         </div>
         
         <div 
@@ -23,13 +27,42 @@
           
           @for (app of column.applications; track app.id) {
             <mat-card class="application-card" cdkDrag>
-              <mat-card-header>
-                <mat-card-title class="card-title" (click)="viewApplication(app.id)">
+              <div class="drag-handle" cdkDragHandle>
+                <mat-icon>drag_indicator</mat-icon>
+              </div>
+              
+              <div class="card-actions">
+                <button mat-icon-button [matMenuTriggerFor]="menu" (click)="$event.stopPropagation()">
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #menu="matMenu">
+                  <button mat-menu-item (click)="viewApplication(app.id)">
+                    <mat-icon>visibility</mat-icon>
+                    <span>Voir les détails</span>
+                  </button>
+                  <button mat-menu-item (click)="editApplication(app, $event)">
+                    <mat-icon>edit</mat-icon>
+                    <span>Modifier</span>
+                  </button>
+                  <mat-divider></mat-divider>
+                  @for (col of columns; track col.status) {
+                    @if (col.status !== app.status) {
+                      <button mat-menu-item (click)="changeStatus(app, col.status, $event)">
+                        <mat-icon>arrow_forward</mat-icon>
+                        <span>{{ col.label }}</span>
+                      </button>
+                    }
+                  }
+                </mat-menu>
+              </div>
+              
+              <mat-card-header (click)="viewApplication(app.id)">
+                <mat-card-title class="card-title">
                   {{ app.companyName }}
                 </mat-card-title>
               </mat-card-header>
               
-              <mat-card-content>
+              <mat-card-content (click)="viewApplication(app.id)">
                 <div class="role">{{ app.roleTitle }}</div>
                 @if (app.location) {
                   <div class="location">
@@ -41,11 +74,17 @@
                 <div class="metadata">
                   <mat-chip class="source-chip">{{ sourceLabels[app.source] }}</mat-chip>
                   @if (app.salaryMin && app.salaryMax) {
-                    <span class="salary">{{ app.salaryMin }}k - {{ app.salaryMax }}k {{ app.currency || 'EUR' }}</span>
+                    <span class="salary">
+                      <mat-icon>payments</mat-icon>
+                      {{ app.salaryMin }}k - {{ app.salaryMax }}k
+                    </span>
                   }
                 </div>
                 
-                <div class="date">Candidature : {{ app.appliedDate | date: 'd MMM y' }}</div>
+                <div class="date">
+                  <mat-icon>event</mat-icon>
+                  {{ app.appliedDate | date: 'd MMM y' }}
+                </div>
               </mat-card-content>
             </mat-card>
           }

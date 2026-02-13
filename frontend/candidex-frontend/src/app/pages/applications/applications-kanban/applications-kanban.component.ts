@@ -6,11 +6,16 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatDialog } from '@angular/material/dialog';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatDividerModule } from '@angular/material/divider';
 import { Router } from '@angular/router';
 
 import { ApplicationsService } from '../../../features/applications/services/applications.service';
 import { Application, ApplicationStatus, ApplicationStatusLabels, ApplicationSourceLabels } from '../../../features/applications/models';
 import { NotificationService } from '../../../core/services/notification.service';
+import { ApplicationFormComponent } from '../../../features/applications/components/application-form/application-form.component';
 
 interface KanbanColumn {
   status: ApplicationStatus;
@@ -29,7 +34,10 @@ interface KanbanColumn {
     MatChipsModule,
     MatIconModule,
     MatButtonModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatMenuModule,
+    MatBadgeModule,
+    MatDividerModule
   ],
   templateUrl: './applications-kanban.component.html',
   styleUrl: './applications-kanban.component.scss'
@@ -52,7 +60,8 @@ export class ApplicationsKanbanComponent implements OnInit {
   
   constructor(
     private applicationsService: ApplicationsService,
-    private router: Router
+    private router: Router,
+    private dialog: MatDialog
   ) {}
   
   ngOnInit(): void {
@@ -111,6 +120,41 @@ export class ApplicationsKanbanComponent implements OnInit {
   
   viewApplication(id: string): void {
     this.router.navigate(['/applications', id]);
+  }
+  
+  editApplication(application: Application, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    
+    const dialogRef = this.dialog.open(ApplicationFormComponent, {
+      width: '600px',
+      disableClose: false,
+      data: { application }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.notificationService.success('Candidature mise à jour avec succès !');
+        this.loadApplications();
+      }
+    });
+  }
+  
+  changeStatus(application: Application, newStatus: ApplicationStatus, event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    
+    this.applicationsService.update(application.id, { status: newStatus }).subscribe({
+      next: () => {
+        this.notificationService.success('Statut mis à jour !');
+        this.loadApplications();
+      },
+      error: () => {
+        this.notificationService.error('Échec de la mise à jour.');
+      }
+    });
   }
   
   getColumnIds(): string[] {

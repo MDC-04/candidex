@@ -9,7 +9,7 @@
   @if (!loading) {
     <!-- Summary Cards -->
     <div class="summary-cards">
-      <mat-card class="stat-card primary">
+      <mat-card class="stat-card primary" matTooltip="Nombre total de candidatures envoyées">
         <mat-card-content>
           <mat-icon>work</mat-icon>
           <div class="stat-value">{{ stats.total }}</div>
@@ -17,7 +17,7 @@
         </mat-card-content>
       </mat-card>
       
-      <mat-card class="stat-card info">
+      <mat-card class="stat-card info" matTooltip="Candidatures en attente de réponse">
         <mat-card-content>
           <mat-icon>send</mat-icon>
           <div class="stat-value">{{ stats.applied }}</div>
@@ -25,7 +25,7 @@
         </mat-card-content>
       </mat-card>
       
-      <mat-card class="stat-card warning">
+      <mat-card class="stat-card warning" matTooltip="Candidatures avec entretiens prévus ou passés">
         <mat-card-content>
           <mat-icon>event</mat-icon>
           <div class="stat-value">{{ stats.interviewing }}</div>
@@ -33,7 +33,7 @@
         </mat-card-content>
       </mat-card>
       
-      <mat-card class="stat-card success">
+      <mat-card class="stat-card success" matTooltip="Nombre d'offres reçues">
         <mat-card-content>
           <mat-icon>local_offer</mat-icon>
           <div class="stat-value">{{ stats.offers }}</div>
@@ -41,7 +41,7 @@
         </mat-card-content>
       </mat-card>
       
-      <mat-card class="stat-card rate">
+      <mat-card class="stat-card rate" matTooltip="Pourcentage de candidatures ayant reçu une réponse">
         <mat-card-content>
           <mat-icon>trending_up</mat-icon>
           <div class="stat-value">{{ stats.responseRate }}%</div>
@@ -112,6 +112,88 @@
                       {{ getStatusLabel(app.status) }}
                     </mat-chip>
                     <div class="recent-date">{{ app.updatedAt | date: 'short' }}</div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+    </div>
+    
+    <!-- Weekly Chart & Timeline -->
+    <div class="dashboard-chart-section" *ngIf="stats.total > 0">
+      <!-- Weekly Chart -->
+      <mat-card class="chart-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>bar_chart</mat-icon>
+            Évolution sur 8 semaines
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="chart-container">
+            <div class="chart-legend">
+              <div class="legend-item">
+                <span class="legend-dot applications"></span>
+                <span>Candidatures</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot responses"></span>
+                <span>Réponses</span>
+              </div>
+            </div>
+            <div class="chart">
+              @for (data of weeklyData; track data.week) {
+                <div class="chart-bar-group">
+                  <div class="chart-bars">
+                    <div class="chart-bar applications" 
+                         [style.height.%]="(data.applications / maxWeeklyApplications) * 100"
+                         [attr.data-value]="data.applications">
+                      <span class="bar-value">{{ data.applications }}</span>
+                    </div>
+                    <div class="chart-bar responses" 
+                         [style.height.%]="(data.responses / maxWeeklyApplications) * 100"
+                         [attr.data-value]="data.responses">
+                      <span class="bar-value">{{ data.responses }}</span>
+                    </div>
+                  </div>
+                  <div class="chart-label">{{ data.week }}</div>
+                </div>
+              }
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      
+      <!-- Timeline -->
+      <mat-card class="timeline-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>timeline</mat-icon>
+            Chronologie
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          @if (timelineEvents.length === 0) {
+            <div class="empty-state small">
+              <mat-icon>history_toggle_off</mat-icon>
+              <p>Aucun événement</p>
+            </div>
+          } @else {
+            <div class="timeline">
+              @for (event of timelineEvents; track event.id) {
+                <div class="timeline-item" (click)="viewApplication(event.id)">
+                  <div class="timeline-dot" [style.background-color]="event.color">
+                    <mat-icon>{{ event.icon }}</mat-icon>
+                  </div>
+                  <div class="timeline-content">
+                    <div class="timeline-header">
+                      <span class="timeline-type">{{ getEventTypeLabel(event.type) }}</span>
+                      <span class="timeline-time">{{ getRelativeTime(event.date) }}</span>
+                    </div>
+                    <div class="timeline-company">{{ event.companyName }}</div>
+                    <div class="timeline-role">{{ event.roleTitle }}</div>
                   </div>
                 </div>
               }

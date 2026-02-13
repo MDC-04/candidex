@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { ApplicationsService } from '../../features/applications/services/applications.service';
 import { Application, ApplicationStatus, ApplicationStatusLabels } from '../../features/applications/models';
@@ -27,6 +28,22 @@ interface DashboardStats {
   responseRate: number;
 }
 
+interface TimelineEvent {
+  id: string;
+  type: 'application' | 'interview' | 'offer' | 'rejection';
+  companyName: string;
+  roleTitle: string;
+  date: Date;
+  icon: string;
+  color: string;
+}
+
+interface WeeklyData {
+  week: string;
+  applications: number;
+  responses: number;
+}
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -36,7 +53,8 @@ interface DashboardStats {
     MatIconModule,
     MatButtonModule,
     MatChipsModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatTooltipModule
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
@@ -55,6 +73,9 @@ export class DashboardComponent implements OnInit {
   
   statusStats: StatusStats[] = [];
   recentApplications: Application[] = [];
+  timelineEvents: TimelineEvent[] = [];
+  weeklyData: WeeklyData[] = [];
+  maxWeeklyApplications = 0;
   
   constructor(
     private applicationsService: ApplicationsService,
@@ -73,6 +94,8 @@ export class DashboardComponent implements OnInit {
         this.recentApplications = response.items
           .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
           .slice(0, 5);
+        this.generateTimelineEvents(response.items);
+        this.generateWeeklyData(response.items);
         this.loading = false;
       },
       error: (error) => {
@@ -142,5 +165,91 @@ export class DashboardComponent implements OnInit {
       [ApplicationStatus.GHOSTED]: '#9E9E9E'
     };
     return colors[status];
+  }
+  
+  private generateTimelineEvents(applications: Application[]): void {
+    // Generate mock timeline events based on applications
+    this.timelineEvents = applications
+      .slice(0, 10)
+      .map(app => {
+        let type: TimelineEvent['type'] = 'application';
+        let icon = 'send';
+        let color = '#2196F3';
+        
+        switch (app.status) {
+          case ApplicationStatus.HR_INTERVIEW:
+          case ApplicationStatus.TECH_INTERVIEW:
+            type = 'interview';
+            icon = 'event';
+            color = '#FF9800';
+            break;
+          case ApplicationStatus.OFFER:
+            type = 'offer';
+            icon = 'star';
+            color = '#4CAF50';
+            break;
+          case ApplicationStatus.REJECTED:
+          case ApplicationStatus.GHOSTED:
+            type = 'rejection';
+            icon = 'cancel';
+            color = '#F44336';
+            break;
+        }
+        
+        return {
+          id: app.id,
+          type,
+          companyName: app.companyName,
+          roleTitle: app.roleTitle,
+          date: new Date(app.updatedAt),
+          icon,
+          color
+        };
+      })
+      .sort((a, b) => b.date.getTime() - a.date.getTime());
+  }
+  
+  private generateWeeklyData(applications: Application[]): void {
+    // Generate mock weekly data for the last 8 weeks
+    const weeks = ['S-7', 'S-6', 'S-5', 'S-4', 'S-3', 'S-2', 'S-1', 'Cette semaine'];
+    
+    this.weeklyData = weeks.map((week, index) => {
+      // Mock data: progressive increase with some variance
+      const baseApplications = Math.floor(applications.length / 8) + Math.floor(Math.random() * 3);
+      const applications_count = Math.max(0, baseApplications - (7 - index));
+      const responses = Math.floor(applications_count * (0.3 + Math.random() * 0.4));
+      
+      return {
+        week,
+        applications: applications_count,
+        responses
+      };
+    });
+    
+    this.maxWeeklyApplications = Math.max(...this.weeklyData.map(d => d.applications), 1);
+  }
+  
+  getEventTypeLabel(type: TimelineEvent['type']): string {
+    const labels = {
+      'application': 'Candidature envoyée',
+      'interview': 'Entretien programmé',
+      'offer': 'Offre reçue',
+      'rejection': 'Candidature refusée'
+    };
+    return labels[type];
+  }
+  
+  getRelativeTime(date: Date): string {
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    
+    if (diffMins < 60) return `Il y a ${diffMins} min`;
+    if (diffHours < 24) return `Il y a ${diffHours}h`;
+    if (diffDays === 0) return "Aujourd'hui";
+    if (diffDays === 1) return 'Hier';
+    return `Il y a ${diffDays} jours`;
   }
 }

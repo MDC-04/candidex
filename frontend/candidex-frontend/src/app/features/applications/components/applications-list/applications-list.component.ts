@@ -1,7 +1,9 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Router } from '@angular/router';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
@@ -9,6 +11,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatDividerModule } from '@angular/material/divider';
 
 import { ApplicationsService, PaginatedApplications } from '../../services/applications.service';
 import { 
@@ -36,12 +44,19 @@ import { NotificationService } from '../../../../core/services/notification.serv
   standalone: true,
   imports: [
     CommonModule,
+    ReactiveFormsModule,
     MatTableModule,
     MatChipsModule,
     MatIconModule,
     MatButtonModule,
     MatProgressSpinnerModule,
-    MatTooltipModule
+    MatTooltipModule,
+    MatMenuModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatBadgeModule,
+    MatDividerModule
   ],
   templateUrl: './applications-list.component.html',
   styleUrl: './applications-list.component.scss'
@@ -53,6 +68,7 @@ export class ApplicationsListComponent implements OnInit {
    * Will be consumed by async pipe in template
    */
   applications$!: Observable<PaginatedApplications>;
+  filteredApplications$!: Observable<Application[]>;
 
   /**
    * Columns to display in the table
@@ -64,6 +80,7 @@ export class ApplicationsListComponent implements OnInit {
     'source',
     'location',
     'appliedDate',
+    'nextAction',
     'actions'
   ];
 
@@ -72,6 +89,24 @@ export class ApplicationsListComponent implements OnInit {
    */
   statusLabels = ApplicationStatusLabels;
   sourceLabels = ApplicationSourceLabels;
+  
+  /**
+   * Filter controls
+   */
+  searchControl = new FormControl('');
+  statusFilterControl = new FormControl<ApplicationStatus | 'ALL'>('ALL');
+  sourceFilterControl = new FormControl<ApplicationSource | 'ALL'>('ALL');
+  
+  /**
+   * Available filter options
+   */
+  statusOptions = ['ALL', ...Object.values(ApplicationStatus)];
+  sourceOptions = ['ALL', ...Object.values(ApplicationSource)];
+  
+  /**
+   * Unfiltered applications for filtering
+   */
+  private allApplications: Application[] = [];
 
   private notificationService = inject(NotificationService);
 
@@ -84,6 +119,11 @@ export class ApplicationsListComponent implements OnInit {
   ngOnInit(): void {
     // Load all applications on component initialization
     this.loadApplications();
+    
+    // Subscribe to filter changes
+    this.searchControl.valueChanges.subscribe(() => this.applyFilters());
+    this.statusFilterControl.valueChanges.subscribe(() => this.applyFilters());
+    this.sourceFilterControl.valueChanges.subscribe(() => this.applyFilters());
   }
 
   /**
@@ -91,6 +131,62 @@ export class ApplicationsListComponent implements OnInit {
    */
   loadApplications(): void {
     this.applications$ = this.applicationsService.getAll();
+    this.applications$.subscribe(data => {
+      this.allApplications = data.items;
+      this.applyFilters();
+    });
+  }
+  
+  /**
+   * Apply filters to applications list
+   */
+  private applyFilters(): void {
+    let filtered = [...this.allApplications];
+    
+    // Search filter (company or role)
+    const searchTerm = this.searchControl.value?.toLowerCase() || '';
+    if (searchTerm) {
+      filtered = filtered.filter(app => 
+        app.companyName.toLowerCase().includes(searchTerm) ||
+        app.roleTitle.toLowerCase().includes(searchTerm)
+      );
+    }
+    
+    // Status filter
+    const statusFilter = this.statusFilterControl.value;
+    if (statusFilter && statusFilter !== 'ALL') {
+      filtered = filtered.filter(app => app.status === statusFilter);
+    }
+    
+    // Source filter
+    const sourceFilter = this.sourceFilterControl.value;
+    if (sourceFilter && sourceFilter !== 'ALL') {
+      filtered = filtered.filter(app => app.source === sourceFilter);
+    }
+    
+    this.filteredApplications$ = new Observable(observer => {
+      observer.next(filtered);
+      observer.complete();
+    });
+  }
+  
+  /**
+   * Clear all filters
+   */
+  clearFilters(): void {
+    this.searchControl.setValue('');
+    this.statusFilterControl.setValue('ALL');
+    this.sourceFilterControl.setValue('ALL');
+  }
+  
+  /**
+   * Get filter label for display
+   */
+  getFilterLabel(value: string): string {
+    if (value === 'ALL') return 'Tous';
+    if (value in ApplicationStatusLabels) return ApplicationStatusLabels[value as ApplicationStatus];
+    if (value in ApplicationSourceLabels) return ApplicationSourceLabels[value as ApplicationSource];
+    return value;
   }
 
   /**
@@ -139,6 +235,45 @@ export class ApplicationsListComponent implements OnInit {
       'GHOSTED': 'status-ghosted'
     };
     return classes[status] || '';
+  }
+  
+  /**
+   * Get next action display info
+   */
+  getNextActionInfo(app: Application): { text: string; icon: string; class: string } | null {
+    if (!app.nextAction) {
+      // Mock next actions based on status for demo
+      switch (app.status) {
+        case ApplicationStatus.APPLIED:
+          return { text: 'Relance', icon: 'send', class: 'next-action-followup' };
+        case ApplicationStatus.HR_INTERVIEW:
+        case ApplicationStatus.TECH_INTERVIEW:
+          return { text: 'Entretien prévu', icon: 'event', class: 'next-action-interview' };
+        case ApplicationStatus.OFFER:
+          return { text: 'Répondre à l\'offre', icon: 'check_circle', class: 'next-action-respond' };
+        case ApplicationStatus.REJECTED:
+        case ApplicationStatus.GHOSTED:
+          return { text: 'Sans réponse', icon: 'remove_circle', class: 'next-action-none' };
+        default:
+          return null;
+      }
+    }
+    
+    const action = app.nextAction;
+    if (action.done) {
+      return { text: 'Complété', icon: 'done', class: 'next-action-done' };
+    }
+    
+    // Check if overdue
+    const actionDate = new Date(action.date);
+    const today = new Date();
+    const isOverdue = actionDate < today;
+    
+    return {
+      text: action.note || 'Action prévue',
+      icon: isOverdue ? 'warning' : 'schedule',
+      class: isOverdue ? 'next-action-overdue' : 'next-action-scheduled'
+    };
   }
 
   /**
