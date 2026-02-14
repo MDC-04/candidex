@@ -73,10 +73,10 @@
                 
                 <div class="metadata">
                   <mat-chip class="source-chip">{{ sourceLabels[app.source] }}</mat-chip>
-                  @if (app.salaryMin && app.salaryMax) {
+                  @if (app.salary) {
                     <span class="salary">
                       <mat-icon>payments</mat-icon>
-                      {{ app.salaryMin }}k - {{ app.salaryMax }}k
+                      {{ app.salary }} {{ app.currency || 'EUR' }}
                     </span>
                   }
                 </div>

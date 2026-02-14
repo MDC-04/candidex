@@ -40,10 +40,7 @@ public class UpdateApplicationDto {
     private String appliedDate;
     
     @Min(0)
-    private Integer salaryMin;
-    
-    @Min(0)
-    private Integer salaryMax;
+    private Integer salary;
     
     private String currency;
     

@@ -46,19 +46,17 @@
           <span>{{ app.appliedDate || 'N/A' }}</span>
         </div>
 
-        <!-- Salary Range -->
-        <div class="info-item" *ngIf="app.salaryMin || app.salaryMax">
-          <label>Fourchette salariale</label>
+        <!-- Salary -->
+        <div class="info-item" *ngIf="app.salary">
+          <label>Salaire</label>
           <span>
-            <span *ngIf="app.salaryMin">{{ app.salaryMin | number }}</span>
-            <span *ngIf="app.salaryMin && app.salaryMax"> - </span>
-            <span *ngIf="app.salaryMax">{{ app.salaryMax | number }}</span>
+            {{ app.salary | number }}
             <span *ngIf="app.currency"> {{ app.currency }}</span>
           </span>
         </div>
 
-        <!-- Currency (if no salary) -->
-        <div class="info-item" *ngIf="!app.salaryMin && !app.salaryMax && app.currency">
+        <!-- Currency (if no salary specified) -->
+        <div class="info-item" *ngIf="!app.salary && app.currency">
           <label>Devise</label>
           <span>{{ app.currency }}</span>
         </div>

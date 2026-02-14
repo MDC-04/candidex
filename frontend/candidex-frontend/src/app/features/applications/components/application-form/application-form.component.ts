@@ -74,7 +74,7 @@ export class ApplicationFormComponent implements OnInit {
   /**
    * Currency options
    */
-  currencyOptions = ['EUR', 'USD', 'GBP', 'CAD'];
+  currencyOptions = ['EUR', 'USD', 'GBP', 'CAD', 'MAD'];
 
   /**
    * Form submission loading state
@@ -112,8 +112,7 @@ export class ApplicationFormComponent implements OnInit {
       source: [app?.source || ApplicationSource.LINKEDIN, Validators.required],
       status: [app?.status || ApplicationStatus.APPLIED, Validators.required],
       appliedDate: [appliedDateValue],
-      salaryMin: [app?.salaryMin || null, [Validators.min(0)]],
-      salaryMax: [app?.salaryMax || null, [Validators.min(0)]],
+      salary: [app?.salary || null, [Validators.min(0)]],
       currency: [app?.currency || 'EUR'],
       notes: [app?.notes || '', Validators.maxLength(5000)],
       // Tags and links will be added in a future iteration

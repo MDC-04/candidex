@@ -94,7 +94,8 @@ export class ApplicationsListComponent implements OnInit {
    * Filter controls
    */
   searchControl = new FormControl('');
-  statusFilterControl = new FormControl<ApplicationStatus | 'ALL'>('ALL');
+  // statusFilterControl removed in favor of location-based filtering
+  locationFilterControl = new FormControl('');
   sourceFilterControl = new FormControl<ApplicationSource | 'ALL'>('ALL');
   
   /**
@@ -122,7 +123,7 @@ export class ApplicationsListComponent implements OnInit {
     
     // Subscribe to filter changes
     this.searchControl.valueChanges.subscribe(() => this.applyFilters());
-    this.statusFilterControl.valueChanges.subscribe(() => this.applyFilters());
+    this.locationFilterControl.valueChanges.subscribe(() => this.applyFilters());
     this.sourceFilterControl.valueChanges.subscribe(() => this.applyFilters());
   }
 
@@ -153,9 +154,10 @@ export class ApplicationsListComponent implements OnInit {
     }
     
     // Status filter
-    const statusFilter = this.statusFilterControl.value;
-    if (statusFilter && statusFilter !== 'ALL') {
-      filtered = filtered.filter(app => app.status === statusFilter);
+    // Location filter (city / location)
+    const locationFilter = this.locationFilterControl.value?.toLowerCase() || '';
+    if (locationFilter) {
+      filtered = filtered.filter(app => (app.location || '').toLowerCase().includes(locationFilter));
     }
     
     // Source filter
@@ -175,7 +177,7 @@ export class ApplicationsListComponent implements OnInit {
    */
   clearFilters(): void {
     this.searchControl.setValue('');
-    this.statusFilterControl.setValue('ALL');
+    this.locationFilterControl.setValue('');
     this.sourceFilterControl.setValue('ALL');
   }
   

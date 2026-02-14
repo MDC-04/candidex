@@ -193,18 +193,23 @@
   button {
     width: 32px;
     height: 32px;
-    line-height: 32px;
     background: white;
     border-radius: 50%;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
     mat-icon {
       font-size: 18px;
       width: 18px;
       height: 18px;
-      line-height: 32px;
+      line-height: 18px;
+      display: block;
+      margin: 0;
     }
-    
+
     &:hover {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;

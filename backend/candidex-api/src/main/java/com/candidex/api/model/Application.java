@@ -56,11 +56,8 @@ public class Application {
     
     private String appliedDate; // ISO date (YYYY-MM-DD)
     
-    @Min(value = 0, message = "Minimum salary must be positive")
-    private Integer salaryMin;
-    
-    @Min(value = 0, message = "Maximum salary must be positive")
-    private Integer salaryMax;
+    @Min(value = 0, message = "Salary must be positive")
+    private Integer salary;
     
     @Builder.Default
     private String currency = "EUR";

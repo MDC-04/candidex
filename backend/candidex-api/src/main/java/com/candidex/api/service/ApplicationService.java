@@ -49,13 +49,6 @@ public class ApplicationService {
     public Application createApplication(CreateApplicationDto dto, String userId) {
         log.info("Creating application for user: {}", userId);
         
-        // Validate salary range
-        if (dto.getSalaryMin() != null && dto.getSalaryMax() != null) {
-            if (dto.getSalaryMax() < dto.getSalaryMin()) {
-                throw new IllegalArgumentException("Maximum salary must be greater than or equal to minimum salary");
-            }
-        }
-        
         // Build application
         Application application = Application.builder()
                 .userId(userId)
@@ -65,8 +58,7 @@ public class ApplicationService {
                 .source(dto.getSource())
                 .status(dto.getStatus() != null ? dto.getStatus() : ApplicationStatus.APPLIED) // Default status
                 .appliedDate(dto.getAppliedDate())
-                .salaryMin(dto.getSalaryMin())
-                .salaryMax(dto.getSalaryMax())
+                .salary(dto.getSalary())
                 .currency(dto.getCurrency() != null ? dto.getCurrency() : "EUR") // Default currency
                 .tags(dto.getTags())
                 .links(dto.getLinks())
@@ -88,14 +80,6 @@ public class ApplicationService {
         
         Application application = getApplicationById(id, userId);
         
-        // Validate salary range if both are provided
-        Integer newSalaryMin = dto.getSalaryMin() != null ? dto.getSalaryMin() : application.getSalaryMin();
-        Integer newSalaryMax = dto.getSalaryMax() != null ? dto.getSalaryMax() : application.getSalaryMax();
-        
-        if (newSalaryMin != null && newSalaryMax != null && newSalaryMax < newSalaryMin) {
-            throw new IllegalArgumentException("Maximum salary must be greater than or equal to minimum salary");
-        }
-        
         // Apply updates (only non-null fields)
         if (dto.getCompanyName() != null) application.setCompanyName(dto.getCompanyName());
         if (dto.getRoleTitle() != null) application.setRoleTitle(dto.getRoleTitle());
@@ -103,8 +87,7 @@ public class ApplicationService {
         if (dto.getSource() != null) application.setSource(dto.getSource());
         if (dto.getStatus() != null) application.setStatus(dto.getStatus());
         if (dto.getAppliedDate() != null) application.setAppliedDate(dto.getAppliedDate());
-        if (dto.getSalaryMin() != null) application.setSalaryMin(dto.getSalaryMin());
-        if (dto.getSalaryMax() != null) application.setSalaryMax(dto.getSalaryMax());
+        if (dto.getSalary() != null) application.setSalary(dto.getSalary());
         if (dto.getCurrency() != null) application.setCurrency(dto.getCurrency());
         if (dto.getTags() != null) application.setTags(dto.getTags());
         if (dto.getLinks() != null) application.setLinks(dto.getLinks());

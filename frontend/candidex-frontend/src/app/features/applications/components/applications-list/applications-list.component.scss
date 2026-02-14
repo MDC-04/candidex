@@ -35,11 +35,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 400px;
+    min-height: 10px; /* reduced to avoid large blank space when async mis-evaluates */
   }
 
   .table-container {
     background: white;
+    padding: 0; /* remove any internal container padding that can create gaps */
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     overflow: hidden;
@@ -51,26 +52,32 @@
 
     // Filters bar
     .filters-bar {
-      padding: 24px;
+      padding: 12px 16px; /* consistent padding */
       background: linear-gradient(to bottom, #fafafa, #ffffff);
-      border-bottom: 2px solid #f0f0f0;
+      border-bottom: 1px solid #f0f0f0;
       display: flex;
-      gap: 16px;
-      align-items: flex-start;
-      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center; /* center align all elements */
+      flex-wrap: nowrap; /* keep filters on one line when possible */
 
       .search-field {
-        flex: 2;
-        min-width: 250px;
+        flex: 2 1 300px;
+        min-width: 200px;
+        align-self: center;
       }
 
       .filter-field {
-        flex: 1;
-        min-width: 150px;
+        flex: 1 0 200px;
+        min-width: 160px;
+        align-self: center;
       }
 
       .clear-filters-btn {
-        margin-top: 4px;
+        height: 56px;
+        padding: 0 20px;
+        margin: 0;
+        margin-bottom: 20px;
+        align-self: center;
         transition: all 0.2s ease;
         
         &:hover {
@@ -80,6 +87,8 @@
       }
 
       mat-form-field {
+        margin-bottom: 0 !important;
+        
         mat-icon {
           color: #667eea;
         }
@@ -89,7 +98,7 @@
     // Empty states
     .empty-state {
       text-align: center;
-      padding: 80px 24px;
+      padding: 0; /* no padding to avoid gap */
 
       .empty-icon {
         margin-bottom: 24px;
@@ -151,6 +160,8 @@
 
     .applications-table {
       width: 100%;
+      margin-top: 0; /* ensure table sits directly under filters */
+      border-top: none; /* remove any accidental border gap */
 
       th {
         font-weight: 600;
@@ -162,7 +173,7 @@
       }
 
       td, th {
-        padding: 20px 16px;
+        padding: 16px 12px; /* slightly reduced to compact rows */
       }
 
       .table-row {
@@ -201,6 +212,7 @@
         border-radius: 16px;
         transition: all 0.2s ease;
         border: none !important;
+        outline: none !important;
 
         &:hover {
           transform: translateY(-1px);
@@ -208,33 +220,28 @@
         }
 
         &.status-applied {
-          background: linear-gradient(135deg, #e3f2fd, #bbdefb);
-          color: #1565c0;
-          outline: 1px solid #90caf9;
+          background: #e3f2fd !important;
+          color: #1565c0 !important;
         }
 
         &.status-interview {
-          background: linear-gradient(135deg, #fff3e0, #ffe0b2);
-          color: #e65100;
-          outline: 1px solid #ffb74d;
+          background: #fff3e0 !important;
+          color: #e65100 !important;
         }
 
         &.status-offer {
-          background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
-          color: #2e7d32;
-          outline: 1px solid #81c784;
+          background: #e8f5e9 !important;
+          color: #2e7d32 !important;
         }
 
         &.status-rejected {
-          background: linear-gradient(135deg, #ffebee, #ffcdd2);
-          color: #c62828;
-          outline: 1px solid #ef5350;
+          background: #ffebee !important;
+          color: #c62828 !important;
         }
 
         &.status-ghosted {
-          background: linear-gradient(135deg, #f5f5f5, #eeeeee);
-          color: #616161;
-          outline: 1px solid #bdbdbd;
+          background: #f5f5f5 !important;
+          color: #616161 !important;
         }
       }
 

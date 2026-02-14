@@ -38,8 +38,7 @@ export interface Application {
   source: ApplicationSource;
   status: ApplicationStatus;
   appliedDate?: string; // ISO date (YYYY-MM-DD)
-  salaryMin?: number; // >= 0
-  salaryMax?: number; // >= salaryMin if both set
+  salary?: number; // >= 0
   currency?: string; // default "EUR"
   tags?: string[]; // max 10 tags, each 1..30 characters
   links?: ApplicationLinks;
@@ -60,8 +59,7 @@ export interface CreateApplicationDto {
   source: ApplicationSource;
   status?: ApplicationStatus; // default APPLIED if not provided
   appliedDate?: string;
-  salaryMin?: number;
-  salaryMax?: number;
+  salary?: number;
   currency?: string;
   tags?: string[];
   links?: ApplicationLinks;
@@ -81,8 +79,7 @@ export interface UpdateApplicationDto {
   source?: ApplicationSource;
   status?: ApplicationStatus;
   appliedDate?: string;
-  salaryMin?: number;
-  salaryMax?: number;
+  salary?: number;
   currency?: string;
   tags?: string[];
   links?: ApplicationLinks;

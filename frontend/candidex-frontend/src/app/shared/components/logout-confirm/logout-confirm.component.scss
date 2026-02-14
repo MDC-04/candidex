@@ -1,0 +1,33 @@
+.logout-dialog {
+  padding: 20px 24px;
+  text-align: center;
+
+  .icon-row {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 8px;
+
+    mat-icon {
+      font-size: 40px;
+      color: #d32f2f;
+    }
+  }
+
+  h2 {
+    margin: 8px 0 6px 0;
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0 0 16px 0;
+    color: #666;
+  }
+
+  .actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 8px;
+  }
+}
