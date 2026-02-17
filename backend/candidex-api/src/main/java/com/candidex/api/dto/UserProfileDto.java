@@ -24,6 +24,8 @@ public class UserProfileDto {
     private String bio;
     private String linkedinUrl;
     private String portfolioUrl;
+    private String cvFilename;
+    private String cvOriginalFilename;
     private String createdAt;
     private String updatedAt;
 }

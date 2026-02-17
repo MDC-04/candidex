@@ -18,6 +18,10 @@
         <mat-icon>view_kanban</mat-icon>
         <span>Pipeline</span>
       </a>
+      <a mat-list-item routerLink="/interviews" routerLinkActive="active" matTooltip="Agenda et préparation des entretiens" matTooltipPosition="right">
+        <mat-icon>event</mat-icon>
+        <span>Entretiens</span>
+      </a>
       <a mat-list-item routerLink="/profile" routerLinkActive="active" matTooltip="Gérer votre profil et vos préférences" matTooltipPosition="right">
         <mat-icon>person</mat-icon>
         <span>Profil</span>
@@ -39,7 +43,7 @@
         </button>
         <mat-menu #userMenu="matMenu">
           <div class="menu-header">
-            <div class="menu-avatar">{{ getInitials(user.email) }}</div>
+            <div class="menu-avatar">{{ getInitials(user.fullName) }}</div>
             <div class="menu-user-info">
               <div class="menu-name">{{ user.fullName || 'Utilisateur' }}</div>
               <div class="menu-email">{{ user.email }}</div>

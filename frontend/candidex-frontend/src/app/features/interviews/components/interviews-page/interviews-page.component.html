@@ -1,0 +1,290 @@
+<div class="interviews-page">
+  <div class="header">
+    <h1>Agenda des entretiens</h1>
+  </div>
+
+  @if (loading) {
+    <div class="loading-container">
+      <mat-spinner diameter="48"></mat-spinner>
+    </div>
+  } @else {
+
+    <div class="content-card">
+      <mat-drawer-container class="drawer-container" [hasBackdrop]="true">
+
+      <mat-drawer #drawer mode="over" position="end" [opened]="drawerOpen"
+                   (closedStart)="closeDrawer()" class="prep-drawer">
+        @if (selectedInterview) {
+          <div class="prep-pack">
+            <div class="prep-header">
+              <h2>Préparation</h2>
+              <button mat-icon-button (click)="closeDrawer()">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+
+            <h3 class="prep-title">{{ selectedInterview.title }}</h3>
+
+            <div class="prep-meta">
+              <mat-chip-set>
+                <mat-chip [style.background-color]="getTypeColor(selectedInterview.type)" style="color:white">
+                  {{ getTypeLabel(selectedInterview.type) }}
+                </mat-chip>
+                <mat-chip>
+                  <mat-icon matChipAvatar>{{ getModeIcon(selectedInterview.mode) }}</mat-icon>
+                  {{ getModeLabel(selectedInterview.mode) }}
+                </mat-chip>
+              </mat-chip-set>
+              <p class="prep-datetime">
+                <mat-icon>schedule</mat-icon>
+                {{ formatDate(selectedInterview.startAt) }} · {{ formatTime(selectedInterview.startAt) }}
+                @if (selectedInterview.endAt) {
+                  – {{ formatTime(selectedInterview.endAt) }}
+                }
+              </p>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <!-- Questions to ask -->
+            @if (selectedInterview.questionsToAsk && selectedInterview.questionsToAsk.length > 0) {
+              <div class="prep-section">
+                <h4><mat-icon>help_outline</mat-icon> Questions à poser</h4>
+                <mat-list>
+                  @for (q of selectedInterview.questionsToAsk; track q) {
+                    <mat-list-item>• {{ q }}</mat-list-item>
+                  }
+                </mat-list>
+              </div>
+            }
+
+            <!-- Checklist -->
+            @if (selectedInterview.checklistItems && selectedInterview.checklistItems.length > 0) {
+              <div class="prep-section">
+                <h4><mat-icon>checklist</mat-icon> Checklist</h4>
+                <mat-list>
+                  @for (item of selectedInterview.checklistItems; track item) {
+                    <mat-list-item>✅ {{ item }}</mat-list-item>
+                  }
+                </mat-list>
+              </div>
+            }
+
+            <!-- Links -->
+            @if (selectedInterview.links && selectedInterview.links.length > 0) {
+              <div class="prep-section">
+                <h4><mat-icon>link</mat-icon> Liens utiles</h4>
+                <mat-list>
+                  @for (link of selectedInterview.links; track link) {
+                    <mat-list-item>
+                      <a [href]="link" target="_blank" class="prep-link">{{ link }}</a>
+                    </mat-list-item>
+                  }
+                </mat-list>
+              </div>
+            }
+
+            <!-- Meeting URL -->
+            @if (selectedInterview.meetingUrl) {
+              <div class="prep-section">
+                <h4><mat-icon>videocam</mat-icon> Lien de réunion</h4>
+                <a [href]="selectedInterview.meetingUrl" target="_blank" mat-stroked-button color="primary"
+                   class="meeting-btn">
+                  <mat-icon>open_in_new</mat-icon>
+                  Rejoindre
+                </a>
+              </div>
+            }
+
+            <mat-divider></mat-divider>
+
+            <!-- Notes -->
+            <div class="prep-section">
+              <h4><mat-icon>notes</mat-icon> Notes</h4>
+              <mat-form-field appearance="outline" class="full-width">
+                <textarea matInput [(ngModel)]="editingNotes" rows="5"
+                          placeholder="Vos notes de préparation..."></textarea>
+              </mat-form-field>
+            </div>
+
+            <!-- Feedback (only if done) -->
+            @if (selectedInterview.status === 'DONE') {
+              <div class="prep-section">
+                <h4><mat-icon>rate_review</mat-icon> Feedback</h4>
+                <mat-form-field appearance="outline" class="full-width">
+                  <textarea matInput [(ngModel)]="editingFeedback" rows="4"
+                            placeholder="Comment s'est passé l'entretien ?"></textarea>
+                </mat-form-field>
+              </div>
+            }
+
+            <div class="prep-actions">
+              <button mat-flat-button color="primary" (click)="savePrepNotes()">
+                <mat-icon>save</mat-icon>
+                Sauvegarder
+              </button>
+            </div>
+          </div>
+        }
+      </mat-drawer>
+
+      <mat-drawer-content>
+
+        <!-- Empty state -->
+        @if (allInterviews.length === 0) {
+          <div class="empty-state">
+            <div class="empty-icon">
+              <mat-icon>event_busy</mat-icon>
+            </div>
+            <h2>Aucun entretien planifié</h2>
+            <p>Planifiez vos entretiens depuis la page Candidatures pour les retrouver ici.</p>
+          </div>
+        } @else {
+
+          <!-- Today & Next 7 Days -->
+          @if (todayInterviews.length > 0 || next7DaysInterviews.length > 0) {
+            <section class="timeline-section">
+              <div class="section-header now">
+                <mat-icon>today</mat-icon>
+                <h2>Cette semaine</h2>
+                <span class="badge">{{ todayInterviews.length + next7DaysInterviews.length }}</span>
+              </div>
+
+              @if (todayInterviews.length > 0) {
+                <h3 class="sub-header today-label">
+                  <span class="pulse-dot"></span> Aujourd'hui
+                </h3>
+                <div class="interview-grid">
+                  @for (iv of todayInterviews; track iv.id) {
+                    <ng-container *ngTemplateOutlet="interviewCard; context: { $implicit: iv, highlight: true }"></ng-container>
+                  }
+                </div>
+              }
+
+              @if (next7DaysInterviews.length > 0) {
+                <h3 class="sub-header">Prochains jours</h3>
+                <div class="interview-grid">
+                  @for (iv of next7DaysInterviews; track iv.id) {
+                    <ng-container *ngTemplateOutlet="interviewCard; context: { $implicit: iv, highlight: false }"></ng-container>
+                  }
+                </div>
+              }
+            </section>
+          }
+
+          <!-- Upcoming -->
+          @if (upcomingInterviews.length > 0) {
+            <section class="timeline-section">
+              <div class="section-header upcoming">
+                <mat-icon>upcoming</mat-icon>
+                <h2>À venir</h2>
+                <span class="badge">{{ upcomingInterviews.length }}</span>
+              </div>
+              <div class="interview-grid">
+                @for (iv of upcomingInterviews; track iv.id) {
+                  <ng-container *ngTemplateOutlet="interviewCard; context: { $implicit: iv, highlight: false }"></ng-container>
+                }
+              </div>
+            </section>
+          }
+
+          <!-- Past -->
+          @if (pastInterviews.length > 0) {
+            <section class="timeline-section past-section">
+              <div class="section-header past">
+                <mat-icon>history</mat-icon>
+                <h2>Passés</h2>
+                <span class="badge">{{ pastInterviews.length }}</span>
+              </div>
+              <div class="interview-grid">
+                @for (iv of pastInterviews; track iv.id) {
+                  <ng-container *ngTemplateOutlet="interviewCard; context: { $implicit: iv, highlight: false }"></ng-container>
+                }
+              </div>
+            </section>
+          }
+        }
+
+      </mat-drawer-content>
+    </mat-drawer-container>
+
+    </div>
+  }
+</div>
+
+<!-- Interview card template -->
+<ng-template #interviewCard let-iv let-highlight="highlight">
+  <mat-card [class.today-card]="highlight" class="interview-card" appearance="outlined">
+    <mat-card-header>
+      <div class="card-top-row">
+        <div class="card-chips">
+          <mat-chip [style.background-color]="getTypeColor(iv.type)" style="color:white; border:none">
+            {{ getTypeLabel(iv.type) }}
+          </mat-chip>
+          <mat-chip class="mode-chip">
+            <mat-icon matChipAvatar>{{ getModeIcon(iv.mode) }}</mat-icon>
+            {{ getModeLabel(iv.mode) }}
+          </mat-chip>
+        </div>
+        <button mat-icon-button [matMenuTriggerFor]="cardMenu" class="card-menu-btn">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #cardMenu="matMenu">
+          <button mat-menu-item (click)="editInterview(iv)">
+            <mat-icon>edit</mat-icon> Modifier
+          </button>
+          @if (iv.status === 'SCHEDULED') {
+            <button mat-menu-item (click)="markAsDone(iv)">
+              <mat-icon>check_circle</mat-icon> Terminé
+            </button>
+            <button mat-menu-item (click)="cancelInterview(iv)">
+              <mat-icon>cancel</mat-icon> Annuler
+            </button>
+          }
+          <button mat-menu-item (click)="deleteInterview(iv)" class="delete-item">
+            <mat-icon color="warn">delete</mat-icon> Supprimer
+          </button>
+        </mat-menu>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content>
+      <h3 class="interview-title">{{ iv.title }}</h3>
+
+      <div class="interview-datetime">
+        <mat-icon>schedule</mat-icon>
+        <span>{{ formatDate(iv.startAt) }} · {{ formatTime(iv.startAt) }}</span>
+        @if (iv.endAt) {
+          <span> – {{ formatTime(iv.endAt) }}</span>
+        }
+      </div>
+
+      @if (iv.location) {
+        <div class="interview-location">
+          <mat-icon>place</mat-icon>
+          <span>{{ iv.location }}</span>
+        </div>
+      }
+
+      @if (iv.status === 'CANCELED') {
+        <mat-chip class="status-chip canceled">Annulé</mat-chip>
+      }
+      @if (iv.status === 'DONE') {
+        <mat-chip class="status-chip done">Terminé</mat-chip>
+      }
+    </mat-card-content>
+
+    <mat-card-actions align="end">
+      <button mat-button color="primary" (click)="openPrepPack(iv)">
+        <mat-icon>description</mat-icon>
+        Préparer
+      </button>
+      @if (iv.meetingUrl && iv.status === 'SCHEDULED') {
+        <a mat-button color="accent" [href]="iv.meetingUrl" target="_blank">
+          <mat-icon>videocam</mat-icon>
+          Rejoindre
+        </a>
+      }
+    </mat-card-actions>
+  </mat-card>
+</ng-template>

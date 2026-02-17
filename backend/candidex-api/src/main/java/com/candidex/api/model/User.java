@@ -46,6 +46,8 @@ public class User {
     private String bio; // Short bio/description (max 500 chars)
     private String linkedinUrl; // LinkedIn profile URL
     private String portfolioUrl; // Personal website/portfolio
+    private String cvFilename; // Uploaded CV filename (stored on disk)
+    private String cvOriginalFilename; // Original CV filename (displayed to user)
     
     @CreatedDate
     private Instant createdAt;

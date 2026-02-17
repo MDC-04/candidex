@@ -49,6 +49,8 @@ export interface UserProfile {
   bio?: string;
   linkedinUrl?: string;
   portfolioUrl?: string;
+  cvFilename?: string;
+  cvOriginalFilename?: string;
   createdAt?: string;
   updatedAt?: string;
 }

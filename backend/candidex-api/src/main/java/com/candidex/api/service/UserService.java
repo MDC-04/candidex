@@ -78,8 +78,51 @@ public class UserService {
                 .bio(user.getBio())
                 .linkedinUrl(user.getLinkedinUrl())
                 .portfolioUrl(user.getPortfolioUrl())
+                .cvFilename(user.getCvFilename())
+                .cvOriginalFilename(user.getCvOriginalFilename())
                 .createdAt(user.getCreatedAt() != null ? user.getCreatedAt().toString() : null)
                 .updatedAt(user.getUpdatedAt() != null ? user.getUpdatedAt().toString() : null)
                 .build();
+    }
+    
+    /**
+     * Update CV filename for user
+     */
+    public void updateCvFilename(String userId, String filename) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setCvFilename(filename);
+        userRepository.save(user);
+    }
+    
+    /**
+     * Update CV filenames (both stored and original)
+     */
+    public void updateCvFilenames(String userId, String filename, String originalFilename) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setCvFilename(filename);
+        user.setCvOriginalFilename(originalFilename);
+        userRepository.save(user);
+    }
+    
+    /**
+     * Get CV filename for user
+     */
+    public String getCvFilename(String userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return user.getCvFilename();
+    }
+    
+    /**
+     * Delete CV filename for user
+     */
+    public void deleteCvFilename(String userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setCvFilename(null);
+        user.setCvOriginalFilename(null);
+        userRepository.save(user);
     }
 }

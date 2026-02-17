@@ -159,6 +159,15 @@
                 <span>Modifier</span>
               </button>
               <mat-divider></mat-divider>
+              <button mat-menu-item (click)="onScheduleInterview(app)">
+                <mat-icon>event</mat-icon>
+                <span>Planifier un entretien</span>
+              </button>
+              <button mat-menu-item (click)="onViewInterviews(app)">
+                <mat-icon>list_alt</mat-icon>
+                <span>Voir entretiens</span>
+              </button>
+              <mat-divider></mat-divider>
               <button mat-menu-item (click)="onDelete(app)" class="delete-action">
                 <mat-icon color="warn">delete</mat-icon>
                 <span>Supprimer</span>
@@ -176,9 +185,9 @@
     <div class="pagination-info" *ngIf="(filteredApplications$ | async) as filtered">
       <p *ngIf="filtered.length > 0">
         <mat-icon>info</mat-icon>
-        Affichage de {{ filtered.length }} 
-        <span *ngIf="filtered.length !== data.totalItems">sur {{ data.totalItems }}</span> 
-        candidature<span *ngIf="filtered.length > 1">s</span>
+        <span class="pagination-text">Affichage de{{ filtered.length }}
+          <span *ngIf="filtered.length !== data.totalItems"> sur {{ data.totalItems }}</span>
+          &nbsp;candidature{{ filtered.length > 1 ? 's' : '' }}</span>
       </p>
     </div>
   </div>

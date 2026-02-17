@@ -19,4 +19,22 @@ export class UserService {
   updateProfile(dto: UpdateProfileDto): Observable<UserProfile> {
     return this.http.put<UserProfile>(`${this.API_URL}/profile`, dto);
   }
+  
+  uploadCv(file: File): Observable<{ filename: string; message: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<{ filename: string; message: string }>(`${this.API_URL}/profile/cv`, formData);
+  }
+  
+  getCvUrl(): string {
+    return `${this.API_URL}/profile/cv`;
+  }
+  
+  getCvBlob(): Observable<Blob> {
+    return this.http.get(`${this.API_URL}/profile/cv`, { responseType: 'blob' });
+  }
+  
+  deleteCv(): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.API_URL}/profile/cv`);
+  }
 }

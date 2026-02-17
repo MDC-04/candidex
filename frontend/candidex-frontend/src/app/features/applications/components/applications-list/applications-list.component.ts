@@ -29,6 +29,7 @@ import {
 import { ApplicationFormComponent } from '../application-form/application-form.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { InterviewFormDialogComponent } from '../../../interviews/components/interview-form-dialog/interview-form-dialog.component';
 
 /**
  * Component for displaying a list of job applications
@@ -332,6 +333,34 @@ export class ApplicationsListComponent implements OnInit {
           }
         });
       }
+    });
+  }
+
+  /**
+   * Schedule an interview for the given application
+   */
+  onScheduleInterview(application: Application): void {
+    const dialogRef = this.dialog.open(InterviewFormDialogComponent, {
+      width: '600px',
+      data: {
+        applicationId: application.id,
+        applicationTitle: `${application.roleTitle} – ${application.companyName}`
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.notificationService.success('Entretien planifié avec succès !');
+      }
+    });
+  }
+
+  /**
+   * Navigate to interviews page filtered by application
+   */
+  onViewInterviews(application: Application): void {
+    this.router.navigate(['/interviews'], {
+      queryParams: { applicationId: application.id }
     });
   }
 }
