@@ -1,0 +1,55 @@
+<div class="kanban-container">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <h1>Candidex</h1>
+    </div>
+    <div class="navbar-menu">
+      <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+      <a routerLink="/applications" routerLinkActive="active">Applications</a>
+      <a routerLink="/kanban" routerLinkActive="active">Kanban</a>
+      <button class="btn-logout" (click)="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="kanban-content">
+    <h2>Application Pipeline</h2>
+
+    <div *ngIf="isLoading" class="loading">Loading pipeline...</div>
+
+    <div *ngIf="!isLoading" class="kanban-board">
+      <div *ngFor="let column of columns" class="kanban-column">
+        <div class="column-header">
+          <span class="column-icon">{{ column.icon }}</span>
+          <h3>{{ column.title }}</h3>
+          <span class="column-count">{{ getApplicationsByStatus(column.status).length }}</span>
+        </div>
+        <div class="column-body">
+          <div
+            *ngFor="let app of getApplicationsByStatus(column.status)"
+            class="kanban-card"
+            [routerLink]="['/applications', app.id]"
+          >
+            <h4>{{ app.position }}</h4>
+            <p class="company">{{ app.company }}</p>
+            <p *ngIf="app.location" class="location">📍 {{ app.location }}</p>
+            <div class="card-actions">
+              <select
+                class="status-select"
+                [value]="app.status"
+                (change)="updateApplicationStatus(app, $any($event.target).value)"
+                (click)="$event.stopPropagation()"
+              >
+                <option *ngFor="let col of columns" [value]="col.status">
+                  {{ col.title }}
+                </option>
+              </select>
+            </div>
+          </div>
+          <div *ngIf="getApplicationsByStatus(column.status).length === 0" class="empty-column">
+            No applications
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
