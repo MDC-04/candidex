@@ -1,11 +1,14 @@
 <mat-sidenav-container class="app">
   <mat-sidenav mode="side" opened class="sidenav">
-    <div class="brand">
-      <mat-icon class="brand-icon">work</mat-icon>
-      <span>Candidex</span>
-    </div>
+    <a class="brand" routerLink="/home" aria-label="Accueil Candidex">
+      <img src="candidex_logo_light.png" alt="Candidex" class="brand-logo">
+    </a>
 
     <mat-nav-list>
+      <a mat-list-item routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" matTooltip="Écran d'accueil" matTooltipPosition="right">
+        <mat-icon>home</mat-icon>
+        <span>Accueil</span>
+      </a>
       <a mat-list-item routerLink="/dashboard" routerLinkActive="active" matTooltip="Vue d'ensemble de vos candidatures" matTooltipPosition="right">
         <mat-icon>dashboard</mat-icon>
         <span>Tableau de bord</span>

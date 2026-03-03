@@ -1,252 +1,226 @@
-// Kanban Container
+/* ================================================================
+   KANBAN — Premium Pipeline Board
+   ================================================================ */
+
 .kanban-container {
   padding: 20px;
-  height: calc(100vh - 64px - 40px);
+  height: calc(100vh - 60px - 40px);
   display: flex;
   flex-direction: column;
-  animation: fadeIn 0.5s ease-in-out;
+  animation: cx-fadeIn 0.4s var(--cx-ease);
 }
 
 .kanban-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
-  
+  margin-bottom: 20px;
+
   h1 {
     margin: 0;
-    font-size: 32px;
+    font-size: 28px;
     font-weight: 700;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--cx-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
 }
 
-// Kanban Board
+/* ---------- Board ---------- */
 .kanban-board {
   display: flex;
-  gap: 16px;
+  gap: 14px;
   overflow-x: auto;
   flex: 1;
-  padding-bottom: 16px;
-  
+  padding-bottom: 12px;
+
   &::-webkit-scrollbar {
-    height: 8px;
+    height: 6px;
   }
-  
+
   &::-webkit-scrollbar-thumb {
-    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-    border-radius: 4px;
+    background: var(--cx-gradient);
+    border-radius: 3px;
   }
-  
+
   &::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.05);
-    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 3px;
   }
 }
 
-// Kanban Column
+/* ---------- Column ---------- */
 .kanban-column {
   min-width: 280px;
-  max-width: 320px;
+  max-width: 310px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  background: #f8f9fa;
-  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: var(--cx-radius-lg);
+  border: 1px solid var(--cx-border);
   overflow: hidden;
-  transition: all 0.3s ease;
-  
+  transition: transform 0.2s var(--cx-ease), box-shadow 0.2s var(--cx-ease);
+
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--cx-shadow-sm);
   }
 }
 
-// Column Header
 .column-header {
-  padding: 14px 16px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 12px 14px;
+  background: var(--cx-gradient);
   color: white;
-  border-bottom: 3px solid;
   position: relative;
-  
+
   .header-content {
     display: flex;
     align-items: center;
     justify-content: space-between;
   }
-  
+
   h3 {
     margin: 0;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
-  
+
   .count-badge {
-    min-width: 28px;
-    height: 28px;
+    min-width: 26px;
+    height: 26px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 50%;
     font-weight: 700;
-    font-size: 13px;
-    background: rgba(255, 255, 255, 0.25);
-    border: 2px solid rgba(255, 255, 255, 0.5);
-    animation: countUp 0.8s ease-out;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    font-size: 12px;
+    background: rgba(255, 255, 255, 0.22);
+    border: 2px solid rgba(255, 255, 255, 0.45);
   }
 }
 
-// Column Content
 .column-content {
-  padding: 12px;
+  padding: 10px;
   overflow-y: auto;
   flex: 1;
-  min-height: 200px;
-  
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-  
+  min-height: 180px;
+
+  &::-webkit-scrollbar { width: 4px; }
   &::-webkit-scrollbar-thumb {
-    background: rgba(102, 126, 234, 0.3);
-    border-radius: 3px;
+    background: rgba(102, 126, 234, 0.2);
+    border-radius: 2px;
   }
-  
+
   &.cdk-drop-list-dragging .application-card:not(.cdk-drag-placeholder) {
     transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
   }
 }
 
-// Application Card
+/* ---------- Application Card ---------- */
 .application-card {
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   cursor: move;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 8px;
+  transition: transform 0.22s var(--cx-ease), box-shadow 0.22s var(--cx-ease), border-color 0.22s;
+  border-radius: var(--cx-radius-md);
   overflow: visible;
   position: relative;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  
+  border: 1px solid var(--cx-border);
+  background: #fff;
+
   &:hover {
-    transform: translateY(-4px) scale(1.02);
-    box-shadow: 0 12px 24px rgba(102, 126, 234, 0.2);
-    border-color: #667eea;
-    
-    .card-actions {
-      opacity: 1;
-    }
+    transform: translateY(-2px);
+    box-shadow: var(--cx-shadow-sm);
+    border-color: rgba(102, 126, 234, 0.2);
+
+    .card-actions { opacity: 1; }
   }
-  
+
   &.cdk-drag-preview {
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-    transform: rotate(3deg);
+    box-shadow: var(--cx-shadow-lg);
+    transform: rotate(2deg);
     opacity: 0.95;
   }
-  
+
   &.cdk-drag-placeholder {
     opacity: 0.3;
-    border: 2px dashed #667eea;
-    background: rgba(102, 126, 234, 0.05);
+    border: 2px dashed var(--cx-primary);
+    background: rgba(102, 126, 234, 0.04);
   }
-  
+
   &.cdk-drag-animating {
-    transition: transform 300ms cubic-bezier(0, 0, 0.2, 1);
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
   }
 }
 
-// Drag Handle
 .drag-handle {
   position: absolute;
   top: 8px;
   left: 8px;
-  color: #999;
+  color: var(--cx-text-muted);
   cursor: move;
-  opacity: 0.4;
+  opacity: 0.3;
   transition: opacity 0.2s;
-  
-  mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-  }
-  
-  .application-card:hover & {
-    opacity: 0.7;
-  }
+
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+  .application-card:hover & { opacity: 0.6; }
 }
 
-// Card Actions
 .card-actions {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 6px;
+  right: 6px;
   z-index: 10;
   opacity: 0;
-  transition: opacity 0.2s;
-  
+  transition: opacity 0.18s;
+
   button {
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     background: white;
     border-radius: 50%;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--cx-shadow-xs);
     padding: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
 
-    mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-      line-height: 18px;
-      display: block;
-      margin: 0;
-    }
+    mat-icon { font-size: 16px; width: 16px; height: 16px; line-height: 16px; display: block; margin: 0; }
 
     &:hover {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: var(--cx-gradient);
       color: white;
-      transform: scale(1.1);
+      transform: scale(1.08);
     }
   }
 }
 
-// Card Header
 mat-card-header {
-  padding: 1rem 1rem 0.5rem;
+  padding: 0.85rem 0.85rem 0.4rem;
   cursor: pointer;
 }
 
 .card-title {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
-  color: #2c3e50;
-  margin-bottom: 8px;
+  color: var(--cx-text);
+  margin-bottom: 6px;
   cursor: pointer;
-  transition: color 0.2s;
-  
-  .application-card:hover & {
-    color: #667eea;
-  }
+  transition: color 0.18s;
+
+  .application-card:hover & { color: var(--cx-primary); }
 }
 
-// Card Content
 mat-card-content {
-  padding: 0 1rem 1rem;
+  padding: 0 0.85rem 0.85rem;
   cursor: pointer;
 }
 
 .role {
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 10px;
+  font-size: 13px;
+  color: var(--cx-text-secondary);
+  margin-bottom: 8px;
   font-weight: 500;
 }
 
@@ -255,125 +229,76 @@ mat-card-content {
   align-items: center;
   gap: 4px;
   font-size: 12px;
-  color: #888;
-  margin-bottom: 10px;
-  
-  mat-icon {
-    font-size: 16px;
-    width: 16px;
-    height: 16px;
-    color: #667eea;
-  }
+  color: var(--cx-text-muted);
+  margin-bottom: 8px;
+
+  mat-icon { font-size: 15px; width: 15px; height: 15px; color: var(--cx-primary); }
 }
 
 .metadata {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
+  gap: 6px;
+  margin-bottom: 8px;
   flex-wrap: wrap;
 }
 
 .source-chip {
   font-size: 11px;
-  min-height: 24px;
-  padding: 0 8px;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-  border: 1px solid rgba(102, 126, 234, 0.3);
-  color: #667eea;
+  min-height: 22px;
+  padding: 0 7px;
+  background: rgba(102, 126, 234, 0.08);
+  border: 1px solid rgba(102, 126, 234, 0.15);
+  color: var(--cx-primary);
   font-weight: 600;
 }
 
 .salary {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   font-size: 12px;
   color: #28a745;
   font-weight: 600;
-  
-  mat-icon {
-    font-size: 14px;
-    width: 14px;
-    height: 14px;
-  }
+
+  mat-icon { font-size: 13px; width: 13px; height: 13px; }
 }
 
 .date {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   font-size: 11px;
-  color: #999;
-  
-  mat-icon {
-    font-size: 14px;
-    width: 14px;
-    height: 14px;
-  }
+  color: var(--cx-text-muted);
+
+  mat-icon { font-size: 13px; width: 13px; height: 13px; }
 }
 
-// Empty Column
 .empty-column {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 20px;
-  color: #999;
-  
+  padding: 36px 18px;
+  color: var(--cx-text-muted);
+
   mat-icon {
-    font-size: 64px;
-    width: 64px;
-    height: 64px;
-    opacity: 0.3;
-    margin-bottom: 12px;
-    animation: float 3s ease-in-out infinite;
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    opacity: 0.25;
+    margin-bottom: 10px;
   }
-  
-  p {
-    margin: 0;
-    font-size: 14px;
-  }
+
+  p { margin: 0; font-size: 13px; }
 }
 
-// Animations
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+/* ---------- Animations ---------- */
+@keyframes cx-fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
-@keyframes countUp {
-  0% {
-    opacity: 0;
-    transform: scale(0.5) translateY(10px);
-  }
-  60% {
-    transform: scale(1.1) translateY(-2px);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-// Responsive
 @media (max-width: 768px) {
-  .kanban-column {
-    min-width: 260px;
-    max-width: 280px;
-  }
+  .kanban-column { min-width: 260px; max-width: 280px; }
 }

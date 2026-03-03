@@ -1,23 +1,29 @@
+/* ================================================================
+   PROFILE — Premium Form View
+   ================================================================ */
+
 .profile-container {
-  max-width: 900px;
+  max-width: 880px;
   margin: 0 auto;
   padding: 2rem;
 }
 
 .profile-header {
   text-align: center;
-  margin-bottom: 2rem;
-  
+  margin-bottom: 1.75rem;
+
   h1 {
-    font-size: 2rem;
-    font-weight: 500;
-    color: #333;
-    margin-bottom: 0.5rem;
+    font-size: 1.85rem;
+    font-weight: 700;
+    background: var(--cx-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.4rem;
   }
-  
+
   .subtitle {
-    color: #666;
-    font-size: 1rem;
+    color: var(--cx-text-secondary);
+    font-size: 0.95rem;
   }
 }
 
@@ -31,91 +37,81 @@
 .profile-form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  
+  gap: 1.25rem;
+
   mat-card {
+    border: 1px solid var(--cx-border);
+    box-shadow: var(--cx-shadow-xs);
+    border-radius: var(--cx-radius-lg);
+    transition: box-shadow 0.22s var(--cx-ease);
+
+    &:hover { box-shadow: var(--cx-shadow-sm); }
+
     mat-card-header {
-      margin-bottom: 1rem;
-      
+      margin-bottom: 0.85rem;
+
       mat-card-title {
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        font-size: 1.25rem;
-        font-weight: 500;
-        
-        mat-icon {
-          color: #1976d2;
-        }
+        font-size: 1.15rem;
+        font-weight: 600;
+
+        mat-icon { color: var(--cx-primary); }
       }
     }
-    
-    mat-card-content {
-      padding-top: 1rem;
-    }
+
+    mat-card-content { padding-top: 0.85rem; }
   }
 }
 
 .form-row {
-  margin-bottom: 1rem;
-  
+  margin-bottom: 0.85rem;
+
   &.two-columns {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    
-    @media (max-width: 768px) {
-      grid-template-columns: 1fr;
-    }
+    gap: 0.85rem;
+
+    @media (max-width: 768px) { grid-template-columns: 1fr; }
   }
-  
+
   mat-form-field {
     width: 100%;
-    
-    &.full-width {
-      width: 100%;
-    }
+    &.full-width { width: 100%; }
   }
 }
 
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 1.5rem;
-  
+  gap: 0.85rem;
+  margin-top: 1.25rem;
+
   button {
-    min-width: 120px;
-    
-    mat-icon {
-      margin-right: 0.5rem;
-    }
-    
-    mat-spinner {
-      margin-right: 0.5rem;
-    }
+    min-width: 110px;
+    mat-icon  { margin-right: 0.4rem; }
+    mat-spinner { margin-right: 0.4rem; }
   }
 }
 
+/* ---------- CV Upload ---------- */
 .cv-upload-section {
-  margin-top: 1.5rem;
+  margin-top: 1.25rem;
 
   .cv-upload-header {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.85rem;
 
-    mat-icon {
-      color: #667eea;
-      font-size: 24px;
-    }
+    mat-icon { color: var(--cx-primary); font-size: 22px; }
 
     h3 {
       margin: 0;
-      font-size: 1rem;
+      font-size: 0.95rem;
       font-weight: 600;
-      color: #333;
+      color: var(--cx-text);
     }
   }
 
@@ -124,29 +120,26 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 2rem;
-    border: 2px dashed #ddd;
-    border-radius: 8px;
-    background: #fafafa;
-    transition: all 0.3s ease;
+    padding: 1.75rem;
+    border: 2px dashed rgba(102, 126, 234, 0.25);
+    border-radius: var(--cx-radius-md);
+    background: rgba(102, 126, 234, 0.02);
+    transition: border-color 0.25s var(--cx-ease), background 0.25s var(--cx-ease);
 
     &:hover {
-      border-color: #667eea;
-      background: #f5f7ff;
+      border-color: var(--cx-primary);
+      background: rgba(102, 126, 234, 0.04);
     }
 
     button {
-      margin-bottom: 0.5rem;
-
-      mat-icon {
-        margin-right: 0.5rem;
-      }
+      margin-bottom: 0.4rem;
+      mat-icon { margin-right: 0.4rem; }
     }
 
     .cv-upload-hint {
       margin: 0;
-      font-size: 0.875rem;
-      color: #999;
+      font-size: 0.82rem;
+      color: var(--cx-text-muted);
     }
   }
 
@@ -154,26 +147,22 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1rem;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    background: #f9f9f9;
+    padding: 0.85rem;
+    border: 1px solid var(--cx-border);
+    border-radius: var(--cx-radius-md);
+    background: rgba(0, 0, 0, 0.015);
 
     .cv-file-info {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.65rem;
       flex: 1;
 
-      mat-icon {
-        font-size: 28px;
-        width: 28px;
-        height: 28px;
-      }
+      mat-icon { font-size: 26px; width: 26px; height: 26px; color: var(--cx-primary); }
 
       .cv-filename {
         font-weight: 500;
-        color: #333;
+        color: var(--cx-text);
         flex: 1;
       }
     }
@@ -181,20 +170,15 @@
 }
 
 @media (max-width: 600px) {
-  .profile-container {
-    padding: 1rem;
-  }
-  
+  .profile-container { padding: 1rem; }
+
   .form-actions {
     flex-direction: column-reverse;
-    
-    button {
-      width: 100%;
-    }
+    button { width: 100%; }
   }
 }
 
-/* Fix biography field: align icon, label, and textarea properly */
+/* ---------- Biography Field Fix ---------- */
 .profile-form {
   .bio-field {
     ::ng-deep {
@@ -208,20 +192,17 @@
         padding-top: 1.25rem !important;
       }
 
-      /* Align prefix icon at the top */
       .mat-mdc-form-field-icon-prefix,
       .mat-form-field-prefix {
         align-self: flex-start;
         padding-top: 1rem;
       }
 
-      /* Label positioning */
       .mat-mdc-floating-label,
       .mat-form-field-label {
         top: 1.25rem !important;
       }
 
-      /* Textarea styling */
       textarea.mat-mdc-input-element,
       textarea.mat-input-element {
         min-height: 100px;

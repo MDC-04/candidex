@@ -83,6 +83,8 @@
                 matInput 
                 formControlName="bio" 
                 rows="4"
+                lang="fr"
+                spellcheck="true"
                 placeholder="Parlez-nous de vous..."></textarea>
               <mat-icon matPrefix>description</mat-icon>
               <mat-hint align="end">{{profileForm.get('bio')?.value?.length || 0}}/500</mat-hint>

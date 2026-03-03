@@ -8,12 +8,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatListModule } from '@angular/material/list';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { FormsModule } from '@angular/forms';
 
 import { InterviewsService } from '../../services/interviews.service';
 import {
@@ -27,6 +21,7 @@ import {
   UpdateInterviewDto
 } from '../../models';
 import { InterviewFormDialogComponent } from '../interview-form-dialog/interview-form-dialog.component';
+import { PrepPackDialogComponent } from '../prep-pack-dialog/prep-pack-dialog.component';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
@@ -41,13 +36,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
     MatChipsModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
-    MatMenuModule,
-    MatSidenavModule,
-    MatListModule,
-    MatDividerModule,
-    MatFormFieldModule,
-    MatInputModule,
-    FormsModule
+    MatMenuModule
   ],
   templateUrl: './interviews-page.component.html',
   styleUrl: './interviews-page.component.scss'
@@ -60,12 +49,6 @@ export class InterviewsPageComponent implements OnInit {
   next7DaysInterviews: Interview[] = [];
   upcomingInterviews: Interview[] = [];
   pastInterviews: Interview[] = [];
-
-  // Prep pack drawer
-  drawerOpen = false;
-  selectedInterview: Interview | null = null;
-  editingFeedback = '';
-  editingNotes = '';
 
   private notificationService = inject(NotificationService);
 
@@ -145,12 +128,23 @@ export class InterviewsPageComponent implements OnInit {
 
   getTypeColor(type: InterviewType): string {
     switch (type) {
-      case InterviewType.HR: return '#1565c0';
-      case InterviewType.TECH: return '#e65100';
-      case InterviewType.MANAGER: return '#6a1b9a';
-      case InterviewType.TAKE_HOME: return '#2e7d32';
-      case InterviewType.OTHER: return '#616161';
-      default: return '#667eea';
+      case InterviewType.HR:         return '#e3f2fd';  // bleu clair
+      case InterviewType.TECH:       return '#f3e5f5';  // violet clair
+      case InterviewType.MANAGER:    return '#fff3e0';  // ambre clair
+      case InterviewType.TAKE_HOME:  return '#e8f5e9';  // vert clair
+      case InterviewType.OTHER:      return '#eceff1';  // gris clair
+      default:                       return '#e3f2fd';
+    }
+  }
+
+  getTypeTextColor(type: InterviewType): string {
+    switch (type) {
+      case InterviewType.HR:         return '#1565c0';  // bleu foncé
+      case InterviewType.TECH:       return '#7b1fa2';  // violet foncé
+      case InterviewType.MANAGER:    return '#e65100';  // ambre foncé
+      case InterviewType.TAKE_HOME:  return '#2e7d32';  // vert foncé
+      case InterviewType.OTHER:      return '#546e7a';  // gris foncé
+      default:                       return '#1565c0';
     }
   }
 
@@ -223,9 +217,6 @@ export class InterviewsPageComponent implements OnInit {
       this.interviewsService.delete(interview.id).subscribe({
         next: () => {
           this.notificationService.success('Entretien supprimé');
-          if (this.selectedInterview?.id === interview.id) {
-            this.closeDrawer();
-          }
           this.loadInterviews();
         },
         error: () => this.notificationService.error('Erreur lors de la suppression')
@@ -235,30 +226,22 @@ export class InterviewsPageComponent implements OnInit {
 
   // Prep pack drawer
   openPrepPack(interview: Interview): void {
-    this.selectedInterview = interview;
-    this.editingFeedback = interview.feedback || '';
-    this.editingNotes = interview.notes || '';
-    this.drawerOpen = true;
-  }
-
-  closeDrawer(): void {
-    this.drawerOpen = false;
-    this.selectedInterview = null;
-  }
-
-  savePrepNotes(): void {
-    if (!this.selectedInterview) return;
-    const dto: UpdateInterviewDto = {
-      notes: this.editingNotes,
-      feedback: this.editingFeedback
-    };
-    this.interviewsService.update(this.selectedInterview.id, dto).subscribe({
-      next: (updated) => {
-        this.notificationService.success('Notes sauvegardées');
-        this.selectedInterview = updated;
-        this.loadInterviews();
-      },
-      error: () => this.notificationService.error('Erreur')
+    const dialogRef = this.dialog.open(PrepPackDialogComponent, {
+      width: '580px',
+      maxHeight: '85vh',
+      data: { interview }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (!result) return;
+      const dto: UpdateInterviewDto = { notes: result.notes, feedback: result.feedback };
+      this.interviewsService.update(interview.id, dto).subscribe({
+        next: () => {
+          this.notificationService.success('Notes sauvegardées');
+          this.loadInterviews();
+        },
+        error: () => this.notificationService.error('Erreur')
+      });
     });
   }
+
 }

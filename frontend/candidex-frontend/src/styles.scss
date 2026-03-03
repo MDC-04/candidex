@@ -1,291 +1,283 @@
-/* You can add global styles to this file, and also import other style files */
+/* ================================================================
+   CANDIDEX — Global Design System
+   SaaS-grade tokens, surfaces, and micro-interactions
+   ================================================================ */
 
-html, body { 
-  height: 100%; 
+/* ---------- 1. CSS Custom Properties (tokens) ---------- */
+:root {
+  /* Palette */
+  --cx-primary:       #667eea;
+  --cx-primary-dark:  #5a6fd6;
+  --cx-accent:        #764ba2;
+  --cx-gradient:      linear-gradient(135deg, var(--cx-primary) 0%, var(--cx-accent) 100%);
+
+  /* Neutrals */
+  --cx-bg:            #f0f2f7;
+  --cx-surface:       #ffffff;
+  --cx-surface-hover: #fafbff;
+  --cx-border:        rgba(0, 0, 0, 0.06);
+  --cx-text:          #1e293b;
+  --cx-text-secondary:#64748b;
+  --cx-text-muted:    #94a3b8;
+
+  /* Feedback */
+  --cx-success:       #22c55e;
+  --cx-warning:       #f59e0b;
+  --cx-danger:        #ef4444;
+  --cx-info:          #3b82f6;
+
+  /* Elevation (subtle, natural) */
+  --cx-shadow-xs:  0 1px 2px rgba(0,0,0,0.04);
+  --cx-shadow-sm:  0 2px 6px rgba(0,0,0,0.06);
+  --cx-shadow-md:  0 4px 14px rgba(0,0,0,0.08);
+  --cx-shadow-lg:  0 8px 28px rgba(0,0,0,0.10);
+  --cx-shadow-xl:  0 16px 48px rgba(0,0,0,0.12);
+
+  /* Radii */
+  --cx-radius-sm:  8px;
+  --cx-radius-md:  12px;
+  --cx-radius-lg:  16px;
+  --cx-radius-xl:  20px;
+
+  /* Transitions */
+  --cx-ease:   cubic-bezier(0.4, 0, 0.2, 1);
+  --cx-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-body { 
-  margin: 0; 
-  font-family: Roboto, "Helvetica Neue", sans-serif;
-  background-color: #f5f5f5;
+/* ---------- 2. Reset & base ---------- */
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--cx-bg);
+  color: var(--cx-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom Snackbar Styles */
+@keyframes prepFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ---------- 3. SaaS Background (blobs + gradient) ---------- */
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -1;
+  filter: blur(100px);
+}
+
+body::before {
+  width: 600px;
+  height: 600px;
+  top: -10%;
+  left: -8%;
+  background: radial-gradient(circle, rgba(102,126,234,0.10) 0%, transparent 70%);
+}
+
+body::after {
+  width: 500px;
+  height: 500px;
+  bottom: -5%;
+  right: -5%;
+  background: radial-gradient(circle, rgba(118,75,162,0.08) 0%, transparent 70%);
+}
+
+/* ---------- 4. Snackbar Feedback ---------- */
 .success-snackbar {
-  background-color: #4CAF50 !important;
-  color: white !important;
-  
-  .mat-mdc-snack-bar-label {
-    color: white !important;
-  }
-  
-  .mat-mdc-button {
-    color: white !important;
-  }
+  --mdc-snackbar-container-color: var(--cx-success) !important;
+  --mdc-snackbar-supporting-text-color: #fff !important;
+  border-radius: var(--cx-radius-sm) !important;
+  .mat-mdc-snack-bar-label { color: #fff !important; }
+  .mat-mdc-button { color: #fff !important; }
 }
 
 .error-snackbar {
-  background-color: #F44336 !important;
-  color: white !important;
-  
-  .mat-mdc-snack-bar-label {
-    color: white !important;
-  }
-  
-  .mat-mdc-button {
-    color: white !important;
-  }
+  --mdc-snackbar-container-color: var(--cx-danger) !important;
+  --mdc-snackbar-supporting-text-color: #fff !important;
+  border-radius: var(--cx-radius-sm) !important;
+  .mat-mdc-snack-bar-label { color: #fff !important; }
+  .mat-mdc-button { color: #fff !important; }
 }
 
 .info-snackbar {
-  background-color: #2196F3 !important;
-  color: white !important;
-  
-  .mat-mdc-snack-bar-label {
-    color: white !important;
-  }
-  
-  .mat-mdc-button {
-    color: white !important;
-  }
+  --mdc-snackbar-container-color: var(--cx-info) !important;
+  --mdc-snackbar-supporting-text-color: #fff !important;
+  border-radius: var(--cx-radius-sm) !important;
+  .mat-mdc-snack-bar-label { color: #fff !important; }
+  .mat-mdc-button { color: #fff !important; }
 }
 
 .warning-snackbar {
-  background-color: #FF9800 !important;
-  color: white !important;
-  
-  .mat-mdc-snack-bar-label {
-    color: white !important;
-  }
-  
-  .mat-mdc-button {
-    color: white !important;
-  }
+  --mdc-snackbar-container-color: var(--cx-warning) !important;
+  --mdc-snackbar-supporting-text-color: #fff !important;
+  border-radius: var(--cx-radius-sm) !important;
+  .mat-mdc-snack-bar-label { color: #fff !important; }
+  .mat-mdc-button { color: #fff !important; }
 }
 
-/* Smooth Animations */
+/* ---------- 5. Animations ---------- */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  from { opacity: 0; transform: translateX(16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes shimmer {
-  0% {
-    background-position: -1000px 0;
-  }
-  100% {
-    background-position: 1000px 0;
-  }
+  0%   { background-position: -1000px 0; }
+  100% { background-position:  1000px 0; }
 }
 
-.fade-in {
-  animation: fadeIn 0.3s ease-in-out;
+@keyframes menuEnter {
+  from { opacity: 0; transform: scale(0.96) translateY(-4px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
 }
 
-.slide-in-right {
-  animation: slideInRight 0.3s ease-in-out;
+@keyframes dialogEnter {
+  from { opacity: 0; transform: scale(0.92) translateY(12px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
 }
 
-/* Loading Skeleton */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+
+.fade-in       { animation: fadeIn      0.35s var(--cx-ease); }
+.slide-in-right{ animation: slideInRight 0.35s var(--cx-ease); }
+
+/* ---------- 6. Skeleton Loading ---------- */
 .skeleton {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background: linear-gradient(90deg, #e8ecf4 25%, #d5dce8 50%, #e8ecf4 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
-  border-radius: 4px;
+  border-radius: var(--cx-radius-sm);
 }
+.skeleton-text  { height: 16px; margin-bottom: 8px; }
+.skeleton-title { height: 24px; margin-bottom: 12px; width: 60%; }
+.skeleton-card  { height: 120px; margin-bottom: 16px; }
 
-.skeleton-text {
-  height: 16px;
-  margin-bottom: 8px;
-}
+/* ---------- 7. Material Card Enhancement ---------- */
+mat-card, .mat-mdc-card {
+  border-radius: var(--cx-radius-lg) !important;
+  border: 1px solid var(--cx-border);
+  box-shadow: var(--cx-shadow-sm) !important;
+  transition: box-shadow 0.3s var(--cx-ease), transform 0.25s var(--cx-ease);
 
-.skeleton-title {
-  height: 24px;
-  margin-bottom: 12px;
-  width: 60%;
-}
-
-.skeleton-card {
-  height: 120px;
-  margin-bottom: 16px;
-}
-
-/* Material Card Enhancement */
-mat-card {
-  transition: box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  
   &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    box-shadow: var(--cx-shadow-md) !important;
   }
 }
 
-/* Button Enhancements */
-.mat-mdc-raised-button, .mat-mdc-unelevated-button, .mat-mdc-outlined-button {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  
+/* ---------- 8. Button Enhancements ---------- */
+.mat-mdc-raised-button,
+.mat-mdc-unelevated-button,
+.mat-mdc-outlined-button {
+  border-radius: var(--cx-radius-sm) !important;
+  transition: all 0.25s var(--cx-ease);
+  letter-spacing: 0.3px;
+
   &:hover:not([disabled]) {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
   }
-  
   &:active:not([disabled]) {
     transform: translateY(0);
   }
 }
 
 .mat-mdc-icon-button {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  
+  transition: all 0.2s var(--cx-ease);
   &:hover:not([disabled]) {
-    transform: scale(1.1);
-    background-color: rgba(102, 126, 234, 0.08);
+    transform: scale(1.08);
+    background-color: rgba(102, 126, 234, 0.06);
   }
 }
 
-/* Chip Animations */
+/* ---------- 9. Chips ---------- */
 .mat-mdc-chip {
-  transition: all 0.2s ease;
-  
+  transition: all 0.2s var(--cx-ease);
+  border-radius: var(--cx-radius-sm) !important;
   &:hover {
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--cx-shadow-xs);
   }
 }
 
-/* Input Focus Effects */
+/* ---------- 10. Inputs ---------- */
 .mat-mdc-form-field {
-  transition: all 0.3s ease;
-  
-  &:hover {
-    .mat-mdc-text-field-wrapper {
-      background-color: rgba(102, 126, 234, 0.02);
-    }
+  transition: all 0.25s var(--cx-ease);
+  &:hover .mat-mdc-text-field-wrapper {
+    background-color: rgba(102, 126, 234, 0.015);
   }
 }
 
-/* Tooltip Customization */
+/* ---------- 11. Tooltip ---------- */
 .mat-mdc-tooltip {
   font-size: 12px !important;
-  background-color: rgba(0, 0, 0, 0.9) !important;
-  padding: 8px 12px !important;
+  background-color: var(--cx-text) !important;
+  padding: 6px 12px !important;
   border-radius: 6px !important;
 }
 
-/* Menu Animations */
+/* ---------- 12. Menu ---------- */
 .mat-mdc-menu-panel {
-  animation: menuEnter 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: var(--cx-radius-md) !important;
+  box-shadow: var(--cx-shadow-lg) !important;
+  border: 1px solid var(--cx-border);
+  animation: menuEnter 0.2s var(--cx-ease);
 }
 
-@keyframes menuEnter {
-  from {
-    opacity: 0;
-    transform: scale(0.95) translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-/* Dialog Animations */
+/* ---------- 13. Dialog ---------- */
 .mat-mdc-dialog-container {
-  animation: dialogEnter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: var(--cx-radius-lg) !important;
+  animation: dialogEnter 0.3s var(--cx-ease);
 }
 
-@keyframes dialogEnter {
-  from {
-    opacity: 0;
-    transform: scale(0.9) translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-/* Link Hover Effects */
+/* ---------- 14. Links ---------- */
 a {
-  transition: color 0.2s ease, opacity 0.2s ease;
-  
-  &:hover {
-    opacity: 0.8;
-  }
+  transition: color 0.2s var(--cx-ease), opacity 0.2s var(--cx-ease);
+  &:hover { opacity: 0.85; }
 }
 
-/* Focus Visible Enhancement */
+/* ---------- 15. Focus ---------- */
 *:focus-visible {
-  outline: 2px solid #667eea;
+  outline: 2px solid var(--cx-primary);
   outline-offset: 2px;
   border-radius: 4px;
 }
 
-/* Skeleton Loading Animation */
-@keyframes skeletonPulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.6;
-  }
-}
-
-.skeleton-loading {
-  animation: skeletonPulse 1.5s ease-in-out infinite;
-}
-
-/* Gradient Text Utility */
+/* ---------- 16. Gradient Utilities ---------- */
 .gradient-text {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--cx-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-/* Badge Pulse */
 .badge-pulse {
   animation: badgePulse 2s ease-in-out infinite;
 }
-
 @keyframes badgePulse {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
-  }
-  50% {
-    box-shadow: 0 0 0 6px rgba(102, 126, 234, 0);
-  }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(102,126,234,0.6); }
+  50%      { box-shadow: 0 0 0 6px rgba(102,126,234,0); }
 }
 
-/* Scrollbar Styling */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-}
+/* ---------- 17. Scrollbar ---------- */
+::-webkit-scrollbar       { width: 6px; height: 6px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: #c4c9d4; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #9ca3b0; }

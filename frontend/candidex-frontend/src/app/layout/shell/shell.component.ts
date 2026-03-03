@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterOutlet, RouterLink } from '@angular/router';
+import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -20,7 +20,8 @@ import { AuthService } from '../../core/services/auth.service';
   imports: [
     CommonModule,
     RouterOutlet, 
-    RouterLink, 
+    RouterLink,
+    RouterLinkActive,
     MatSidenavModule, 
     MatToolbarModule, 
     MatListModule, 

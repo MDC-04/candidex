@@ -1,0 +1,54 @@
+<section class="home-container" aria-label="Accueil Candidex">
+
+  <!-- Hero Header -->
+  <header class="home-hero">
+    <div class="hero-content">
+      <div class="hero-icon-wrapper">
+        <mat-icon class="hero-icon">rocket_launch</mat-icon>
+      </div>
+      <h1 class="hero-title">Bienvenue sur <span class="brand-gradient">Candidex</span></h1>
+      <p class="hero-subtitle">Suivez vos candidatures, préparez vos entretiens et décrochez le poste idéal.</p>
+    </div>
+  </header>
+
+  <!-- Tiles Grid -->
+  <div class="tiles-grid" role="navigation" aria-label="Navigation rapide">
+    @for (tile of tiles; track tile.route) {
+      <a
+        class="tile-card {{ tile.accentClass }}"
+        [routerLink]="tile.route"
+        matRipple
+        [attr.aria-label]="'Accéder à ' + tile.title">
+
+        <!-- Icon circle -->
+        <div class="tile-icon-circle">
+          <mat-icon>{{ tile.icon }}</mat-icon>
+        </div>
+
+        <!-- Text -->
+        <div class="tile-body">
+          <h2 class="tile-title">{{ tile.title }}</h2>
+          <p class="tile-description">{{ tile.description }}</p>
+        </div>
+
+        <!-- Footer: stat + badge -->
+        <div class="tile-footer">
+          <span class="tile-stat">
+            <mat-icon class="stat-icon">arrow_forward</mat-icon>
+            {{ tile.stat }}
+          </span>
+          @if (tile.badge) {
+            <span class="tile-badge">{{ tile.badge }}</span>
+          }
+        </div>
+
+      </a>
+    }
+  </div>
+
+  <!-- Footer -->
+  <footer class="home-footer">
+    <p>Candidex &copy; 2026 — Votre assistant de recherche d'emploi</p>
+  </footer>
+
+</section>
