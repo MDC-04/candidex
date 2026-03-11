@@ -1,0 +1,285 @@
+.applications-container {
+  min-height: 100vh;
+  background-color: #f5f7fa;
+}
+
+.navbar {
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-brand h1 {
+  margin: 0;
+  color: #667eea;
+  font-size: 24px;
+}
+
+.navbar-menu {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.navbar-menu a {
+  text-decoration: none;
+  color: #666;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 5px;
+  transition: all 0.3s;
+}
+
+.navbar-menu a:hover,
+.navbar-menu a.active {
+  background-color: #f0f0f0;
+  color: #667eea;
+}
+
+.btn-logout {
+  padding: 8px 20px;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.applications-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.header-section h2 {
+  margin: 0;
+  color: #333;
+}
+
+.filters-section {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.search-input,
+.filter-select {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.search-input {
+  flex: 1;
+}
+
+.loading,
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+.applications-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.application-card {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+}
+
+.application-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 15px;
+}
+
+.card-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 18px;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-badge.wishlist {
+  background-color: #e8f4f8;
+  color: #3498db;
+}
+
+.status-badge.applied {
+  background-color: #f4ecf7;
+  color: #9b59b6;
+}
+
+.status-badge.interview {
+  background-color: #fef5e7;
+  color: #f39c12;
+}
+
+.status-badge.offer {
+  background-color: #eafaf1;
+  color: #2ecc71;
+}
+
+.status-badge.rejected {
+  background-color: #fadbd8;
+  color: #e74c3c;
+}
+
+.status-badge.accepted {
+  background-color: #d5f4e6;
+  color: #27ae60;
+}
+
+.card-body p {
+  margin: 8px 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.card-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.btn-action {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s;
+}
+
+.btn-view {
+  background-color: #3498db;
+  color: white;
+}
+
+.btn-edit {
+  background-color: #f39c12;
+  color: white;
+}
+
+.btn-delete {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.btn-action:hover {
+  opacity: 0.8;
+}
+
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.btn-secondary {
+  background-color: #95a5a6;
+  color: white;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #333;
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.modal-actions button {
+  flex: 1;
+}
