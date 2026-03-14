@@ -2,6 +2,8 @@ package com.candidex.api.model;
 
 import com.candidex.api.model.enums.ApplicationSource;
 import com.candidex.api.model.enums.ApplicationStatus;
+import com.candidex.api.model.enums.EmploymentType;
+import com.candidex.api.model.enums.SalaryPeriod;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -45,14 +47,19 @@ public class Application {
     @Size(min = 1, max = 120, message = "Role title must be between 1 and 120 characters")
     private String roleTitle;
     
-    @Size(max = 120, message = "Location must not exceed 120 characters")
-    private String location;
+    @Size(max = 100)
+    private String city;
+    
+    @Size(max = 100)
+    private String country;
     
     @NotNull(message = "Source is required")
     private ApplicationSource source;
     
     @NotNull(message = "Status is required")
     private ApplicationStatus status;
+    
+    private EmploymentType employmentType;
     
     private String appliedDate; // ISO date (YYYY-MM-DD)
     
@@ -61,6 +68,8 @@ public class Application {
     
     @Builder.Default
     private String currency = "EUR";
+    
+    private SalaryPeriod salaryPeriod;
     
     @Size(max = 10, message = "Maximum 10 tags allowed")
     private List<String> tags;

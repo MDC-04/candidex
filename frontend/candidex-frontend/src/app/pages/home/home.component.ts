@@ -56,7 +56,7 @@ export class HomeComponent {
       route: '/pipeline',
       accentClass: 'tile-pipeline',
       stat: 'Vue kanban',
-      badge: 'MVP',
+      //badge: 'MVP',
     },
     {
       title: 'Entretiens',
@@ -65,7 +65,7 @@ export class HomeComponent {
       route: '/interviews',
       accentClass: 'tile-interviews',
       stat: 'Agenda',
-      badge: 'Nouveau',
+      //badge: 'Nouveau',
     },
     {
       title: 'Profil',

@@ -49,7 +49,7 @@ export class ApplicationsKanbanComponent implements OnInit {
     { status: ApplicationStatus.HR_INTERVIEW, label: ApplicationStatusLabels[ApplicationStatus.HR_INTERVIEW], applications: [], color: '#FF9800' },
     { status: ApplicationStatus.TECH_INTERVIEW, label: ApplicationStatusLabels[ApplicationStatus.TECH_INTERVIEW], applications: [], color: '#9C27B0' },
     { status: ApplicationStatus.OFFER, label: ApplicationStatusLabels[ApplicationStatus.OFFER], applications: [], color: '#4CAF50' },
-    { status: ApplicationStatus.REJECTED, label: ApplicationStatusLabels[ApplicationStatus.REJECTED], applications: [], color: '#F44336' },
+    { status: ApplicationStatus.REJECTED, label: ApplicationStatusLabels[ApplicationStatus.REJECTED], applications: [], color: '#fc1100' },
     { status: ApplicationStatus.GHOSTED, label: ApplicationStatusLabels[ApplicationStatus.GHOSTED], applications: [], color: '#9E9E9E' }
   ];
   
@@ -129,6 +129,7 @@ export class ApplicationsKanbanComponent implements OnInit {
     
     const dialogRef = this.dialog.open(ApplicationFormComponent, {
       width: '600px',
+      autoFocus: false,
       disableClose: false,
       data: { application }
     });
@@ -155,6 +156,17 @@ export class ApplicationsKanbanComponent implements OnInit {
         this.notificationService.error('Échec de la mise à jour.');
       }
     });
+  }
+
+  getLocationDisplay(app: Application): string | null {
+    const city = (app.city || '').trim();
+    const country = (app.country || '').trim();
+
+    if (city && country) {
+      return `${city}, ${country}`;
+    }
+
+    return city || country || null;
   }
   
   getColumnIds(): string[] {

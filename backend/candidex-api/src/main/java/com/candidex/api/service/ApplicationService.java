@@ -54,12 +54,15 @@ public class ApplicationService {
                 .userId(userId)
                 .companyName(dto.getCompanyName())
                 .roleTitle(dto.getRoleTitle())
-                .location(dto.getLocation())
+                .city(dto.getCity())
+                .country(dto.getCountry())
                 .source(dto.getSource())
                 .status(dto.getStatus() != null ? dto.getStatus() : ApplicationStatus.APPLIED) // Default status
+                .employmentType(dto.getEmploymentType())
                 .appliedDate(dto.getAppliedDate())
                 .salary(dto.getSalary())
                 .currency(dto.getCurrency() != null ? dto.getCurrency() : "EUR") // Default currency
+                .salaryPeriod(dto.getSalaryPeriod())
                 .tags(dto.getTags())
                 .links(dto.getLinks())
                 .notes(dto.getNotes())
@@ -83,12 +86,15 @@ public class ApplicationService {
         // Apply updates (only non-null fields)
         if (dto.getCompanyName() != null) application.setCompanyName(dto.getCompanyName());
         if (dto.getRoleTitle() != null) application.setRoleTitle(dto.getRoleTitle());
-        if (dto.getLocation() != null) application.setLocation(dto.getLocation());
+        if (dto.getCity() != null) application.setCity(dto.getCity());
+        if (dto.getCountry() != null) application.setCountry(dto.getCountry());
         if (dto.getSource() != null) application.setSource(dto.getSource());
         if (dto.getStatus() != null) application.setStatus(dto.getStatus());
+        if (dto.getEmploymentType() != null) application.setEmploymentType(dto.getEmploymentType());
         if (dto.getAppliedDate() != null) application.setAppliedDate(dto.getAppliedDate());
         if (dto.getSalary() != null) application.setSalary(dto.getSalary());
         if (dto.getCurrency() != null) application.setCurrency(dto.getCurrency());
+        if (dto.getSalaryPeriod() != null) application.setSalaryPeriod(dto.getSalaryPeriod());
         if (dto.getTags() != null) application.setTags(dto.getTags());
         if (dto.getLinks() != null) application.setLinks(dto.getLinks());
         if (dto.getNotes() != null) application.setNotes(dto.getNotes());

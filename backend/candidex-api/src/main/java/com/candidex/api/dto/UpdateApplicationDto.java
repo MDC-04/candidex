@@ -4,6 +4,8 @@ import com.candidex.api.model.ApplicationLinks;
 import com.candidex.api.model.NextAction;
 import com.candidex.api.model.enums.ApplicationSource;
 import com.candidex.api.model.enums.ApplicationStatus;
+import com.candidex.api.model.enums.EmploymentType;
+import com.candidex.api.model.enums.SalaryPeriod;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -30,12 +32,17 @@ public class UpdateApplicationDto {
     @Size(min = 1, max = 120)
     private String roleTitle;
     
-    @Size(max = 120)
-    private String location;
+    @Size(max = 100)
+    private String city;
+    
+    @Size(max = 100)
+    private String country;
     
     private ApplicationSource source;
     
     private ApplicationStatus status;
+    
+    private EmploymentType employmentType;
     
     private String appliedDate;
     
@@ -43,6 +50,8 @@ public class UpdateApplicationDto {
     private Integer salary;
     
     private String currency;
+    
+    private SalaryPeriod salaryPeriod;
     
     @Size(max = 10)
     private List<String> tags;

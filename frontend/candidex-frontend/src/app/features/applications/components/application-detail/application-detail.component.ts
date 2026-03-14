@@ -81,6 +81,7 @@ export class ApplicationDetailComponent implements OnInit {
 
     const dialogRef = this.dialog.open(ApplicationFormComponent, {
       width: '600px',
+      autoFocus: false,
       disableClose: false,
       data: { application: this.currentApplication }
     });
@@ -143,6 +144,16 @@ export class ApplicationDetailComponent implements OnInit {
    */
   getSourceLabel(app: Application): string {
     return ApplicationSourceLabels[app.source];
+  }
+
+  getLocationDisplay(app: Application): string {
+    const city = (app.city || '').trim();
+    const country = (app.country || '').trim();
+
+    if (city && country) {
+      return `${city}, ${country}`;
+    }
+    return city || country || 'N/A';
   }
 
   /**

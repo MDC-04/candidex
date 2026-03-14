@@ -27,8 +27,8 @@
       </mat-form-field>
       
       <mat-form-field appearance="outline" class="filter-field">
-        <mat-label>Location</mat-label>
-        <input matInput [formControl]="locationFilterControl" placeholder="Ex: Paris, Lyon...">
+        <mat-label>Ville / Pays</mat-label>
+        <input matInput [formControl]="locationFilterControl" placeholder="Ex: Paris, France...">
         <button matSuffix mat-icon-button *ngIf="locationFilterControl.value" (click)="locationFilterControl.setValue('')">
           <mat-icon>close</mat-icon>
         </button>
@@ -113,12 +113,12 @@
           </td>
         </ng-container>
 
-        <!-- Location Column -->
-        <ng-container matColumnDef="location">
+        <!-- Localisation Column -->
+        <ng-container matColumnDef="localisation">
           <th mat-header-cell *matHeaderCellDef>Localisation</th>
           <td mat-cell *matCellDef="let app">
             <mat-icon class="location-icon">location_on</mat-icon>
-            {{ app.location || 'Non spécifié' }}
+            {{ getLocationDisplay(app) }}
           </td>
         </ng-container>
 

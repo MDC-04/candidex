@@ -1,7 +1,6 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
@@ -36,7 +35,7 @@ import { InterviewFormDialogComponent } from '../../../interviews/components/int
  * 
  * Features:
  * - Displays applications in a Material table
- * - Shows status, source, company, role, location
+ * - Shows status, source, company, role, city/country
  * - Responsive design (mobile-friendly)
  * - Uses async pipe for automatic subscription management
  */
@@ -79,7 +78,7 @@ export class ApplicationsListComponent implements OnInit {
     'roleTitle',
     'status',
     'source',
-    'location',
+    'localisation',
     'appliedDate',
     'nextAction',
     'actions'
@@ -95,7 +94,7 @@ export class ApplicationsListComponent implements OnInit {
    * Filter controls
    */
   searchControl = new FormControl('');
-  // statusFilterControl removed in favor of location-based filtering
+  // statusFilterControl removed in favor of city/country filtering
   locationFilterControl = new FormControl('');
   sourceFilterControl = new FormControl<ApplicationSource | 'ALL'>('ALL');
   
@@ -154,11 +153,12 @@ export class ApplicationsListComponent implements OnInit {
       );
     }
     
-    // Status filter
-    // Location filter (city / location)
+    // City/Country filter
     const locationFilter = this.locationFilterControl.value?.toLowerCase() || '';
     if (locationFilter) {
-      filtered = filtered.filter(app => (app.location || '').toLowerCase().includes(locationFilter));
+      filtered = filtered.filter(app =>
+        this.getLocationSearchText(app).includes(locationFilter)
+      );
     }
     
     // Source filter
@@ -198,6 +198,7 @@ export class ApplicationsListComponent implements OnInit {
   onCreateNew(): void {
     const dialogRef = this.dialog.open(ApplicationFormComponent, {
       width: '600px',
+      autoFocus: false,
       disableClose: false,
       data: { application: undefined } // Create mode
     });
@@ -223,6 +224,20 @@ export class ApplicationsListComponent implements OnInit {
    */
   getSourceLabel(source: ApplicationSource): string {
     return ApplicationSourceLabels[source];
+  }
+
+  getLocationDisplay(app: Application): string {
+    const city = (app.city || '').trim();
+    const country = (app.country || '').trim();
+
+    if (city && country) {
+      return `${city}, ${country}`;
+    }
+    return city || country || 'Non spécifié';
+  }
+
+  private getLocationSearchText(app: Application): string {
+    return `${app.city || ''} ${app.country || ''}`.toLowerCase();
   }
 
   /**
@@ -292,6 +307,7 @@ export class ApplicationsListComponent implements OnInit {
   onEdit(application: Application): void {
     const dialogRef = this.dialog.open(ApplicationFormComponent, {
       width: '600px',
+      autoFocus: false,
       disableClose: false,
       data: { application } // Edit mode - pass existing application
     });

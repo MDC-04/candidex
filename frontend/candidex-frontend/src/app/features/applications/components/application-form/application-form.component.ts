@@ -1,227 +1,495 @@
-import { Component, Inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { AfterViewInit, Component, Inject, OnInit, ViewEncapsulation } from '@angular/core';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatSelectModule } from '@angular/material/select';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatIconModule } from '@angular/material/icon';
 
-import { Application, ApplicationSource, ApplicationStatus, CreateApplicationDto, UpdateApplicationDto, ApplicationStatusLabels, ApplicationSourceLabels } from '../../models';
+import {
+  Application,
+  ApplicationSource,
+  ApplicationStatus,
+  CreateApplicationDto,
+  UpdateApplicationDto,
+} from '../../models';
 import { ApplicationsService } from '../../services/applications.service';
+import { NotificationService } from '../../../../core/services/notification.service';
 
-/**
- * Dialog data for ApplicationFormComponent
- */
 export interface ApplicationFormDialogData {
-  application?: Application; // If provided, edit mode; otherwise, create mode
+  application?: Application;
 }
 
-/**
- * Form component for creating or editing job applications
- * 
- * Features:
- * - Reactive forms with validation
- * - Material Design UI
- * - Create mode (new application) or Edit mode (existing application)
- * - Form validation (required fields, salary range)
- */
 @Component({
   selector: 'app-application-form',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatSelectModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatChipsModule,
-    MatIconModule
-  ],
-  templateUrl: './application-form.component.html',
-  styleUrl: './application-form.component.scss'
+  imports: [ReactiveFormsModule, MatDialogModule],
+  encapsulation: ViewEncapsulation.None,
+  template: `
+    <h2 mat-dialog-title class="af-title">
+      {{ isEditMode ? 'Modifier la candidature' : 'Nouvelle candidature' }}
+    </h2>
+
+    <form [formGroup]="form" class="af-form" (ngSubmit)="onSubmit()">
+      <mat-dialog-content class="af-content">
+
+        <div class="af-section">
+          <div class="af-section-label">Informations</div>
+
+          <div class="af-field af-full">
+            <label>Entreprise <span class="af-req">*</span></label>
+            <input type="text" formControlName="companyName" placeholder="ex: Google">
+          </div>
+
+          <div class="af-field af-full">
+            <label>Intitulé du poste <span class="af-req">*</span></label>
+            <input type="text" formControlName="roleTitle" placeholder="ex: Ingénieur logiciel">
+          </div>
+
+          <div class="af-row">
+            <div class="af-field">
+              <label>Type de contrat</label>
+              <select formControlName="employmentType">
+                <option value="">— Sélectionner —</option>
+                <option value="CDI">CDI</option>
+                <option value="CDD">CDD</option>
+                <option value="INTERNSHIP">Stage</option>
+                <option value="ALTERNANCE">Alternance</option>
+                <option value="FREELANCE">Freelance</option>
+              </select>
+            </div>
+            <div class="af-field">
+              <label>Source <span class="af-req">*</span></label>
+              <select formControlName="source">
+                <option value="LINKEDIN">LinkedIn</option>
+                <option value="COMPANY_WEBSITE">Site entreprise</option>
+                <option value="REFERRAL">Recommandation</option>
+                <option value="JOB_BOARD">Site d'emploi</option>
+                <option value="EMAIL">Email</option>
+                <option value="SCHOOL_FORUM">Forum école</option>
+                <option value="OTHER">Autre</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="af-row">
+            <div class="af-field">
+              <label>Statut <span class="af-req">*</span></label>
+              <select formControlName="status">
+                <option value="APPLIED">Candidature envoyée</option>
+                <option value="HR_INTERVIEW">Entretien RH</option>
+                <option value="TECH_INTERVIEW">Entretien technique</option>
+                <option value="OFFER">Offre reçue</option>
+                <option value="REJECTED">Refusée</option>
+                <option value="GHOSTED">Sans réponse</option>
+              </select>
+            </div>
+            <div class="af-field">
+              <label>Date de candidature</label>
+              <input type="date" formControlName="appliedDate">
+            </div>
+          </div>
+        </div>
+
+        <div class="af-section">
+          <div class="af-section-label">Localisation</div>
+          <div class="af-row">
+            <div class="af-field">
+              <label>Ville</label>
+              <input type="text" formControlName="city" placeholder="ex: Paris">
+            </div>
+            <div class="af-field">
+              <label>Pays</label>
+              <input type="text" formControlName="country" placeholder="ex: France">
+            </div>
+          </div>
+        </div>
+
+        <div class="af-section">
+          <div class="af-section-label">Rémunération</div>
+          <div class="af-row af-triple">
+            <div class="af-field">
+              <label>Salaire</label>
+              <input type="number" formControlName="salary" placeholder="ex: 45000" min="0">
+            </div>
+            <div class="af-field">
+              <label>Devise</label>
+              <select formControlName="currency">
+                <option value="EUR">EUR</option>
+                <option value="USD">USD</option>
+                <option value="GBP">GBP</option>
+                <option value="CAD">CAD</option>
+                <option value="MAD">MAD</option>
+              </select>
+            </div>
+            <div class="af-field">
+              <label>Période</label>
+              <select formControlName="salaryPeriod">
+                <option value="">—</option>
+                <option value="ANNUAL">Annuel</option>
+                <option value="MONTHLY">Mensuel</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="af-section">
+          <div class="af-section-label">Notes</div>
+          <div class="af-field af-full">
+            <textarea formControlName="notes" rows="3" placeholder="Ajoutez des notes..."></textarea>
+          </div>
+        </div>
+
+      </mat-dialog-content>
+
+      <mat-dialog-actions align="end" class="af-actions">
+      <button type="button" class="af-btn-cancel" mat-dialog-close>Annuler</button>
+      <button type="submit" class="af-btn-primary" [disabled]="isSubmitting">
+        {{ isSubmitting ? 'Enregistrement...' : (isEditMode ? 'Modifier' : 'Créer') }}
+      </button>
+      </mat-dialog-actions>
+    </form>
+  `,
+  styles: [`
+    .af-title {
+      margin: 0;
+      padding: 24px 30px 14px;
+      font-size: clamp(1.65rem, 2.2vw, 2rem);
+      font-weight: 700;
+      color: #0f172a;
+      letter-spacing: -0.02em;
+      position: relative;
+    }
+
+    .af-title::after {
+      content: '';
+      position: absolute;
+      left: 30px;
+      bottom: 0;
+      width: 108px;
+      height: 4px;
+      border-radius: 999px;
+      background: var(--cx-gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+    }
+
+    .af-form {
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(180deg, rgba(248, 250, 252, 0.9), rgba(240, 249, 255, 0.55));
+    }
+
+    .af-content {
+      padding: 18px 30px 16px !important;
+      max-height: 64vh !important;
+    }
+
+    .af-section {
+      margin-bottom: 16px;
+      padding: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.92));
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+
+    .af-section-label {
+      display: inline-flex;
+      align-items: center;
+      margin: 0 0 12px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 12px !important;
+      line-height: 1;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--cx-primary-dark, #5a6fd6);
+      background: rgba(102, 126, 234, 0.12);
+      border: 1px solid rgba(102, 126, 234, 0.24);
+    }
+
+    .af-field {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 12px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .af-field.af-full {
+      width: 100%;
+    }
+
+    .af-field label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 6px;
+    }
+
+    .af-req {
+      color: #dc2626;
+    }
+
+    .af-field input,
+    .af-field select,
+    .af-field textarea {
+      width: 100%;
+      height: 44px;
+      padding: 0 13px;
+      font-size: 14px;
+      font-family: inherit;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      background: #fcfdff;
+      color: #0f172a;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+      transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+      box-sizing: border-box;
+    }
+
+    .af-field textarea {
+      min-height: 86px;
+      padding: 10px 13px;
+      resize: vertical;
+    }
+
+    .af-field input::placeholder,
+    .af-field textarea::placeholder {
+      color: #94a3b8;
+    }
+
+    .af-field input:hover,
+    .af-field select:hover,
+    .af-field textarea:hover {
+      background: #ffffff;
+      border-color: #94a3b8;
+    }
+
+    .af-field input:focus,
+    .af-field select:focus,
+    .af-field textarea:focus {
+      outline: none;
+      border-color: var(--cx-primary, #667eea);
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.22);
+      background: #ffffff;
+    }
+
+    .af-field select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2.2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 11px center;
+      padding-right: 36px;
+    }
+
+    .af-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .af-row.af-triple .af-field {
+      flex: 1;
+    }
+
+    .af-actions {
+      margin: 0;
+      padding: 14px 30px 20px !important;
+      border-top: 1px solid rgba(148, 163, 184, 0.26);
+      background: linear-gradient(180deg, rgba(248, 250, 252, 0.88), rgba(241, 245, 249, 1));
+      gap: 10px;
+    }
+
+    .af-btn-cancel,
+    .af-btn-primary {
+      height: 42px;
+      padding: 0 18px;
+      min-width: 108px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.14s, box-shadow 0.18s, opacity 0.18s, background-color 0.18s;
+    }
+
+    .af-btn-cancel {
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #334155;
+    }
+
+    .af-btn-cancel:hover {
+      background: #f8fafc;
+      border-color: #94a3b8;
+    }
+
+    .af-btn-primary {
+      border: 1px solid transparent;
+      background: var(--cx-gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+      color: #ffffff;
+      box-shadow: 0 8px 18px rgba(102, 126, 234, 0.35);
+    }
+
+    .af-btn-primary:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(102, 126, 234, 0.45);
+    }
+
+    .af-btn-primary:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .af-btn-primary:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    @media (max-width: 640px) {
+      .af-title {
+        padding: 16px 18px 12px;
+        font-size: 1.5rem;
+      }
+
+      .af-title::after {
+        left: 18px;
+      }
+
+      .af-content {
+        padding: 12px 18px 10px !important;
+        max-height: 60vh !important;
+      }
+
+      .af-actions {
+        padding: 12px 18px 16px !important;
+      }
+
+      .af-row {
+        flex-direction: column;
+        gap: 0;
+      }
+    }
+  `]
 })
-export class ApplicationFormComponent implements OnInit {
-  
-  /**
-   * Reactive form group
-   */
+export class ApplicationFormComponent implements OnInit, AfterViewInit {
+
   form!: FormGroup;
-
-  /**
-   * Edit mode flag
-   */
   isEditMode = false;
-
-  /**
-   * Available status options
-   */
-  statusOptions = Object.values(ApplicationStatus);
-
-  /**
-   * Available source options
-   */
-  sourceOptions = Object.values(ApplicationSource);
-
-  /**
-   * Currency options
-   */
-  currencyOptions = ['EUR', 'USD', 'GBP', 'CAD', 'MAD'];
-
-  /**
-   * Form submission loading state
-   */
   isSubmitting = false;
+
+  private readonly sourceValues = [
+    'LINKEDIN',
+    'COMPANY_WEBSITE',
+    'REFERRAL',
+    'JOB_BOARD',
+    'EMAIL',
+    'SCHOOL_FORUM',
+    'OTHER'
+  ];
+
+  private readonly statusValues = [
+    'APPLIED',
+    'HR_INTERVIEW',
+    'TECH_INTERVIEW',
+    'OFFER',
+    'REJECTED',
+    'GHOSTED'
+  ];
+
+  get isCoreFieldsInvalid(): boolean {
+    if (!this.form) return true;
+    return !!this.form.get('companyName')?.invalid || !!this.form.get('roleTitle')?.invalid;
+  }
 
   constructor(
     private fb: FormBuilder,
     private applicationsService: ApplicationsService,
-    public dialogRef: MatDialogRef<ApplicationFormComponent>,
+    private notificationService: NotificationService,
+    private dialogRef: MatDialogRef<ApplicationFormComponent>,
     @Inject(MAT_DIALOG_DATA) public data: ApplicationFormDialogData
   ) {}
 
   ngOnInit(): void {
     this.isEditMode = !!this.data?.application;
-    this.initForm();
-  }
-
-  /**
-   * Initialize the reactive form
-   */
-  private initForm(): void {
     const app = this.data?.application;
 
-    // Convert string date to Date object for datepicker
-    let appliedDateValue = null;
-    if (app?.appliedDate) {
-      appliedDateValue = new Date(app.appliedDate);
-    }
-
     this.form = this.fb.group({
-      companyName: [app?.companyName || '', [Validators.required, Validators.maxLength(120)]],
-      roleTitle: [app?.roleTitle || '', [Validators.required, Validators.maxLength(120)]],
-      location: [app?.location || '', Validators.maxLength(120)],
-      source: [app?.source || ApplicationSource.LINKEDIN, Validators.required],
-      status: [app?.status || ApplicationStatus.APPLIED, Validators.required],
-      appliedDate: [appliedDateValue],
-      salary: [app?.salary || null, [Validators.min(0)]],
-      currency: [app?.currency || 'EUR'],
-      notes: [app?.notes || '', Validators.maxLength(5000)],
-      // Tags and links will be added in a future iteration
+      companyName: [app?.companyName ?? '', [Validators.required, Validators.maxLength(120)]],
+      roleTitle: [app?.roleTitle ?? '', [Validators.required, Validators.maxLength(120)]],
+      city: [app?.city ?? ''],
+      country: [app?.country ?? ''],
+      source: [app?.source ?? 'LINKEDIN'],
+      status: [app?.status ?? 'APPLIED'],
+      employmentType: [app?.employmentType ?? ''],
+      appliedDate: [app?.appliedDate?.substring(0, 10) ?? ''],
+      salary: [app?.salary ?? null],
+      currency: [app?.currency ?? 'EUR'],
+      salaryPeriod: [app?.salaryPeriod ?? ''],
+      notes: [app?.notes ?? ''],
     });
+
+    this.ensureSelectDefaults();
   }
 
-  /**
-   * Handle form submission
-   */
+  ngAfterViewInit(): void {
+    // Native select controls inside dialogs can lose default rendering on Chrome/Windows.
+    // Re-apply defaults after first paint to keep values and validity stable.
+    queueMicrotask(() => this.ensureSelectDefaults());
+  }
+
+  private ensureSelectDefaults(): void {
+    if (!this.form) return;
+
+    const source = this.form.get('source')?.value;
+    const status = this.form.get('status')?.value;
+    const currency = this.form.get('currency')?.value;
+
+    this.form.patchValue(
+      {
+        source: this.sourceValues.includes(source) ? source : 'LINKEDIN',
+        status: this.statusValues.includes(status) ? status : 'APPLIED',
+        currency: currency || 'EUR',
+      },
+      { emitEvent: false }
+    );
+  }
+
   onSubmit(): void {
-    if (this.form.invalid) {
+    this.ensureSelectDefaults();
+    if (this.isCoreFieldsInvalid) {
       this.form.markAllAsTouched();
+      this.notificationService.warning('Veuillez renseigner Entreprise et Intitulé du poste.');
       return;
     }
-
     this.isSubmitting = true;
+    const v = this.form.value;
 
-    const formValue = this.form.value;
+    const payload: any = {
+      companyName: v.companyName,
+      roleTitle: v.roleTitle,
+      source: v.source || 'LINKEDIN',
+      status: v.status || 'APPLIED',
+      currency: v.currency || 'EUR',
+    };
+    if (v.city) payload.city = v.city;
+    if (v.country) payload.country = v.country;
+    if (v.employmentType) payload.employmentType = v.employmentType;
+    if (v.appliedDate) payload.appliedDate = v.appliedDate;
+    if (v.salary != null && v.salary !== '') payload.salary = +v.salary;
+    if (v.salaryPeriod) payload.salaryPeriod = v.salaryPeriod;
+    if (v.notes) payload.notes = v.notes;
 
-    if (this.isEditMode) {
-      // Update existing application
-      const updateDto: UpdateApplicationDto = {
-        ...formValue,
-        appliedDate: formValue.appliedDate ? this.formatDate(formValue.appliedDate) : undefined
-      };
+    const req$ = this.isEditMode
+      ? this.applicationsService.update(this.data.application!.id, payload as UpdateApplicationDto)
+      : this.applicationsService.create(payload as CreateApplicationDto);
 
-      this.applicationsService.update(this.data.application!.id, updateDto).subscribe({
-        next: (updated) => {
-          this.dialogRef.close(updated); // Return updated application
-        },
-        error: (err) => {
-          alert(`Erreur ${err.status}: ${err.error?.message || err.message}`);
-          this.isSubmitting = false;
-        }
-      });
-    } else {
-      // Create new application
-      const createDto: CreateApplicationDto = {
-        ...formValue,
-        appliedDate: formValue.appliedDate ? this.formatDate(formValue.appliedDate) : undefined
-      };
-
-      this.applicationsService.create(createDto).subscribe({
-        next: (created) => {
-          this.dialogRef.close(created); // Return created application
-        },
-        error: (err) => {
-          alert(`Erreur ${err.status || ''}: ${err.error?.message || err.message}`);
-          this.isSubmitting = false;
-        }
-      });
-    }
-  }
-
-  /**
-   * Close dialog without saving
-   */
-  onCancel(): void {
-    this.dialogRef.close();
-  }
-
-  /**
-   * Format date to ISO string (YYYY-MM-DD)
-   */
-  private formatDate(date: Date | string): string {
-    if (typeof date === 'string') return date;
-    
-    // Use local date to avoid timezone issues
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    
-    return `${year}-${month}-${day}`;
-  }
-
-  /**
-   * Get error message for a form field
-   */
-  getErrorMessage(fieldName: string): string {
-    const field = this.form.get(fieldName);
-    
-    if (!field || !field.errors || !field.touched) {
-      return '';
-    }
-
-    if (field.errors['required']) {
-      return 'Ce champ est requis';
-    }
-    if (field.errors['maxlength']) {
-      return `La longueur maximale est de ${field.errors['maxlength'].requiredLength} caractères`;
-    }
-    if (field.errors['min']) {
-      return `La valeur minimale est ${field.errors['min'].min}`;
-    }
-
-    return 'Valeur invalide';
-  }
-
-  /**
-   * Get French label for application status
-   */
-  getStatusLabel(status: ApplicationStatus): string {
-    return ApplicationStatusLabels[status];
-  }
-
-  /**
-   * Get French label for application source
-   */
-  getSourceLabel(source: ApplicationSource): string {
-    return ApplicationSourceLabels[source];
+    req$.subscribe({
+      next: (result) => {
+        this.notificationService.success(this.isEditMode ? 'Candidature modifiée !' : 'Candidature créée !');
+        this.dialogRef.close(result);
+      },
+      error: (err) => {
+        this.notificationService.error(`Erreur : ${err.error?.message || err.message}`);
+        this.isSubmitting = false;
+      }
+    });
   }
 }

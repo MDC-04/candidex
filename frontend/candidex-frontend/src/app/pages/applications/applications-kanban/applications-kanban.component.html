@@ -64,10 +64,10 @@
               
               <mat-card-content (click)="viewApplication(app.id)">
                 <div class="role">{{ app.roleTitle }}</div>
-                @if (app.location) {
+                @if (getLocationDisplay(app); as locationDisplay) {
                   <div class="location">
                     <mat-icon>location_on</mat-icon>
-                    {{ app.location }}
+                    {{ locationDisplay }}
                   </div>
                 }
                 

@@ -29,23 +29,42 @@ export interface NextAction {
  * Represents a job application with all necessary information
  * for tracking (company, status, salary, reminders, etc.)
  */
+export type EmploymentType = 'CDI' | 'CDD' | 'INTERNSHIP' | 'ALTERNANCE' | 'FREELANCE';
+export type SalaryPeriod = 'ANNUAL' | 'MONTHLY';
+
+export const EmploymentTypeLabels: Record<EmploymentType, string> = {
+  CDI: 'CDI',
+  CDD: 'CDD',
+  INTERNSHIP: 'Stage',
+  ALTERNANCE: 'Alternance',
+  FREELANCE: 'Freelance'
+};
+
+export const SalaryPeriodLabels: Record<SalaryPeriod, string> = {
+  ANNUAL: 'Annuel',
+  MONTHLY: 'Mensuel'
+};
+
 export interface Application {
   id: string;
   userId: string;
-  companyName: string; // required, 1..120 characters
-  roleTitle: string; // required, 1..120 characters
-  location?: string; // optional, 0..120 (e.g., "Paris", "Remote")
+  companyName: string;
+  roleTitle: string;
+  city?: string;
+  country?: string;
   source: ApplicationSource;
   status: ApplicationStatus;
-  appliedDate?: string; // ISO date (YYYY-MM-DD)
-  salary?: number; // >= 0
-  currency?: string; // default "EUR"
-  tags?: string[]; // max 10 tags, each 1..30 characters
+  employmentType?: EmploymentType;
+  appliedDate?: string;
+  salary?: number;
+  currency?: string;
+  salaryPeriod?: SalaryPeriod;
+  tags?: string[];
   links?: ApplicationLinks;
-  notes?: string; // max 5000 characters
+  notes?: string;
   nextAction?: NextAction;
-  createdAt: string; // ISO date-time
-  updatedAt: string; // ISO date-time
+  createdAt: string;
+  updatedAt: string;
 }
 
 /**
@@ -55,12 +74,15 @@ export interface Application {
 export interface CreateApplicationDto {
   companyName: string;
   roleTitle: string;
-  location?: string;
+  city?: string;
+  country?: string;
   source: ApplicationSource;
-  status?: ApplicationStatus; // default APPLIED if not provided
+  status?: ApplicationStatus;
+  employmentType?: EmploymentType;
   appliedDate?: string;
   salary?: number;
   currency?: string;
+  salaryPeriod?: SalaryPeriod;
   tags?: string[];
   links?: ApplicationLinks;
   notes?: string;
@@ -75,12 +97,15 @@ export interface CreateApplicationDto {
 export interface UpdateApplicationDto {
   companyName?: string;
   roleTitle?: string;
-  location?: string;
+  city?: string;
+  country?: string;
   source?: ApplicationSource;
   status?: ApplicationStatus;
+  employmentType?: EmploymentType;
   appliedDate?: string;
   salary?: number;
   currency?: string;
+  salaryPeriod?: SalaryPeriod;
   tags?: string[];
   links?: ApplicationLinks;
   notes?: string;
@@ -92,12 +117,12 @@ export interface UpdateApplicationDto {
 //     userId: 'user-456',
 //     companyName: 'Tech Company',
 //     roleTitle: 'Software Engineer',
-//     location: 'Paris',
+//     city: 'Paris',
+//     country: 'France',
 //     source: ApplicationSource.LINKEDIN,
 //     status: ApplicationStatus.APPLIED,
 //     appliedDate: '2024-06-01',
-//     salaryMin: 50000,
-//     salaryMax: 70000,
+//     salary: 60000,
 //     currency: 'EUR',
 //     tags: ['JavaScript', 'Remote'],
 //     links: {

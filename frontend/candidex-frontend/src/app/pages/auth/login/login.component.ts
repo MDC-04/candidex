@@ -326,7 +326,13 @@ export class LoginComponent {
       },
       error: (error) => {
         this.loading = false;
-        this.errorMessage = error.error?.message || 'Échec de la connexion. Veuillez vérifier vos identifiants.';
+        if (error.status === 401) {
+          this.errorMessage = 'Email ou mot de passe incorrect.';
+        } else if (error.status === 0) {
+          this.errorMessage = 'Impossible de joindre le serveur. Vérifiez votre connexion.';
+        } else {
+          this.errorMessage = error.error?.message || 'Échec de la connexion. Veuillez réessayer.';
+        }
         this.notificationService.error(this.errorMessage);
       }
     });

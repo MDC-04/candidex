@@ -1,104 +1,125 @@
 <h2 mat-dialog-title>{{ isEditMode ? 'Modifier la candidature' : 'Nouvelle candidature' }}</h2>
 
-<form [formGroup]="form" (ngSubmit)="onSubmit()">
-  <mat-dialog-content>
-    <div class="form-grid">
-      
-      <!-- Company Name (Required) -->
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Nom de l'entreprise</mat-label>
-        <input matInput formControlName="companyName" placeholder="ex: Google" required>
-        <mat-error>{{ getErrorMessage('companyName') }}</mat-error>
-      </mat-form-field>
+<div mat-dialog-content>
+  <form [formGroup]="form" class="app-form">
 
-      <!-- Role Title (Required) -->
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Intitulé du poste</mat-label>
-        <input matInput formControlName="roleTitle" placeholder="ex: Ingénieur logiciel" required>
-        <mat-error>{{ getErrorMessage('roleTitle') }}</mat-error>
-      </mat-form-field>
+    <!-- Informations principales -->
+    <div class="form-section">
+      <h3 class="section-label">Informations</h3>
 
-      <!-- Location -->
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Localisation</mat-label>
-        <input matInput formControlName="location" placeholder="ex: Paris, Télétravail">
-        <mat-error>{{ getErrorMessage('location') }}</mat-error>
-      </mat-form-field>
+      <div class="field full">
+        <label>Entreprise <span class="req">*</span></label>
+        <input type="text" formControlName="companyName" placeholder="ex: Google">
+      </div>
 
-      <!-- Source (Required) -->
-      <mat-form-field appearance="outline" class="half-width">
-        <mat-label>Source</mat-label>
-        <mat-select formControlName="source" required>
-          <mat-option *ngFor="let source of sourceOptions" [value]="source">
-            {{ getSourceLabel(source) }}
-          </mat-option>
-        </mat-select>
-        <mat-error>{{ getErrorMessage('source') }}</mat-error>
-      </mat-form-field>
+      <div class="field full">
+        <label>Intitulé du poste <span class="req">*</span></label>
+        <input type="text" formControlName="roleTitle" placeholder="ex: Ingénieur logiciel">
+      </div>
 
-      <!-- Status (Required) -->
-      <mat-form-field appearance="outline" class="half-width">
-        <mat-label>Statut</mat-label>
-        <mat-select formControlName="status" required>
-          <mat-option *ngFor="let status of statusOptions" [value]="status">
-            {{ getStatusLabel(status) }}
-          </mat-option>
-        </mat-select>
-        <mat-error>{{ getErrorMessage('status') }}</mat-error>
-      </mat-form-field>
+      <div class="row">
+        <div class="field">
+          <label>Type de contrat</label>
+          <select formControlName="employmentType">
+            <option value="">— Sélectionner —</option>
+            <option value="CDI">CDI</option>
+            <option value="CDD">CDD</option>
+            <option value="INTERNSHIP">Stage</option>
+            <option value="ALTERNANCE">Alternance</option>
+            <option value="FREELANCE">Freelance</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Source <span class="req">*</span></label>
+          <select formControlName="source">
+            <option value="LINKEDIN">LinkedIn</option>
+            <option value="COMPANY_WEBSITE">Site entreprise</option>
+            <option value="REFERRAL">Recommandation</option>
+            <option value="JOB_BOARD">Site d'emploi</option>
+            <option value="EMAIL">Email</option>
+            <option value="SCHOOL_FORUM">Forum école</option>
+            <option value="OTHER">Autre</option>
+          </select>
+        </div>
+      </div>
 
-      <!-- Applied Date -->
-      <mat-form-field appearance="outline" class="half-width">
-        <mat-label>Date de candidature</mat-label>
-        <input matInput [matDatepicker]="picker" formControlName="appliedDate">
-        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-datepicker #picker></mat-datepicker>
-      </mat-form-field>
-
-      <!-- Currency -->
-      <mat-form-field appearance="outline" class="half-width">
-        <mat-label>Devise</mat-label>
-        <mat-select formControlName="currency">
-          <mat-option *ngFor="let curr of currencyOptions" [value]="curr">
-            {{ curr }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <!-- Salary -->
-      <mat-form-field appearance="outline" class="half-width">
-        <mat-label>Salaire</mat-label>
-        <input matInput type="number" formControlName="salary" placeholder="ex: 60000">
-        <mat-hint>Laissez vide si non renseigné</mat-hint>
-        <mat-error>{{ getErrorMessage('salary') }}</mat-error>
-      </mat-form-field>
-
-      <!-- Notes -->
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Notes</mat-label>
-        <textarea 
-          matInput 
-          formControlName="notes" 
-          rows="4" 
-          placeholder="Ajoutez des notes à propos de cette candidature...">
-        </textarea>
-        <mat-hint align="end">{{ form.get('notes')?.value?.length || 0 }} / 5000</mat-hint>
-        <mat-error>{{ getErrorMessage('notes') }}</mat-error>
-      </mat-form-field>
-
+      <div class="row">
+        <div class="field">
+          <label>Statut <span class="req">*</span></label>
+          <select formControlName="status">
+            <option value="APPLIED">Candidature envoyée</option>
+            <option value="HR_INTERVIEW">Entretien RH</option>
+            <option value="TECH_INTERVIEW">Entretien technique</option>
+            <option value="OFFER">Offre reçue</option>
+            <option value="REJECTED">Refusée</option>
+            <option value="GHOSTED">Sans réponse</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Date de candidature</label>
+          <input type="date" formControlName="appliedDate">
+        </div>
+      </div>
     </div>
-  </mat-dialog-content>
 
-  <mat-dialog-actions align="end">
-    <button mat-button type="button" (click)="onCancel()" [disabled]="isSubmitting">
-      Annuler
-    </button>
-    <button 
-      mat-raised-button 
-      color="primary" 
-      type="submit" 
-      [disabled]="form.invalid || isSubmitting">
-      {{ isSubmitting ? 'Enregistrement...' : (isEditMode ? 'Modifier' : 'Créer') }}
-    </button>
-  </mat-dialog-actions>
-</form>
+    <!-- Localisation -->
+    <div class="form-section">
+      <h3 class="section-label">Localisation</h3>
+      <div class="row">
+        <div class="field">
+          <label>Ville</label>
+          <input type="text" formControlName="city" placeholder="ex: Paris">
+        </div>
+        <div class="field">
+          <label>Pays</label>
+          <input type="text" formControlName="country" placeholder="ex: France">
+        </div>
+      </div>
+    </div>
+
+    <!-- Rémunération -->
+    <div class="form-section">
+      <h3 class="section-label">Rémunération</h3>
+      <div class="row triple">
+        <div class="field">
+          <label>Salaire</label>
+          <input type="number" formControlName="salary" placeholder="ex: 45000" min="0">
+        </div>
+        <div class="field">
+          <label>Devise</label>
+          <select formControlName="currency">
+            <option value="EUR">EUR</option>
+            <option value="USD">USD</option>
+            <option value="GBP">GBP</option>
+            <option value="CAD">CAD</option>
+            <option value="MAD">MAD</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Période</label>
+          <select formControlName="salaryPeriod">
+            <option value="">—</option>
+            <option value="ANNUAL">Annuel</option>
+            <option value="MONTHLY">Mensuel</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div class="form-section">
+      <h3 class="section-label">Notes</h3>
+      <div class="field">
+        <textarea formControlName="notes" rows="3" placeholder="Ajoutez des notes..."></textarea>
+      </div>
+    </div>
+
+  </form>
+</div>
+
+<div mat-dialog-actions align="end">
+  <button type="button" class="btn-cancel" (click)="onCancel()">Annuler</button>
+  <button type="button" class="btn-primary" [disabled]="form.invalid || isSubmitting" (click)="onSubmit()">
+    {{ isSubmitting ? 'Enregistrement...' : (isEditMode ? 'Modifier' : 'Créer') }}
+  </button>
+</div>
