@@ -1,31 +1,36 @@
 <mat-sidenav-container class="app">
-  <mat-sidenav mode="side" opened class="sidenav">
+  <mat-sidenav
+    [mode]="isMobileViewport ? 'over' : 'side'"
+    [opened]="isMobileViewport ? mobileSidenavOpened : true"
+    (closedStart)="onSidenavClosed()"
+    class="sidenav"
+  >
     <a class="brand" routerLink="/home" aria-label="Accueil Candidex">
       <img src="candidex_logo_light.png" alt="Candidex" class="brand-logo">
     </a>
 
     <mat-nav-list>
-      <a mat-list-item routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" matTooltip="Écran d'accueil" matTooltipPosition="right">
+      <a mat-list-item routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" matTooltip="Écran d'accueil" matTooltipPosition="right" (click)="onNavItemClick()">
         <mat-icon>home</mat-icon>
         <span>Accueil</span>
       </a>
-      <a mat-list-item routerLink="/dashboard" routerLinkActive="active" matTooltip="Vue d'ensemble de vos candidatures" matTooltipPosition="right">
+      <a mat-list-item routerLink="/dashboard" routerLinkActive="active" matTooltip="Vue d'ensemble de vos candidatures" matTooltipPosition="right" (click)="onNavItemClick()">
         <mat-icon>dashboard</mat-icon>
         <span>Tableau de bord</span>
       </a>
-      <a mat-list-item routerLink="/applications" routerLinkActive="active" matTooltip="Liste détaillée de toutes les candidatures" matTooltipPosition="right">
+      <a mat-list-item routerLink="/applications" routerLinkActive="active" matTooltip="Liste détaillée de toutes les candidatures" matTooltipPosition="right" (click)="onNavItemClick()">
         <mat-icon>list</mat-icon>
         <span>Candidatures</span>
       </a>
-      <a mat-list-item routerLink="/pipeline" routerLinkActive="active" matTooltip="Vue kanban du pipeline de recrutement" matTooltipPosition="right">
+      <a mat-list-item routerLink="/pipeline" routerLinkActive="active" matTooltip="Vue kanban du pipeline de recrutement" matTooltipPosition="right" (click)="onNavItemClick()">
         <mat-icon>view_kanban</mat-icon>
         <span>Pipeline</span>
       </a>
-      <a mat-list-item routerLink="/interviews" routerLinkActive="active" matTooltip="Agenda et préparation des entretiens" matTooltipPosition="right">
+      <a mat-list-item routerLink="/interviews" routerLinkActive="active" matTooltip="Agenda et préparation des entretiens" matTooltipPosition="right" (click)="onNavItemClick()">
         <mat-icon>event</mat-icon>
         <span>Entretiens</span>
       </a>
-      <a mat-list-item routerLink="/profile" routerLinkActive="active" matTooltip="Gérer votre profil et vos préférences" matTooltipPosition="right">
+      <a mat-list-item routerLink="/profile" routerLinkActive="active" matTooltip="Gérer votre profil et vos préférences" matTooltipPosition="right" (click)="onNavItemClick()">
         <mat-icon>person</mat-icon>
         <span>Profil</span>
       </a>
@@ -34,6 +39,11 @@
 
   <mat-sidenav-content>
     <mat-toolbar color="primary" class="toolbar">
+      @if (isMobileViewport) {
+        <button mat-icon-button class="menu-toggle" (click)="toggleSidenav()" aria-label="Ouvrir la navigation">
+          <mat-icon>menu</mat-icon>
+        </button>
+      }
       <span class="toolbar-title">Suivi des Candidatures</span>
       <span class="spacer"></span>
       @if (currentUser$ | async; as user) {

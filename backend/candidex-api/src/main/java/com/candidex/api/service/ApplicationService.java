@@ -3,16 +3,26 @@ package com.candidex.api.service;
 import com.candidex.api.dto.CreateApplicationDto;
 import com.candidex.api.dto.UpdateApplicationDto;
 import com.candidex.api.model.Application;
+import com.candidex.api.model.enums.ApplicationSource;
 import com.candidex.api.model.enums.ApplicationStatus;
 import com.candidex.api.repository.ApplicationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Service for managing job applications
@@ -24,13 +34,68 @@ import java.time.Instant;
 public class ApplicationService {
     
     private final ApplicationRepository applicationRepository;
+    private final MongoTemplate mongoTemplate;
     
     /**
      * Get all applications for a user (paginated)
      */
     public Page<Application> getAllApplications(String userId, Pageable pageable) {
-        log.debug("Fetching applications for user: {}", userId);
-        return applicationRepository.findByUserId(userId, pageable);
+        return getAllApplications(userId, null, null, null, null, pageable);
+    }
+
+    /**
+     * Get all applications for a user with optional server-side filters.
+     */
+    public Page<Application> getAllApplications(
+            String userId,
+            ApplicationStatus status,
+            ApplicationSource source,
+            String q,
+            String location,
+            Pageable pageable
+    ) {
+        log.debug(
+                "Fetching applications for user: {} with filters [status={}, source={}, q={}, location={}]",
+                userId,
+                status,
+                source,
+                q,
+                location
+        );
+
+        Query query = new Query();
+        query.addCriteria(Criteria.where("userId").is(userId));
+
+        if (status != null) {
+            query.addCriteria(Criteria.where("status").is(status));
+        }
+
+        if (source != null) {
+            query.addCriteria(Criteria.where("source").is(source));
+        }
+
+        if (StringUtils.hasText(q)) {
+            String safeQuery = Pattern.quote(q.trim());
+            query.addCriteria(new Criteria().orOperator(
+                    Criteria.where("companyName").regex(safeQuery, "i"),
+                    Criteria.where("roleTitle").regex(safeQuery, "i"),
+                    Criteria.where("notes").regex(safeQuery, "i")
+            ));
+        }
+
+        if (StringUtils.hasText(location)) {
+            String safeLocation = Pattern.quote(location.trim());
+            query.addCriteria(new Criteria().orOperator(
+                    Criteria.where("city").regex(safeLocation, "i"),
+                    Criteria.where("country").regex(safeLocation, "i")
+            ));
+        }
+
+        long total = mongoTemplate.count(query, Application.class);
+        query.with(pageable);
+        List<Application> items = mongoTemplate.find(query, Application.class);
+
+        return new PageImpl<>(items, pageable, total);
     }
     
     /**
@@ -39,7 +104,7 @@ public class ApplicationService {
     public Application getApplicationById(String id, String userId) {
         log.debug("Fetching application {} for user {}", id, userId);
         return applicationRepository.findByIdAndUserId(id, userId)
-                .orElseThrow(() -> new RuntimeException("Application not found or access denied"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Candidature introuvable."));
     }
     
     /**

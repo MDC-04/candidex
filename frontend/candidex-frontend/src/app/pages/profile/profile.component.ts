@@ -11,6 +11,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
+import { HttpErrorService } from '../../core/services/http-error.service';
 import { UserService } from '../../core/services/user.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { UserProfile } from '../../core/models/auth.model';
@@ -43,6 +44,7 @@ export class ProfileComponent implements OnInit {
   uploadedCvFile: File | null = null;
   uploadingCv = false;
   
+  private httpErrorService = inject(HttpErrorService);
   private userService = inject(UserService);
   private notificationService = inject(NotificationService);
   private dialog = inject(MatDialog);
@@ -86,7 +88,13 @@ export class ProfileComponent implements OnInit {
         this.loading = false;
       },
       error: (error) => {
-        this.notificationService.error('Échec du chargement du profil');
+        this.notificationService.error(
+          this.httpErrorService.getActionMessage(
+            error,
+            'le chargement du profil',
+            'Impossible de charger votre profil.'
+          )
+        );
         this.loading = false;
       }
     });
@@ -117,7 +125,13 @@ export class ProfileComponent implements OnInit {
         this.notificationService.success('Profil mis à jour avec succès !');
       },
       error: (error) => {
-        this.notificationService.error('Échec de la mise à jour du profil');
+        this.notificationService.error(
+          this.httpErrorService.getActionMessage(
+            error,
+            'la mise à jour du profil',
+            'Échec de la mise à jour du profil.'
+          )
+        );
         this.saving = false;
       }
     });
@@ -170,7 +184,13 @@ export class ProfileComponent implements OnInit {
         error: (error) => {
           this.uploadedCvFile = null;
           this.uploadingCv = false;
-          this.notificationService.error(error.error?.error || 'Erreur lors de l\'upload du CV');
+          this.notificationService.error(
+            this.httpErrorService.getActionMessage(
+              error,
+              'l\'upload du CV',
+              'Erreur lors de l\'upload du CV.'
+            )
+          );
         }
       });
     }
@@ -197,8 +217,14 @@ export class ProfileComponent implements OnInit {
           this.uploadedCvName = null;
           this.notificationService.success('CV supprimé');
         },
-        error: () => {
-          this.notificationService.error('Erreur lors de la suppression du CV');
+        error: (error) => {
+          this.notificationService.error(
+            this.httpErrorService.getActionMessage(
+              error,
+              'la suppression du CV',
+              'Erreur lors de la suppression du CV.'
+            )
+          );
         }
       });
     });
@@ -218,7 +244,13 @@ export class ProfileComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error loading CV:', error);
-          this.notificationService.error('Erreur lors de l\'ouverture du CV');
+          this.notificationService.error(
+            this.httpErrorService.getActionMessage(
+              error,
+              'l\'ouverture du CV',
+              'Erreur lors de l\'ouverture du CV.'
+            )
+          );
         }
       });
     }

@@ -10,6 +10,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { ApplicationsService } from '../../features/applications/services/applications.service';
 import { Application, ApplicationStatus, ApplicationStatusLabels } from '../../features/applications/models';
+import { HttpErrorService } from '../../core/services/http-error.service';
+import { NotificationService } from '../../core/services/notification.service';
 
 interface StatusStats {
   status: ApplicationStatus;
@@ -79,7 +81,9 @@ export class DashboardComponent implements OnInit {
   
   constructor(
     private applicationsService: ApplicationsService,
-    private router: Router
+    private router: Router,
+    private httpErrorService: HttpErrorService,
+    private notificationService: NotificationService
   ) {}
   
   ngOnInit(): void {
@@ -99,6 +103,13 @@ export class DashboardComponent implements OnInit {
         this.loading = false;
       },
       error: (error) => {
+        this.notificationService.error(
+          this.httpErrorService.getActionMessage(
+            error,
+            'le chargement du tableau de bord',
+            'Impossible de charger le tableau de bord.'
+          )
+        );
         this.loading = false;
       }
     });
@@ -168,8 +179,8 @@ export class DashboardComponent implements OnInit {
   }
   
   private generateTimelineEvents(applications: Application[]): void {
-    // Generate mock timeline events based on applications
-    this.timelineEvents = applications
+    this.timelineEvents = [...applications]
+      .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
       .slice(0, 10)
       .map(app => {
         let type: TimelineEvent['type'] = 'application';
@@ -205,28 +216,76 @@ export class DashboardComponent implements OnInit {
           icon,
           color
         };
-      })
-      .sort((a, b) => b.date.getTime() - a.date.getTime());
+      });
   }
   
   private generateWeeklyData(applications: Application[]): void {
-    // Generate mock weekly data for the last 8 weeks
-    const weeks = ['S-7', 'S-6', 'S-5', 'S-4', 'S-3', 'S-2', 'S-1', 'Cette semaine'];
-    
-    this.weeklyData = weeks.map((week, index) => {
-      // Mock data: progressive increase with some variance
-      const baseApplications = Math.floor(applications.length / 8) + Math.floor(Math.random() * 3);
-      const applications_count = Math.max(0, baseApplications - (7 - index));
-      const responses = Math.floor(applications_count * (0.3 + Math.random() * 0.4));
-      
-      return {
-        week,
-        applications: applications_count,
-        responses
-      };
+    const currentWeekStart = this.getStartOfWeek(new Date());
+    const weekStarts = Array.from({ length: 8 }, (_, index) => {
+      const start = new Date(currentWeekStart);
+      start.setDate(start.getDate() - (7 - index) * 7);
+      return start;
     });
-    
-    this.maxWeeklyApplications = Math.max(...this.weeklyData.map(d => d.applications), 1);
+
+    const weeklyBuckets: WeeklyData[] = weekStarts.map((_, index) => ({
+      week: index === 7 ? 'Cette semaine' : `S-${7 - index}`,
+      applications: 0,
+      responses: 0
+    }));
+
+    applications.forEach(app => {
+      const applicationDate = app.appliedDate ? new Date(app.appliedDate) : new Date(app.createdAt);
+      const applicationWeekIndex = this.resolveWeekIndex(applicationDate, weekStarts);
+      if (applicationWeekIndex !== -1) {
+        weeklyBuckets[applicationWeekIndex].applications += 1;
+      }
+
+      const hasResponse = app.status !== ApplicationStatus.APPLIED && app.status !== ApplicationStatus.GHOSTED;
+      if (!hasResponse) {
+        return;
+      }
+
+      const responseDate = new Date(app.updatedAt);
+      const responseWeekIndex = this.resolveWeekIndex(responseDate, weekStarts);
+      if (responseWeekIndex !== -1) {
+        weeklyBuckets[responseWeekIndex].responses += 1;
+      }
+    });
+
+    this.weeklyData = weeklyBuckets;
+    this.maxWeeklyApplications = Math.max(
+      ...this.weeklyData.map(d => Math.max(d.applications, d.responses)),
+      1
+    );
+  }
+
+  private getStartOfWeek(date: Date): Date {
+    const normalized = new Date(date);
+    const day = (normalized.getDay() + 6) % 7; // Monday = 0
+    normalized.setDate(normalized.getDate() - day);
+    normalized.setHours(0, 0, 0, 0);
+    return normalized;
+  }
+
+  private resolveWeekIndex(date: Date, weekStarts: Date[]): number {
+    if (Number.isNaN(date.getTime())) {
+      return -1;
+    }
+
+    const normalized = new Date(date);
+    normalized.setHours(0, 0, 0, 0);
+
+    for (let i = 0; i < weekStarts.length; i++) {
+      const start = weekStarts[i];
+      const end = new Date(start);
+      end.setDate(end.getDate() + 7);
+
+      if (normalized >= start && normalized < end) {
+        return i;
+      }
+    }
+
+    return -1;
   }
   
   getEventTypeLabel(type: TimelineEvent['type']): string {

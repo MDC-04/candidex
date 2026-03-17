@@ -32,13 +32,13 @@ public class AuthService {
      * 
      * @param dto Registration data
      * @return Authentication response with user and token
-     * @throws RuntimeException if email already exists
+         * @throws ResponseStatusException if email already exists
      */
     @Transactional
     public AuthResponse register(RegisterDto dto) {
         // Check if email already exists
         if (userRepository.existsByEmail(dto.getEmail())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already registered");
+                        throw new ResponseStatusException(HttpStatus.CONFLICT, "Cette adresse email est déjà utilisée.");
         }
         
         // Create new user
@@ -76,16 +76,16 @@ public class AuthService {
      * 
      * @param dto Login credentials
      * @return Authentication response with user and token
-     * @throws RuntimeException if credentials are invalid
+         * @throws ResponseStatusException if credentials are invalid
      */
     public AuthResponse login(LoginDto dto) {
         // Find user by email
         User user = userRepository.findByEmail(dto.getEmail())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password"));
+                                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Informations de connexion erronées."));
         
         // Check password
         if (!passwordEncoder.matches(dto.getPassword(), user.getPasswordHash())) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
+                        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Informations de connexion erronées.");
         }
         
         // Generate JWT token
@@ -110,7 +110,7 @@ public class AuthService {
      */
     public AuthResponse.UserDto getCurrentUser(String userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable."));
         
         return AuthResponse.UserDto.builder()
                 .id(user.getId())

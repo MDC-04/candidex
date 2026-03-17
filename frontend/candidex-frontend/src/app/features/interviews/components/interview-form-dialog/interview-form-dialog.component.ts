@@ -19,12 +19,13 @@ import {
   UpdateInterviewDto
 } from '../../models';
 import { InterviewsService } from '../../services/interviews.service';
+import { HttpErrorService } from '../../../../core/services/http-error.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 
 export interface InterviewFormDialogData {
-  interview?: Interview;        // If editing
-  applicationId?: string;       // If creating from application
-  applicationTitle?: string;    // Pre-fill title context
+  interview?: Interview;
+  applicationId?: string;
+  applicationTitle?: string;
 }
 
 @Component({
@@ -44,7 +45,7 @@ export interface InterviewFormDialogData {
   template: `
     <h2 mat-dialog-title>
       <mat-icon>event</mat-icon>
-      {{ isEdit ? 'Modifier l\\'entretien' : 'Planifier un entretien' }}
+      {{ isEdit ? 'Modifier l\'entretien' : 'Planifier un entretien' }}
     </h2>
 
     <mat-dialog-content>
@@ -85,6 +86,16 @@ export interface InterviewFormDialogData {
             <input matInput type="datetime-local" formControlName="endAt">
           </mat-form-field>
         </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Fuseau horaire</mat-label>
+          <mat-select formControlName="timezone">
+            @for (tz of timezoneOptions; track tz) {
+              <mat-option [value]="tz">{{ tz }}</mat-option>
+            }
+          </mat-select>
+          <mat-hint>Heure affichée dans ce fuseau</mat-hint>
+        </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Lien de réunion (optionnel)</mat-label>
@@ -152,17 +163,22 @@ export class InterviewFormDialogComponent implements OnInit {
 
   typeOptions = Object.values(InterviewType);
   modeOptions = Object.values(InterviewMode);
+  timezoneOptions: string[] = [];
+  localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   constructor(
     private fb: FormBuilder,
     private dialogRef: MatDialogRef<InterviewFormDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: InterviewFormDialogData,
     private interviewsService: InterviewsService,
+    private httpErrorService: HttpErrorService,
     private notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
     this.isEdit = !!this.data.interview;
+    this.timezoneOptions = this.buildTimezoneOptions();
+    const selectedTimezone = this.data.interview?.timezone || this.localTimezone;
 
     this.form = this.fb.group({
       title: [this.data.interview?.title || this.data.applicationTitle || '', Validators.required],
@@ -170,6 +186,7 @@ export class InterviewFormDialogComponent implements OnInit {
       mode: [this.data.interview?.mode || InterviewMode.VIDEO, Validators.required],
       startAt: [this.data.interview ? this.toLocalDatetime(this.data.interview.startAt) : '', Validators.required],
       endAt: [this.data.interview?.endAt ? this.toLocalDatetime(this.data.interview.endAt) : ''],
+      timezone: [selectedTimezone, Validators.required],
       meetingUrl: [this.data.interview?.meetingUrl || ''],
       location: [this.data.interview?.location || ''],
       notes: [this.data.interview?.notes || '']
@@ -191,6 +208,7 @@ export class InterviewFormDialogComponent implements OnInit {
     const val = this.form.value;
     const startAt = new Date(val.startAt).toISOString();
     const endAt = val.endAt ? new Date(val.endAt).toISOString() : undefined;
+    const timezone = val.timezone || this.localTimezone;
 
     if (this.isEdit && this.data.interview) {
       const dto: UpdateInterviewDto = {
@@ -199,6 +217,7 @@ export class InterviewFormDialogComponent implements OnInit {
         mode: val.mode,
         startAt,
         endAt,
+        timezone,
         meetingUrl: val.meetingUrl || undefined,
         location: val.location || undefined,
         notes: val.notes || undefined
@@ -208,8 +227,14 @@ export class InterviewFormDialogComponent implements OnInit {
           this.notificationService.success('Entretien mis à jour !');
           this.dialogRef.close(result);
         },
-        error: () => {
-          this.notificationService.error('Erreur lors de la mise à jour');
+        error: (error) => {
+          this.notificationService.error(
+            this.httpErrorService.getActionMessage(
+              error,
+              'la mise à jour de l\'entretien',
+              'Échec de la mise à jour de l\'entretien.'
+            )
+          );
           this.saving = false;
         }
       });
@@ -221,6 +246,7 @@ export class InterviewFormDialogComponent implements OnInit {
         mode: val.mode,
         startAt,
         endAt,
+        timezone,
         meetingUrl: val.meetingUrl || undefined,
         location: val.location || undefined,
         notes: val.notes || undefined
@@ -230,8 +256,14 @@ export class InterviewFormDialogComponent implements OnInit {
           this.notificationService.success('Entretien planifié !');
           this.dialogRef.close(result);
         },
-        error: () => {
-          this.notificationService.error('Erreur lors de la création');
+        error: (error) => {
+          this.notificationService.error(
+            this.httpErrorService.getActionMessage(
+              error,
+              'la création de l\'entretien',
+              'Échec de la création de l\'entretien.'
+            )
+          );
           this.saving = false;
         }
       });
@@ -243,5 +275,31 @@ export class InterviewFormDialogComponent implements OnInit {
     const offset = d.getTimezoneOffset();
     const local = new Date(d.getTime() - offset * 60000);
     return local.toISOString().slice(0, 16);
+  }
+
+  private buildTimezoneOptions(): string[] {
+    const fallback = ['Europe/Paris', 'Europe/London', 'Europe/Berlin', 'UTC', this.localTimezone];
+
+    try {
+      const intlWithSupported = Intl as unknown as { supportedValuesOf?: (key: string) => string[] };
+      const supported = intlWithSupported.supportedValuesOf
+        ? intlWithSupported.supportedValuesOf('timeZone')
+        : fallback;
+
+      const picks = Array.from(new Set([
+        this.localTimezone,
+        'Europe/Paris',
+        'Europe/London',
+        'Europe/Berlin',
+        'America/New_York',
+        'Asia/Dubai',
+        'Asia/Singapore',
+        'UTC'
+      ])).filter((tz) => supported.includes(tz));
+
+      return picks.length > 0 ? picks : Array.from(new Set(fallback));
+    } catch {
+      return Array.from(new Set(fallback));
+    }
   }
 }

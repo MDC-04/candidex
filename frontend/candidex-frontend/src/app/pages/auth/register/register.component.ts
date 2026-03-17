@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../../core/services/auth.service';
+import { HttpErrorService } from '../../../core/services/http-error.service';
 import { NotificationService } from '../../../core/services/notification.service';
 
 @Component({
@@ -351,6 +352,7 @@ export class RegisterComponent {
   loading = false;
   errorMessage = '';
   
+  private httpErrorService = inject(HttpErrorService);
   private notificationService = inject(NotificationService);
   
   constructor(
@@ -376,7 +378,7 @@ export class RegisterComponent {
     });
     
     if (this.registerForm.invalid) {
-      this.errorMessage = 'Please fill in all required fields correctly.';
+      this.errorMessage = 'Merci de remplir correctement tous les champs obligatoires.';
       this.notificationService.error(this.errorMessage);
       return;
     }
@@ -392,13 +394,7 @@ export class RegisterComponent {
       },
       error: (error) => {
         this.loading = false;
-        if (error.status === 409) {
-          this.errorMessage = 'Cette adresse email est déjà utilisée.';
-        } else if (error.status === 0) {
-          this.errorMessage = 'Impossible de joindre le serveur. Vérifiez votre connexion.';
-        } else {
-          this.errorMessage = error.error?.message || 'Échec de l\'inscription. Veuillez réessayer.';
-        }
+        this.errorMessage = this.httpErrorService.getAuthMessage(error, 'register');
         this.notificationService.error(this.errorMessage);
       }
     });

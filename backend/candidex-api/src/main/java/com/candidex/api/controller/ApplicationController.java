@@ -3,6 +3,8 @@ package com.candidex.api.controller;
 import com.candidex.api.dto.CreateApplicationDto;
 import com.candidex.api.dto.UpdateApplicationDto;
 import com.candidex.api.model.Application;
+import com.candidex.api.model.enums.ApplicationSource;
+import com.candidex.api.model.enums.ApplicationStatus;
 import com.candidex.api.service.ApplicationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -40,12 +42,26 @@ public class ApplicationController {
     @GetMapping
     public ResponseEntity<Map<String, Object>> listApplications(
             Authentication authentication,
+            @RequestParam(required = false) ApplicationStatus status,
+            @RequestParam(required = false) ApplicationSource source,
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String location,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "updatedAt,desc") String sort
     ) {
         String userId = authentication.getName();
-        log.info("GET /api/v1/applications - userId: {}, page: {}, size: {}, sort: {}", userId, page, size, sort);
+        log.info(
+            "GET /api/v1/applications - userId: {}, status: {}, source: {}, q: {}, location: {}, page: {}, size: {}, sort: {}",
+            userId,
+            status,
+            source,
+            q,
+            location,
+            page,
+            size,
+            sort
+        );
         
         // Parse sort parameter
         String[] sortParams = sort.split(",");
@@ -57,7 +73,7 @@ public class ApplicationController {
         // Create pageable (page is 1-based in API, 0-based in Spring)
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(direction, sortField));
         
-        Page<Application> pageResult = applicationService.getAllApplications(userId, pageable);
+        Page<Application> pageResult = applicationService.getAllApplications(userId, status, source, q, location, pageable);
         
         // Build response matching API.md section 2.2
         Map<String, Object> response = new HashMap<>();

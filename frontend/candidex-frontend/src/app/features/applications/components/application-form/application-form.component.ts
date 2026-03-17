@@ -10,6 +10,7 @@ import {
   UpdateApplicationDto,
 } from '../../models';
 import { ApplicationsService } from '../../services/applications.service';
+import { HttpErrorService } from '../../../../core/services/http-error.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 
 export interface ApplicationFormDialogData {
@@ -126,6 +127,20 @@ export interface ApplicationFormDialogData {
                 <option value="MONTHLY">Mensuel</option>
               </select>
             </div>
+          </div>
+        </div>
+
+        <div class="af-section">
+          <div class="af-section-label">Prochaine action</div>
+          <div class="af-row">
+            <div class="af-field">
+              <label>Date de l'action</label>
+              <input type="date" formControlName="nextActionDate">
+            </div>
+          </div>
+          <div class="af-field af-full">
+            <label>Note de suivi</label>
+            <textarea formControlName="nextActionNote" rows="2" placeholder="ex: Relancer le recruteur mardi prochain"></textarea>
           </div>
         </div>
 
@@ -402,6 +417,7 @@ export class ApplicationFormComponent implements OnInit, AfterViewInit {
   constructor(
     private fb: FormBuilder,
     private applicationsService: ApplicationsService,
+    private httpErrorService: HttpErrorService,
     private notificationService: NotificationService,
     private dialogRef: MatDialogRef<ApplicationFormComponent>,
     @Inject(MAT_DIALOG_DATA) public data: ApplicationFormDialogData
@@ -424,6 +440,8 @@ export class ApplicationFormComponent implements OnInit, AfterViewInit {
       currency: [app?.currency ?? 'EUR'],
       salaryPeriod: [app?.salaryPeriod ?? ''],
       notes: [app?.notes ?? ''],
+      nextActionDate: [app?.nextAction?.date ?? ''],
+      nextActionNote: [app?.nextAction?.note ?? '', [Validators.maxLength(300)]],
     });
 
     this.ensureSelectDefaults();
@@ -459,8 +477,17 @@ export class ApplicationFormComponent implements OnInit, AfterViewInit {
       this.notificationService.warning('Veuillez renseigner Entreprise et Intitulé du poste.');
       return;
     }
-    this.isSubmitting = true;
+
     const v = this.form.value;
+    const nextActionDate = (v.nextActionDate || '').trim();
+    const nextActionNote = (v.nextActionNote || '').trim();
+
+    if (!nextActionDate && nextActionNote) {
+      this.notificationService.warning('Renseignez une date pour la prochaine action ou videz la note.');
+      return;
+    }
+
+    this.isSubmitting = true;
 
     const payload: any = {
       companyName: v.companyName,
@@ -476,6 +503,13 @@ export class ApplicationFormComponent implements OnInit, AfterViewInit {
     if (v.salary != null && v.salary !== '') payload.salary = +v.salary;
     if (v.salaryPeriod) payload.salaryPeriod = v.salaryPeriod;
     if (v.notes) payload.notes = v.notes;
+    if (nextActionDate) {
+      payload.nextAction = {
+        date: nextActionDate,
+        done: false,
+        ...(nextActionNote ? { note: nextActionNote } : {})
+      };
+    }
 
     const req$ = this.isEditMode
       ? this.applicationsService.update(this.data.application!.id, payload as UpdateApplicationDto)
@@ -487,7 +521,8 @@ export class ApplicationFormComponent implements OnInit, AfterViewInit {
         this.dialogRef.close(result);
       },
       error: (err) => {
-        this.notificationService.error(`Erreur : ${err.error?.message || err.message}`);
+        const actionLabel = this.isEditMode ? 'la mise à jour de la candidature' : 'la création de la candidature';
+        this.notificationService.error(this.httpErrorService.getActionMessage(err, actionLabel));
         this.isSubmitting = false;
       }
     });

@@ -88,36 +88,78 @@ body::after {
 }
 
 /* ---------- 4. Snackbar Feedback ---------- */
-.success-snackbar {
-  --mdc-snackbar-container-color: var(--cx-success) !important;
-  --mdc-snackbar-supporting-text-color: #fff !important;
-  border-radius: var(--cx-radius-sm) !important;
-  .mat-mdc-snack-bar-label { color: #fff !important; }
-  .mat-mdc-button { color: #fff !important; }
+.mat-mdc-snack-bar-container.cx-snackbar {
+  --mdc-snackbar-container-color: #ffffff !important;
+  --mdc-snackbar-supporting-text-color: var(--cx-text) !important;
+  --mat-mdc-snack-bar-button-color: var(--cx-primary-dark) !important;
+
+  border-radius: 14px !important;
+  border: 1px solid rgba(148, 163, 184, 0.28) !important;
+  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.18) !important;
+  backdrop-filter: blur(6px);
+  overflow: hidden;
+
+  .mdc-snackbar__surface {
+    position: relative;
+    padding: 0 !important;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.96)) !important;
+  }
+
+  .mdc-snackbar__surface::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--toast-color, var(--cx-primary));
+  }
+
+  .mat-mdc-snack-bar-label,
+  .mdc-snackbar__label {
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.01em;
+    color: var(--cx-text) !important;
+    padding: 14px 14px 14px 18px !important;
+  }
+
+  .mat-mdc-snack-bar-actions,
+  .mdc-snackbar__actions {
+    margin-right: 6px;
+  }
+
+  .mat-mdc-button,
+  .mat-mdc-snack-bar-action {
+    min-width: auto !important;
+    height: 34px;
+    border-radius: 8px !important;
+    color: var(--toast-color, var(--cx-primary-dark)) !important;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    padding: 0 10px !important;
+  }
+
+  .mat-mdc-button:hover,
+  .mat-mdc-snack-bar-action:hover {
+    background: rgba(148, 163, 184, 0.14) !important;
+  }
 }
 
-.error-snackbar {
-  --mdc-snackbar-container-color: var(--cx-danger) !important;
-  --mdc-snackbar-supporting-text-color: #fff !important;
-  border-radius: var(--cx-radius-sm) !important;
-  .mat-mdc-snack-bar-label { color: #fff !important; }
-  .mat-mdc-button { color: #fff !important; }
+.mat-mdc-snack-bar-container.cx-snackbar-success {
+  --toast-color: var(--cx-success);
 }
 
-.info-snackbar {
-  --mdc-snackbar-container-color: var(--cx-info) !important;
-  --mdc-snackbar-supporting-text-color: #fff !important;
-  border-radius: var(--cx-radius-sm) !important;
-  .mat-mdc-snack-bar-label { color: #fff !important; }
-  .mat-mdc-button { color: #fff !important; }
+.mat-mdc-snack-bar-container.cx-snackbar-error {
+  --toast-color: var(--cx-danger);
 }
 
-.warning-snackbar {
-  --mdc-snackbar-container-color: var(--cx-warning) !important;
-  --mdc-snackbar-supporting-text-color: #fff !important;
-  border-radius: var(--cx-radius-sm) !important;
-  .mat-mdc-snack-bar-label { color: #fff !important; }
-  .mat-mdc-button { color: #fff !important; }
+.mat-mdc-snack-bar-container.cx-snackbar-warning {
+  --toast-color: var(--cx-warning);
+}
+
+.mat-mdc-snack-bar-container.cx-snackbar-info {
+  --toast-color: var(--cx-info);
 }
 
 /* ---------- 5. Animations ---------- */

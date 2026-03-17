@@ -1,6 +1,23 @@
 <div class="interviews-page">
   <div class="header">
-    <h1>Agenda des entretiens</h1>
+    <div class="title-block">
+      <h1>Agenda des entretiens</h1>
+      <p class="timezone-note">
+        <mat-icon>public</mat-icon>
+        <span>Fuseau local: {{ localTimezone }}</span>
+      </p>
+    </div>
+
+    <div class="view-switch">
+      <button mat-stroked-button [class.active]="viewMode === 'agenda'" (click)="setViewMode('agenda')">
+        <mat-icon>view_agenda</mat-icon>
+        Agenda
+      </button>
+      <button mat-stroked-button [class.active]="viewMode === 'calendar'" (click)="setViewMode('calendar')">
+        <mat-icon>calendar_month</mat-icon>
+        Calendrier
+      </button>
+    </div>
   </div>
 
   @if (loading) {
@@ -9,7 +26,6 @@
     </div>
   } @else {
 
-    <!-- Empty state -->
     @if (allInterviews.length === 0) {
       <div class="empty-state">
         <div class="empty-icon">
@@ -20,74 +36,126 @@
       </div>
     } @else {
 
-      <!-- Today & Next 7 Days -->
-      @if (todayInterviews.length > 0 || next7DaysInterviews.length > 0) {
-        <section class="section-block">
-          <div class="section-header now">
-            <mat-icon>today</mat-icon>
-            <h2>Cette semaine</h2>
-            <span class="badge">{{ todayInterviews.length + next7DaysInterviews.length }}</span>
+      @if (viewMode === 'calendar') {
+        <section class="section-block calendar-section">
+          <div class="calendar-toolbar">
+            <div class="calendar-nav">
+              <button mat-icon-button matTooltip="Mois précédent" (click)="goToPreviousMonth()">
+                <mat-icon>chevron_left</mat-icon>
+              </button>
+              <h2>{{ getCalendarMonthLabel() }}</h2>
+              <button mat-icon-button matTooltip="Mois suivant" (click)="goToNextMonth()">
+                <mat-icon>chevron_right</mat-icon>
+              </button>
+            </div>
+
+            <button mat-stroked-button (click)="resetToCurrentMonth()">Aujourd'hui</button>
           </div>
 
-          @if (todayInterviews.length > 0) {
-            <h3 class="sub-header today-label">
-              <span class="pulse-dot"></span> Aujourd'hui
-            </h3>
-            <div class="interview-grid">
-              @for (iv of todayInterviews; track iv.id) {
-                <ng-container *ngTemplateOutlet="interviewCard; context: { $implicit: iv, highlight: true }"></ng-container>
-              }
-            </div>
-          }
+          <div class="calendar-grid">
+            @for (label of weekDayLabels; track label) {
+              <div class="calendar-weekday">{{ label }}</div>
+            }
 
-          @if (next7DaysInterviews.length > 0) {
-            <h3 class="sub-header">Prochains jours</h3>
+            @for (day of calendarDays; track day.date.getTime()) {
+              <div class="calendar-day" [class.outside]="!day.inCurrentMonth" [class.today]="day.isToday">
+                <div class="day-head">
+                  <span class="day-number">{{ day.date | date: 'd' }}</span>
+                  @if (day.interviews.length > 0) {
+                    <span class="day-count">{{ day.interviews.length }}</span>
+                  }
+                </div>
+
+                <div class="day-events">
+                  @for (iv of day.interviews.slice(0, 2); track iv.id) {
+                    <button
+                      type="button"
+                      class="day-event"
+                      (click)="editInterview(iv)"
+                      [matTooltip]="iv.title + ' · ' + formatTime(iv.startAt, getInterviewTimezone(iv)) + ' (' + getInterviewTimezone(iv) + ')'"
+                    >
+                      <span class="event-time">{{ formatTime(iv.startAt, getInterviewTimezone(iv)) }}</span>
+                      <span class="event-title">{{ iv.title }}</span>
+                    </button>
+                  }
+
+                  @if (day.interviews.length > 2) {
+                    <div class="more-events">+{{ day.interviews.length - 2 }} autres</div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </section>
+      }
+
+      @if (viewMode === 'agenda') {
+        @if (todayInterviews.length > 0 || next7DaysInterviews.length > 0) {
+          <section class="section-block">
+            <div class="section-header now">
+              <mat-icon>today</mat-icon>
+              <h2>Cette semaine</h2>
+              <span class="badge">{{ todayInterviews.length + next7DaysInterviews.length }}</span>
+            </div>
+
+            @if (todayInterviews.length > 0) {
+              <h3 class="sub-header today-label">
+                <span class="pulse-dot"></span> Aujourd'hui
+              </h3>
+              <div class="interview-grid">
+                @for (iv of todayInterviews; track iv.id) {
+                  <ng-container *ngTemplateOutlet="interviewCard; context: { $implicit: iv, highlight: true }"></ng-container>
+                }
+              </div>
+            }
+
+            @if (next7DaysInterviews.length > 0) {
+              <h3 class="sub-header">Prochains jours</h3>
+              <div class="interview-grid">
+                @for (iv of next7DaysInterviews; track iv.id) {
+                  <ng-container *ngTemplateOutlet="interviewCard; context: { $implicit: iv, highlight: false }"></ng-container>
+                }
+              </div>
+            }
+          </section>
+        }
+
+        @if (upcomingInterviews.length > 0) {
+          <section class="section-block">
+            <div class="section-header upcoming">
+              <mat-icon>upcoming</mat-icon>
+              <h2>À venir</h2>
+              <span class="badge">{{ upcomingInterviews.length }}</span>
+            </div>
             <div class="interview-grid">
-              @for (iv of next7DaysInterviews; track iv.id) {
+              @for (iv of upcomingInterviews; track iv.id) {
                 <ng-container *ngTemplateOutlet="interviewCard; context: { $implicit: iv, highlight: false }"></ng-container>
               }
             </div>
-          }
-        </section>
+          </section>
+        }
+
+        @if (pastInterviews.length > 0) {
+          <section class="section-block past-section">
+            <div class="section-header past">
+              <mat-icon>history</mat-icon>
+              <h2>Passés</h2>
+              <span class="badge">{{ pastInterviews.length }}</span>
+            </div>
+            <div class="interview-grid">
+              @for (iv of pastInterviews; track iv.id) {
+                <ng-container *ngTemplateOutlet="interviewCard; context: { $implicit: iv, highlight: false }"></ng-container>
+              }
+            </div>
+          </section>
+        }
       }
 
-      <!-- Upcoming -->
-      @if (upcomingInterviews.length > 0) {
-        <section class="section-block">
-          <div class="section-header upcoming">
-            <mat-icon>upcoming</mat-icon>
-            <h2>À venir</h2>
-            <span class="badge">{{ upcomingInterviews.length }}</span>
-          </div>
-          <div class="interview-grid">
-            @for (iv of upcomingInterviews; track iv.id) {
-              <ng-container *ngTemplateOutlet="interviewCard; context: { $implicit: iv, highlight: false }"></ng-container>
-            }
-          </div>
-        </section>
-      }
-
-      <!-- Past -->
-      @if (pastInterviews.length > 0) {
-        <section class="section-block past-section">
-          <div class="section-header past">
-            <mat-icon>history</mat-icon>
-            <h2>Passés</h2>
-            <span class="badge">{{ pastInterviews.length }}</span>
-          </div>
-          <div class="interview-grid">
-            @for (iv of pastInterviews; track iv.id) {
-              <ng-container *ngTemplateOutlet="interviewCard; context: { $implicit: iv, highlight: false }"></ng-container>
-            }
-          </div>
-        </section>
-      }
     }
 
   }
 </div>
 
-<!-- Card template -->
 <ng-template #interviewCard let-iv let-highlight="highlight">
   <div [class.today-card]="highlight" class="interview-card">
     <div class="card-top-row">
@@ -125,8 +193,13 @@
 
     <div class="interview-datetime">
       <mat-icon>schedule</mat-icon>
-      <span>{{ formatDate(iv.startAt) }} · {{ formatTime(iv.startAt) }}</span>
-      @if (iv.endAt) { <span> – {{ formatTime(iv.endAt) }}</span> }
+      <span>{{ formatDate(iv.startAt, getInterviewTimezone(iv)) }} · {{ formatTime(iv.startAt, getInterviewTimezone(iv)) }}</span>
+      @if (iv.endAt) { <span> – {{ formatTime(iv.endAt, getInterviewTimezone(iv)) }}</span> }
+    </div>
+
+    <div class="interview-timezone">
+      <mat-icon>public</mat-icon>
+      <span>{{ getInterviewTimezone(iv) }}</span>
     </div>
 
     @if (iv.location) {

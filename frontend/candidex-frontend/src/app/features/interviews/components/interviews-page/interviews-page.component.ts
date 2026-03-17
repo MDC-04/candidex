@@ -22,8 +22,18 @@ import {
 } from '../../models';
 import { InterviewFormDialogComponent } from '../interview-form-dialog/interview-form-dialog.component';
 import { PrepPackDialogComponent } from '../prep-pack-dialog/prep-pack-dialog.component';
+import { HttpErrorService } from '../../../../core/services/http-error.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+
+type InterviewsViewMode = 'agenda' | 'calendar';
+
+interface CalendarDay {
+  date: Date;
+  inCurrentMonth: boolean;
+  isToday: boolean;
+  interviews: Interview[];
+}
 
 @Component({
   selector: 'app-interviews-page',
@@ -50,6 +60,13 @@ export class InterviewsPageComponent implements OnInit {
   upcomingInterviews: Interview[] = [];
   pastInterviews: Interview[] = [];
 
+  viewMode: InterviewsViewMode = 'agenda';
+  localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  calendarMonth = this.getStartOfMonth(new Date());
+  calendarDays: CalendarDay[] = [];
+  weekDayLabels = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+
+  private httpErrorService = inject(HttpErrorService);
   private notificationService = inject(NotificationService);
 
   constructor(
@@ -65,14 +82,215 @@ export class InterviewsPageComponent implements OnInit {
     this.loading = true;
     this.interviewsService.getAll().subscribe({
       next: (interviews) => {
-        this.allInterviews = interviews;
+        this.allInterviews = [...interviews].sort((a, b) =>
+          new Date(a.startAt).getTime() - new Date(b.startAt).getTime()
+        );
         this.categorizeInterviews();
+        this.buildCalendar();
         this.loading = false;
       },
-      error: () => {
-        this.notificationService.error('Erreur lors du chargement des entretiens');
+      error: (error) => {
+        this.notificationService.error(
+          this.httpErrorService.getActionMessage(
+            error,
+            'le chargement des entretiens',
+            'Impossible de charger les entretiens.'
+          )
+        );
         this.loading = false;
       }
+    });
+  }
+
+  setViewMode(mode: InterviewsViewMode): void {
+    this.viewMode = mode;
+    if (mode === 'calendar') {
+      this.buildCalendar();
+    }
+  }
+
+  goToPreviousMonth(): void {
+    this.calendarMonth = new Date(this.calendarMonth.getFullYear(), this.calendarMonth.getMonth() - 1, 1);
+    this.buildCalendar();
+  }
+
+  goToNextMonth(): void {
+    this.calendarMonth = new Date(this.calendarMonth.getFullYear(), this.calendarMonth.getMonth() + 1, 1);
+    this.buildCalendar();
+  }
+
+  resetToCurrentMonth(): void {
+    this.calendarMonth = this.getStartOfMonth(new Date());
+    this.buildCalendar();
+  }
+
+  getCalendarMonthLabel(): string {
+    const label = this.calendarMonth.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+    return label.charAt(0).toUpperCase() + label.slice(1);
+  }
+
+  getInterviewTimezone(interview: Interview): string {
+    return (interview.timezone || '').trim() || this.localTimezone;
+  }
+
+  getTypeLabel(type: InterviewType): string {
+    return InterviewTypeLabels[type];
+  }
+
+  getModeLabel(mode: InterviewMode): string {
+    return InterviewModeLabels[mode];
+  }
+
+  getStatusLabel(status: InterviewStatus): string {
+    return InterviewStatusLabels[status];
+  }
+
+  getModeIcon(mode: InterviewMode): string {
+    switch (mode) {
+      case InterviewMode.VIDEO: return 'videocam';
+      case InterviewMode.ONSITE: return 'business';
+      case InterviewMode.PHONE: return 'phone';
+      default: return 'event';
+    }
+  }
+
+  getTypeColor(type: InterviewType): string {
+    switch (type) {
+      case InterviewType.HR:         return '#e3f2fd';
+      case InterviewType.TECH:       return '#f3e5f5';
+      case InterviewType.MANAGER:    return '#fff3e0';
+      case InterviewType.TAKE_HOME:  return '#e8f5e9';
+      case InterviewType.OTHER:      return '#eceff1';
+      default:                       return '#e3f2fd';
+    }
+  }
+
+  getTypeTextColor(type: InterviewType): string {
+    switch (type) {
+      case InterviewType.HR:         return '#1565c0';
+      case InterviewType.TECH:       return '#7b1fa2';
+      case InterviewType.MANAGER:    return '#e65100';
+      case InterviewType.TAKE_HOME:  return '#2e7d32';
+      case InterviewType.OTHER:      return '#546e7a';
+      default:                       return '#1565c0';
+    }
+  }
+
+  formatDate(iso: string, timezone?: string): string {
+    const date = new Date(iso);
+    return this.toLocaleDateSafe(date, {
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short',
+      timeZone: this.resolveTimezone(timezone)
+    });
+  }
+
+  formatTime(iso: string, timezone?: string): string {
+    const date = new Date(iso);
+    return this.toLocaleTimeSafe(date, {
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: this.resolveTimezone(timezone)
+    });
+  }
+
+  // Actions
+  markAsDone(interview: Interview): void {
+    this.interviewsService.update(interview.id, { status: InterviewStatus.DONE }).subscribe({
+      next: () => {
+        this.notificationService.success('Entretien marqué comme terminé');
+        this.loadInterviews();
+      },
+      error: (error) => this.notificationService.error(
+        this.httpErrorService.getActionMessage(
+          error,
+          'la mise à jour de l\'entretien',
+          'Échec de la mise à jour de l\'entretien.'
+        )
+      )
+    });
+  }
+
+  cancelInterview(interview: Interview): void {
+    this.interviewsService.update(interview.id, { status: InterviewStatus.CANCELED }).subscribe({
+      next: () => {
+        this.notificationService.success('Entretien annulé');
+        this.loadInterviews();
+      },
+      error: (error) => this.notificationService.error(
+        this.httpErrorService.getActionMessage(
+          error,
+          'l\'annulation de l\'entretien',
+          'Échec de l\'annulation de l\'entretien.'
+        )
+      )
+    });
+  }
+
+  editInterview(interview: Interview): void {
+    const dialogRef = this.dialog.open(InterviewFormDialogComponent, {
+      width: '600px',
+      data: { interview }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) this.loadInterviews();
+    });
+  }
+
+  deleteInterview(interview: Interview): void {
+    const timezone = this.getInterviewTimezone(interview);
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '420px',
+      data: {
+        title: 'Supprimer l\'entretien',
+        message: `Êtes-vous sûr de vouloir supprimer l'entretien "${interview.title}" prévu le ${this.formatDate(interview.startAt, timezone)} à ${this.formatTime(interview.startAt, timezone)} ? Cette action est irréversible.`,
+        confirmText: 'Supprimer',
+        cancelText: 'Annuler',
+        confirmColor: 'warn' as const
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(confirmed => {
+      if (!confirmed) return;
+      this.interviewsService.delete(interview.id).subscribe({
+        next: () => {
+          this.notificationService.success('Entretien supprimé');
+          this.loadInterviews();
+        },
+        error: (error) => this.notificationService.error(
+          this.httpErrorService.getActionMessage(
+            error,
+            'la suppression de l\'entretien',
+            'Échec de la suppression de l\'entretien.'
+          )
+        )
+      });
+    });
+  }
+
+  openPrepPack(interview: Interview): void {
+    const dialogRef = this.dialog.open(PrepPackDialogComponent, {
+      width: '580px',
+      maxHeight: '85vh',
+      data: { interview }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (!result) return;
+      const dto: UpdateInterviewDto = { notes: result.notes, feedback: result.feedback };
+      this.interviewsService.update(interview.id, dto).subscribe({
+        next: () => {
+          this.notificationService.success('Notes sauvegardées');
+          this.loadInterviews();
+        },
+        error: (error) => this.notificationService.error(
+          this.httpErrorService.getActionMessage(
+            error,
+            'la sauvegarde des notes',
+            'Échec de la sauvegarde des notes.'
+          )
+        )
+      });
     });
   }
 
@@ -101,147 +319,70 @@ export class InterviewsPageComponent implements OnInit {
       }
     }
 
-    // Sort past descending
     this.pastInterviews.sort((a, b) => new Date(b.startAt).getTime() - new Date(a.startAt).getTime());
   }
 
-  getTypeLabel(type: InterviewType): string {
-    return InterviewTypeLabels[type];
-  }
+  private buildCalendar(): void {
+    const monthStart = this.getStartOfMonth(this.calendarMonth);
+    const offset = (monthStart.getDay() + 6) % 7; // Monday-first
+    const gridStart = new Date(monthStart);
+    gridStart.setDate(monthStart.getDate() - offset);
 
-  getModeLabel(mode: InterviewMode): string {
-    return InterviewModeLabels[mode];
-  }
+    const today = this.getStartOfDay(new Date());
+    this.calendarDays = [];
 
-  getStatusLabel(status: InterviewStatus): string {
-    return InterviewStatusLabels[status];
-  }
+    for (let i = 0; i < 42; i++) {
+      const day = new Date(gridStart);
+      day.setDate(gridStart.getDate() + i);
+      const normalized = this.getStartOfDay(day);
 
-  getModeIcon(mode: InterviewMode): string {
-    switch (mode) {
-      case InterviewMode.VIDEO: return 'videocam';
-      case InterviewMode.ONSITE: return 'business';
-      case InterviewMode.PHONE: return 'phone';
-      default: return 'event';
-    }
-  }
-
-  getTypeColor(type: InterviewType): string {
-    switch (type) {
-      case InterviewType.HR:         return '#e3f2fd';  // bleu clair
-      case InterviewType.TECH:       return '#f3e5f5';  // violet clair
-      case InterviewType.MANAGER:    return '#fff3e0';  // ambre clair
-      case InterviewType.TAKE_HOME:  return '#e8f5e9';  // vert clair
-      case InterviewType.OTHER:      return '#eceff1';  // gris clair
-      default:                       return '#e3f2fd';
-    }
-  }
-
-  getTypeTextColor(type: InterviewType): string {
-    switch (type) {
-      case InterviewType.HR:         return '#1565c0';  // bleu foncé
-      case InterviewType.TECH:       return '#7b1fa2';  // violet foncé
-      case InterviewType.MANAGER:    return '#e65100';  // ambre foncé
-      case InterviewType.TAKE_HOME:  return '#2e7d32';  // vert foncé
-      case InterviewType.OTHER:      return '#546e7a';  // gris foncé
-      default:                       return '#1565c0';
-    }
-  }
-
-  formatDate(iso: string): string {
-    return new Date(iso).toLocaleDateString('fr-FR', {
-      weekday: 'short',
-      day: 'numeric',
-      month: 'short'
-    });
-  }
-
-  formatTime(iso: string): string {
-    return new Date(iso).toLocaleTimeString('fr-FR', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  }
-
-  isToday(iso: string): boolean {
-    const d = new Date(iso);
-    const now = new Date();
-    return d.toDateString() === now.toDateString();
-  }
-
-  // Actions
-  markAsDone(interview: Interview): void {
-    this.interviewsService.update(interview.id, { status: InterviewStatus.DONE }).subscribe({
-      next: () => {
-        this.notificationService.success('Entretien marqué comme terminé');
-        this.loadInterviews();
-      },
-      error: () => this.notificationService.error('Erreur')
-    });
-  }
-
-  cancelInterview(interview: Interview): void {
-    this.interviewsService.update(interview.id, { status: InterviewStatus.CANCELED }).subscribe({
-      next: () => {
-        this.notificationService.success('Entretien annulé');
-        this.loadInterviews();
-      },
-      error: () => this.notificationService.error('Erreur')
-    });
-  }
-
-  editInterview(interview: Interview): void {
-    const dialogRef = this.dialog.open(InterviewFormDialogComponent, {
-      width: '600px',
-      data: { interview }
-    });
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) this.loadInterviews();
-    });
-  }
-
-  deleteInterview(interview: Interview): void {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '420px',
-      data: {
-        title: 'Supprimer l\'entretien',
-        message: `Êtes-vous sûr de vouloir supprimer l'entretien "${interview.title}" prévu le ${this.formatDate(interview.startAt)} à ${this.formatTime(interview.startAt)} ? Cette action est irréversible.`,
-        confirmText: 'Supprimer',
-        cancelText: 'Annuler',
-        confirmColor: 'warn' as const
-      }
-    });
-
-    dialogRef.afterClosed().subscribe(confirmed => {
-      if (!confirmed) return;
-      this.interviewsService.delete(interview.id).subscribe({
-        next: () => {
-          this.notificationService.success('Entretien supprimé');
-          this.loadInterviews();
-        },
-        error: () => this.notificationService.error('Erreur lors de la suppression')
+      this.calendarDays.push({
+        date: normalized,
+        inCurrentMonth: normalized.getMonth() === monthStart.getMonth(),
+        isToday: normalized.getTime() === today.getTime(),
+        interviews: this.getInterviewsForDay(normalized)
       });
-    });
+    }
   }
 
-  // Prep pack drawer
-  openPrepPack(interview: Interview): void {
-    const dialogRef = this.dialog.open(PrepPackDialogComponent, {
-      width: '580px',
-      maxHeight: '85vh',
-      data: { interview }
-    });
-    dialogRef.afterClosed().subscribe(result => {
-      if (!result) return;
-      const dto: UpdateInterviewDto = { notes: result.notes, feedback: result.feedback };
-      this.interviewsService.update(interview.id, dto).subscribe({
-        next: () => {
-          this.notificationService.success('Notes sauvegardées');
-          this.loadInterviews();
-        },
-        error: () => this.notificationService.error('Erreur')
-      });
-    });
+  private getInterviewsForDay(day: Date): Interview[] {
+    return this.allInterviews
+      .filter((interview) => {
+        const startAt = new Date(interview.startAt);
+        return this.getStartOfDay(startAt).getTime() === day.getTime();
+      })
+      .sort((a, b) => new Date(a.startAt).getTime() - new Date(b.startAt).getTime());
   }
 
+  private resolveTimezone(timezone?: string): string {
+    return (timezone || '').trim() || this.localTimezone;
+  }
+
+  private toLocaleDateSafe(date: Date, options: Intl.DateTimeFormatOptions): string {
+    try {
+      return date.toLocaleDateString('fr-FR', options);
+    } catch {
+      const fallback = { ...options };
+      delete fallback.timeZone;
+      return date.toLocaleDateString('fr-FR', fallback);
+    }
+  }
+
+  private toLocaleTimeSafe(date: Date, options: Intl.DateTimeFormatOptions): string {
+    try {
+      return date.toLocaleTimeString('fr-FR', options);
+    } catch {
+      const fallback = { ...options };
+      delete fallback.timeZone;
+      return date.toLocaleTimeString('fr-FR', fallback);
+    }
+  }
+
+  private getStartOfMonth(date: Date): Date {
+    return new Date(date.getFullYear(), date.getMonth(), 1);
+  }
+
+  private getStartOfDay(date: Date): Date {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  }
 }

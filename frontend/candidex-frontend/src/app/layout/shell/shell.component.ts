@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 
@@ -37,8 +37,10 @@ import { AuthService } from '../../core/services/auth.service';
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.scss',
 })
-export class ShellComponent {
+export class ShellComponent implements OnInit {
   currentUser$ = this.authService.currentUser$;
+  isMobileViewport = false;
+  mobileSidenavOpened = false;
   
   constructor(
     private authService: AuthService,
@@ -46,6 +48,15 @@ export class ShellComponent {
     ,
     private dialog: MatDialog
   ) {}
+
+  ngOnInit(): void {
+    this.updateViewportState();
+  }
+
+  @HostListener('window:resize')
+  onWindowResize(): void {
+    this.updateViewportState();
+  }
   
   logout(): void {
     this.authService.logout();
@@ -67,5 +78,33 @@ export class ShellComponent {
   
   getInitials(email: string): string {
     return email.charAt(0).toUpperCase();
+  }
+
+  toggleSidenav(): void {
+    if (!this.isMobileViewport) {
+      return;
+    }
+    this.mobileSidenavOpened = !this.mobileSidenavOpened;
+  }
+
+  onNavItemClick(): void {
+    if (this.isMobileViewport) {
+      this.mobileSidenavOpened = false;
+    }
+  }
+
+  onSidenavClosed(): void {
+    if (this.isMobileViewport) {
+      this.mobileSidenavOpened = false;
+    }
+  }
+
+  private updateViewportState(): void {
+    const nextIsMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 960px)').matches;
+
+    if (nextIsMobile !== this.isMobileViewport) {
+      this.isMobileViewport = nextIsMobile;
+      this.mobileSidenavOpened = false;
+    }
   }
 }

@@ -12,6 +12,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
   margin-bottom: 28px;
 
   h1 {
@@ -22,6 +24,52 @@
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
+  }
+}
+
+.title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.timezone-note {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--cx-text-secondary);
+
+  mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+    color: var(--cx-primary);
+    opacity: 0.8;
+  }
+}
+
+.view-switch {
+  display: inline-flex;
+  gap: 8px;
+
+  button {
+    border-color: var(--cx-border);
+    min-height: 40px;
+
+    mat-icon {
+      margin-right: 6px;
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    &.active {
+      color: var(--cx-primary);
+      border-color: rgba(102, 126, 234, 0.35);
+      background: rgba(102, 126, 234, 0.08);
+    }
   }
 }
 
@@ -246,6 +294,7 @@
 }
 
 .interview-datetime,
+.interview-timezone,
 .interview-location {
   display: flex;
   align-items: center;
@@ -263,6 +312,11 @@
   }
 }
 
+.interview-timezone {
+  font-size: 12px;
+  color: var(--cx-text-muted);
+}
+
 .card-actions {
   display: flex;
   gap: 4px;
@@ -273,6 +327,148 @@
 }
 
 .delete-item { color: #dc2626; }
+
+/* ---------- Calendar View ---------- */
+.calendar-section {
+  padding: 18px;
+}
+
+.calendar-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.calendar-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--cx-text);
+    min-width: 190px;
+    text-align: center;
+  }
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  border: 1px solid var(--cx-border);
+  border-radius: var(--cx-radius-md);
+  overflow: hidden;
+}
+
+.calendar-weekday {
+  background: rgba(102, 126, 234, 0.08);
+  color: var(--cx-text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 10px;
+  text-align: center;
+}
+
+.calendar-day {
+  min-height: 132px;
+  border-top: 1px solid var(--cx-border);
+  border-right: 1px solid var(--cx-border);
+  padding: 8px;
+  background: #fff;
+
+  &:nth-child(7n) {
+    border-right: none;
+  }
+
+  &.outside {
+    background: rgba(148, 163, 184, 0.08);
+
+    .day-number {
+      color: var(--cx-text-muted);
+    }
+  }
+
+  &.today {
+    background: rgba(102, 126, 234, 0.06);
+    box-shadow: inset 0 0 0 2px rgba(102, 126, 234, 0.35);
+  }
+}
+
+.day-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.day-number {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--cx-text);
+}
+
+.day-count {
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 999px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cx-gradient);
+  color: #fff;
+}
+
+.day-events {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.day-event {
+  border: 1px solid rgba(102, 126, 234, 0.2);
+  background: rgba(102, 126, 234, 0.08);
+  border-radius: 8px;
+  padding: 4px 6px;
+  text-align: left;
+  display: grid;
+  gap: 1px;
+  cursor: pointer;
+  transition: all 0.2s var(--cx-ease);
+
+  &:hover {
+    background: rgba(102, 126, 234, 0.14);
+    border-color: rgba(102, 126, 234, 0.35);
+  }
+
+  .event-time {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--cx-primary);
+  }
+
+  .event-title {
+    font-size: 11px;
+    color: var(--cx-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.more-events {
+  font-size: 11px;
+  color: var(--cx-text-muted);
+  padding: 2px 4px;
+}
 
 /* ---------- Prep Panel (slide-in) ---------- */
 .prep-overlay {
@@ -410,7 +606,46 @@
 @media (max-width: 768px) {
   .interviews-page { padding: 14px; }
   .header h1 { font-size: 24px; }
+  .header {
+    align-items: flex-start;
+  }
+
+  .view-switch {
+    width: 100%;
+
+    button {
+      flex: 1;
+    }
+  }
+
   .section-block { padding: 16px; }
   .interview-grid { grid-template-columns: 1fr; }
   .prep-panel { width: 100%; }
+
+  .calendar-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .calendar-nav {
+    justify-content: space-between;
+
+    h2 {
+      min-width: 0;
+      font-size: 18px;
+    }
+  }
+
+  .calendar-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .calendar-weekday {
+    display: none;
+  }
+
+  .calendar-day {
+    border-right: none;
+    min-height: auto;
+  }
 }

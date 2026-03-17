@@ -14,6 +14,8 @@ import { ApplicationsService } from '../../services/applications.service';
 import { Application, ApplicationStatusLabels, ApplicationSourceLabels } from '../../models';
 import { ApplicationFormComponent } from '../application-form/application-form.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { HttpErrorService } from '../../../../core/services/http-error.service';
+import { NotificationService } from '../../../../core/services/notification.service';
 
 /**
  * Component for displaying detailed view of a single application
@@ -52,7 +54,9 @@ export class ApplicationDetailComponent implements OnInit {
     private router: Router,
     private applicationsService: ApplicationsService,
     private location: Location,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private httpErrorService: HttpErrorService,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -60,8 +64,19 @@ export class ApplicationDetailComponent implements OnInit {
     if (id) {
       this.application$ = this.applicationsService.getById(id);
       // Subscribe to store current application for edit/delete
-      this.application$.subscribe(app => {
-        this.currentApplication = app;
+      this.application$.subscribe({
+        next: (app) => {
+          this.currentApplication = app;
+        },
+        error: (error) => {
+          this.notificationService.error(
+            this.httpErrorService.getActionMessage(
+              error,
+              'le chargement de la candidature',
+              'Impossible de charger cette candidature.'
+            )
+          );
+        }
       });
     }
   }
@@ -121,11 +136,18 @@ export class ApplicationDetailComponent implements OnInit {
       if (confirmed && this.currentApplication) {
         this.applicationsService.delete(this.currentApplication.id).subscribe({
           next: () => {
-              // Navigate back to list after successful deletion
-              this.router.navigate(['/applications']);
-            },
+            this.notificationService.success('Candidature supprimée avec succès !');
+            // Navigate back to list after successful deletion
+            this.router.navigate(['/applications']);
+          },
           error: (err) => {
-            // TODO: Show error snackbar
+            this.notificationService.error(
+              this.httpErrorService.getActionMessage(
+                err,
+                'la suppression de la candidature',
+                'Échec de la suppression. Veuillez réessayer.'
+              )
+            );
           }
         });
       }

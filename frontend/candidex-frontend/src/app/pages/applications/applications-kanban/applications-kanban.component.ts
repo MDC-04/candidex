@@ -14,6 +14,7 @@ import { Router } from '@angular/router';
 
 import { ApplicationsService } from '../../../features/applications/services/applications.service';
 import { Application, ApplicationStatus, ApplicationStatusLabels, ApplicationSourceLabels } from '../../../features/applications/models';
+import { HttpErrorService } from '../../../core/services/http-error.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ApplicationFormComponent } from '../../../features/applications/components/application-form/application-form.component';
 
@@ -56,6 +57,7 @@ export class ApplicationsKanbanComponent implements OnInit {
   loading = false;
   sourceLabels = ApplicationSourceLabels;
   
+  private httpErrorService = inject(HttpErrorService);
   private notificationService = inject(NotificationService);
   
   constructor(
@@ -86,6 +88,13 @@ export class ApplicationsKanbanComponent implements OnInit {
         this.loading = false;
       },
       error: (error) => {
+        this.notificationService.error(
+          this.httpErrorService.getActionMessage(
+            error,
+            'le chargement du pipeline',
+            'Impossible de charger le pipeline des candidatures.'
+          )
+        );
         this.loading = false;
       }
     });
@@ -109,10 +118,16 @@ export class ApplicationsKanbanComponent implements OnInit {
             event.previousIndex,
             event.currentIndex
           );
-          this.notificationService.success(`Status updated to ${targetColumn.label}`);
+          this.notificationService.success(`Statut mis à jour: ${targetColumn.label}`);
         },
         error: (error) => {
-          this.notificationService.error('Échec de la mise à jour du statut. Veuillez réessayer.');
+          this.notificationService.error(
+            this.httpErrorService.getActionMessage(
+              error,
+              'la mise à jour du statut',
+              'Échec de la mise à jour du statut. Veuillez réessayer.'
+            )
+          );
         }
       });
     }
@@ -152,8 +167,14 @@ export class ApplicationsKanbanComponent implements OnInit {
         this.notificationService.success('Statut mis à jour !');
         this.loadApplications();
       },
-      error: () => {
-        this.notificationService.error('Échec de la mise à jour.');
+      error: (error) => {
+        this.notificationService.error(
+          this.httpErrorService.getActionMessage(
+            error,
+            'la mise à jour de la candidature',
+            'Échec de la mise à jour. Veuillez réessayer.'
+          )
+        );
       }
     });
   }

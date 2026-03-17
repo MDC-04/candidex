@@ -1,6 +1,6 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Observable } from 'rxjs';
+import { Subscription, debounceTime, distinctUntilChanged, filter, map } from 'rxjs';
 import { Router } from '@angular/router';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
@@ -17,7 +17,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatDividerModule } from '@angular/material/divider';
 
-import { ApplicationsService, PaginatedApplications } from '../../services/applications.service';
+import { ApplicationListParams, ApplicationsService, PaginatedApplications } from '../../services/applications.service';
 import { 
   Application, 
   ApplicationStatus,
@@ -27,8 +27,9 @@ import {
 } from '../../models';
 import { ApplicationFormComponent } from '../application-form/application-form.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { HttpErrorService } from '../../../../core/services/http-error.service';
 import { NotificationService } from '../../../../core/services/notification.service';
-import { InterviewFormDialogComponent } from '../../../interviews/components/interview-form-dialog/interview-form-dialog.component';
+import { InterviewFormDialogComponent } from '../../../../features/interviews/components/interview-form-dialog/interview-form-dialog.component';
 
 /**
  * Component for displaying a list of job applications
@@ -61,14 +62,10 @@ import { InterviewFormDialogComponent } from '../../../interviews/components/int
   templateUrl: './applications-list.component.html',
   styleUrl: './applications-list.component.scss'
 })
-export class ApplicationsListComponent implements OnInit {
-  
-  /**
-   * Observable stream of applications data
-   * Will be consumed by async pipe in template
-   */
-  applications$!: Observable<PaginatedApplications>;
-  filteredApplications$!: Observable<Application[]>;
+export class ApplicationsListComponent implements OnInit, OnDestroy {
+  loading = false;
+  data: PaginatedApplications | null = null;
+  displayItems: Application[] = [];
 
   /**
    * Columns to display in the table
@@ -94,7 +91,7 @@ export class ApplicationsListComponent implements OnInit {
    * Filter controls
    */
   searchControl = new FormControl('');
-  // statusFilterControl removed in favor of city/country filtering
+  statusFilterControl = new FormControl<ApplicationStatus | 'ALL'>('ALL');
   locationFilterControl = new FormControl('');
   sourceFilterControl = new FormControl<ApplicationSource | 'ALL'>('ALL');
   
@@ -104,12 +101,10 @@ export class ApplicationsListComponent implements OnInit {
   statusOptions = ['ALL', ...Object.values(ApplicationStatus)];
   sourceOptions = ['ALL', ...Object.values(ApplicationSource)];
   
-  /**
-   * Unfiltered applications for filtering
-   */
-  private allApplications: Application[] = [];
-
+  private httpErrorService = inject(HttpErrorService);
   private notificationService = inject(NotificationService);
+  private readonly filterSubscriptions = new Subscription();
+  private loadSubscription: Subscription | null = null;
 
   constructor(
     private applicationsService: ApplicationsService,
@@ -118,70 +113,179 @@ export class ApplicationsListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Load all applications on component initialization
     this.loadApplications();
-    
-    // Subscribe to filter changes
-    this.searchControl.valueChanges.subscribe(() => this.applyFilters());
-    this.locationFilterControl.valueChanges.subscribe(() => this.applyFilters());
-    this.sourceFilterControl.valueChanges.subscribe(() => this.applyFilters());
+
+    // Text filters are debounced and triggered from 2 chars to avoid noisy refreshes.
+    this.filterSubscriptions.add(
+      this.searchControl.valueChanges
+        .pipe(
+          map(value => (value || '').trim()),
+          debounceTime(700),
+          distinctUntilChanged(),
+          filter(value => value.length === 0 || value.length >= 2)
+        )
+        .subscribe(() => this.loadApplications())
+    );
+
+    this.filterSubscriptions.add(
+      this.locationFilterControl.valueChanges
+        .pipe(
+          map(value => (value || '').trim()),
+          debounceTime(700),
+          distinctUntilChanged(),
+          filter(value => value.length === 0 || value.length >= 2)
+        )
+        .subscribe(() => this.loadApplications())
+    );
+
+    // Select filters can query immediately.
+    this.filterSubscriptions.add(
+      this.statusFilterControl.valueChanges
+        .pipe(distinctUntilChanged())
+        .subscribe(() => this.loadApplications())
+    );
+
+    this.filterSubscriptions.add(
+      this.sourceFilterControl.valueChanges
+        .pipe(distinctUntilChanged())
+        .subscribe(() => this.loadApplications())
+    );
+  }
+
+  ngOnDestroy(): void {
+    this.filterSubscriptions.unsubscribe();
+    this.loadSubscription?.unsubscribe();
   }
 
   /**
    * Load applications from the service
    */
   loadApplications(): void {
-    this.applications$ = this.applicationsService.getAll();
-    this.applications$.subscribe(data => {
-      this.allApplications = data.items;
-      this.applyFilters();
+    const params = this.buildQueryParams();
+
+    this.loadSubscription?.unsubscribe();
+    this.loading = true;
+
+    this.loadSubscription = this.applicationsService.getAll(params).subscribe({
+      next: (data) => {
+        this.data = data;
+        this.displayItems = this.applyLocalSafetyFilters(data.items);
+        this.loading = false;
+      },
+      error: (error) => {
+        this.loading = false;
+        this.displayItems = [];
+        this.data = {
+          items: [],
+          page: 1,
+          size: 100,
+          totalItems: 0,
+          totalPages: 0
+        };
+
+        this.notificationService.error(
+          this.httpErrorService.getActionMessage(
+            error,
+            'le chargement des candidatures',
+            'Impossible de charger la liste des candidatures.'
+          )
+        );
+      }
     });
   }
-  
-  /**
-   * Apply filters to applications list
-   */
-  private applyFilters(): void {
-    let filtered = [...this.allApplications];
-    
-    // Search filter (company or role)
-    const searchTerm = this.searchControl.value?.toLowerCase() || '';
-    if (searchTerm) {
-      filtered = filtered.filter(app => 
-        app.companyName.toLowerCase().includes(searchTerm) ||
-        app.roleTitle.toLowerCase().includes(searchTerm)
-      );
-    }
-    
-    // City/Country filter
-    const locationFilter = this.locationFilterControl.value?.toLowerCase() || '';
-    if (locationFilter) {
-      filtered = filtered.filter(app =>
-        this.getLocationSearchText(app).includes(locationFilter)
-      );
-    }
-    
-    // Source filter
+
+  private applyLocalSafetyFilters(items: Application[]): Application[] {
+    const searchTerm = (this.searchControl.value || '').trim().toLowerCase();
+    const locationTerm = (this.locationFilterControl.value || '').trim().toLowerCase();
+    const statusFilter = this.statusFilterControl.value;
     const sourceFilter = this.sourceFilterControl.value;
-    if (sourceFilter && sourceFilter !== 'ALL') {
-      filtered = filtered.filter(app => app.source === sourceFilter);
-    }
-    
-    this.filteredApplications$ = new Observable(observer => {
-      observer.next(filtered);
-      observer.complete();
+
+    return items.filter((app) => {
+      if (statusFilter && statusFilter !== 'ALL' && app.status !== statusFilter) {
+        return false;
+      }
+
+      if (sourceFilter && sourceFilter !== 'ALL' && app.source !== sourceFilter) {
+        return false;
+      }
+
+      if (searchTerm.length >= 2) {
+        const searchable = `${app.companyName} ${app.roleTitle} ${app.notes || ''}`.toLowerCase();
+        if (!searchable.includes(searchTerm)) {
+          return false;
+        }
+      }
+
+      if (locationTerm.length >= 2) {
+        const searchableLocation = `${app.city || ''} ${app.country || ''}`.toLowerCase();
+        if (!searchableLocation.includes(locationTerm)) {
+          return false;
+        }
+      }
+
+      return true;
     });
   }
-  
+
+  hasActiveFilters(): boolean {
+    return !!(
+      this.isEffectiveTextFilter(this.searchControl.value) ||
+      this.isEffectiveTextFilter(this.locationFilterControl.value) ||
+      this.statusFilterControl.value !== 'ALL' ||
+      this.sourceFilterControl.value !== 'ALL'
+    );
+  }
+
+  private isEffectiveTextFilter(value: string | null): boolean {
+    return (value || '').trim().length >= 2;
+  }
+
+  private buildQueryParams(): ApplicationListParams {
+    const params: ApplicationListParams = {
+      page: 1,
+      size: 100,
+      sort: 'updatedAt,desc'
+    };
+
+    const searchTerm = (this.searchControl.value || '').trim();
+    const locationTerm = (this.locationFilterControl.value || '').trim();
+    const statusFilter = this.statusFilterControl.value;
+    const sourceFilter = this.sourceFilterControl.value;
+
+    if (searchTerm) {
+      if (searchTerm.length >= 2) {
+        params.q = searchTerm;
+      }
+    }
+
+    if (locationTerm) {
+      if (locationTerm.length >= 2) {
+        params.location = locationTerm;
+      }
+    }
+
+    if (statusFilter && statusFilter !== 'ALL') {
+      params.status = statusFilter;
+    }
+
+    if (sourceFilter && sourceFilter !== 'ALL') {
+      params.source = sourceFilter;
+    }
+
+    return params;
+  }
+
   /**
    * Clear all filters
    */
   clearFilters(): void {
-    this.searchControl.setValue('');
-    this.locationFilterControl.setValue('');
-    this.sourceFilterControl.setValue('ALL');
+    this.searchControl.setValue('', { emitEvent: false });
+    this.statusFilterControl.setValue('ALL', { emitEvent: false });
+    this.locationFilterControl.setValue('', { emitEvent: false });
+    this.sourceFilterControl.setValue('ALL', { emitEvent: false });
+    this.loadApplications();
   }
-  
+
   /**
    * Get filter label for display
    */
@@ -236,10 +340,6 @@ export class ApplicationsListComponent implements OnInit {
     return city || country || 'Non spécifié';
   }
 
-  private getLocationSearchText(app: Application): string {
-    return `${app.city || ''} ${app.country || ''}`.toLowerCase();
-  }
-
   /**
    * Get CSS class for status chip
    */
@@ -260,21 +360,7 @@ export class ApplicationsListComponent implements OnInit {
    */
   getNextActionInfo(app: Application): { text: string; icon: string; class: string } | null {
     if (!app.nextAction) {
-      // Mock next actions based on status for demo
-      switch (app.status) {
-        case ApplicationStatus.APPLIED:
-          return { text: 'Relance', icon: 'send', class: 'next-action-followup' };
-        case ApplicationStatus.HR_INTERVIEW:
-        case ApplicationStatus.TECH_INTERVIEW:
-          return { text: 'Entretien prévu', icon: 'event', class: 'next-action-interview' };
-        case ApplicationStatus.OFFER:
-          return { text: 'Répondre à l\'offre', icon: 'check_circle', class: 'next-action-respond' };
-        case ApplicationStatus.REJECTED:
-        case ApplicationStatus.GHOSTED:
-          return { text: 'Sans réponse', icon: 'remove_circle', class: 'next-action-none' };
-        default:
-          return null;
-      }
+      return this.getSuggestedNextActionInfo(app.status);
     }
     
     const action = app.nextAction;
@@ -285,13 +371,37 @@ export class ApplicationsListComponent implements OnInit {
     // Check if overdue
     const actionDate = new Date(action.date);
     const today = new Date();
-    const isOverdue = actionDate < today;
+    today.setHours(0, 0, 0, 0);
+    actionDate.setHours(0, 0, 0, 0);
+
+    const isValidDate = !Number.isNaN(actionDate.getTime());
+    const isOverdue = isValidDate && actionDate < today;
+    const fallbackText = isValidDate
+      ? `Action prévue le ${actionDate.toLocaleDateString('fr-FR')}`
+      : 'Action prévue';
     
     return {
-      text: action.note || 'Action prévue',
+      text: action.note?.trim() || fallbackText,
       icon: isOverdue ? 'warning' : 'schedule',
       class: isOverdue ? 'next-action-overdue' : 'next-action-scheduled'
     };
+  }
+
+  private getSuggestedNextActionInfo(status: ApplicationStatus): { text: string; icon: string; class: string } | null {
+    switch (status) {
+      case ApplicationStatus.APPLIED:
+        return { text: 'Relancer sous 7 jours', icon: 'send', class: 'next-action-followup' };
+      case ApplicationStatus.HR_INTERVIEW:
+      case ApplicationStatus.TECH_INTERVIEW:
+        return { text: 'Préparer l\'entretien', icon: 'event', class: 'next-action-interview' };
+      case ApplicationStatus.OFFER:
+        return { text: 'Répondre à l\'offre', icon: 'check_circle', class: 'next-action-respond' };
+      case ApplicationStatus.REJECTED:
+      case ApplicationStatus.GHOSTED:
+        return { text: 'Clôturer le suivi', icon: 'inventory_2', class: 'next-action-none' };
+      default:
+        return null;
+    }
   }
 
   /**
@@ -345,7 +455,13 @@ export class ApplicationsListComponent implements OnInit {
             this.loadApplications(); // Reload list
           },
           error: (err) => {
-            this.notificationService.error('Échec de la suppression. Veuillez réessayer.');
+            this.notificationService.error(
+              this.httpErrorService.getActionMessage(
+                err,
+                'la suppression de la candidature',
+                'Échec de la suppression. Veuillez réessayer.'
+              )
+            );
           }
         });
       }

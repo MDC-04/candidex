@@ -5,7 +5,9 @@ import com.candidex.api.dto.UserProfileDto;
 import com.candidex.api.model.User;
 import com.candidex.api.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 /**
  * Service for user profile management
@@ -21,7 +23,7 @@ public class UserService {
      */
     public UserProfileDto getProfile(String userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable."));
         
         return mapToDto(user);
     }
@@ -31,7 +33,7 @@ public class UserService {
      */
     public UserProfileDto updateProfile(String userId, UpdateProfileDto dto) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable."));
         
         // Update fields
         if (dto.getFullName() != null) {
@@ -90,7 +92,7 @@ public class UserService {
      */
     public void updateCvFilename(String userId, String filename) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable."));
         user.setCvFilename(filename);
         userRepository.save(user);
     }
@@ -100,7 +102,7 @@ public class UserService {
      */
     public void updateCvFilenames(String userId, String filename, String originalFilename) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable."));
         user.setCvFilename(filename);
         user.setCvOriginalFilename(originalFilename);
         userRepository.save(user);
@@ -111,7 +113,7 @@ public class UserService {
      */
     public String getCvFilename(String userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable."));
         return user.getCvFilename();
     }
     
@@ -120,7 +122,7 @@ public class UserService {
      */
     public void deleteCvFilename(String userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable."));
         user.setCvFilename(null);
         user.setCvOriginalFilename(null);
         userRepository.save(user);

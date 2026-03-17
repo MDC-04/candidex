@@ -18,6 +18,7 @@ export interface ApplicationListParams {
   source?: ApplicationSource;
   tag?: string;
   q?: string; // free text search
+  location?: string; // city/country search
   from?: string; // ISO date
   to?: string; // ISO date
   page?: number; // default 1
@@ -77,6 +78,9 @@ export class ApplicationsService {
     }
     if (params?.q) {
       httpParams = httpParams.set('q', params.q);
+    }
+    if (params?.location) {
+      httpParams = httpParams.set('location', params.location);
     }
     if (params?.from) {
       httpParams = httpParams.set('from', params.from);

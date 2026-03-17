@@ -8,8 +8,10 @@ import com.candidex.api.repository.InterviewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.List;
@@ -50,7 +52,7 @@ public class InterviewService {
      */
     public Interview getInterviewById(String id, String userId) {
         return interviewRepository.findByIdAndUserId(id, userId)
-                .orElseThrow(() -> new RuntimeException("Interview not found or access denied"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Entretien introuvable."));
     }
 
     /**
@@ -70,7 +72,10 @@ public class InterviewService {
 
         // Validate endAt >= startAt if provided
         if (dto.getEndAt() != null && dto.getEndAt().isBefore(dto.getStartAt())) {
-            throw new IllegalArgumentException("End time must be after start time");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "La date de fin doit être postérieure à la date de début."
+            );
         }
 
         Interview interview = Interview.builder()
@@ -123,7 +128,10 @@ public class InterviewService {
         // Validate endAt >= startAt
         if (interview.getEndAt() != null && interview.getStartAt() != null
                 && interview.getEndAt().isBefore(interview.getStartAt())) {
-            throw new IllegalArgumentException("End time must be after start time");
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "La date de fin doit être postérieure à la date de début."
+            );
         }
 
         interview.setUpdatedAt(Instant.now());

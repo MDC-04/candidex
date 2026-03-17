@@ -5,41 +5,62 @@ import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
   providedIn: 'root'
 })
 export class NotificationService {
-  
+
   private defaultConfig: MatSnackBarConfig = {
-    duration: 3000,
-    horizontalPosition: 'end',
+    duration: 3600,
+    horizontalPosition: 'center',
     verticalPosition: 'top'
   };
-  
+
   constructor(private snackBar: MatSnackBar) {}
-  
+
   success(message: string): void {
-    this.snackBar.open(message, '✓', {
-      ...this.defaultConfig,
-      panelClass: ['success-snackbar']
-    });
+    this.show('success', message);
   }
-  
+
   error(message: string): void {
-    this.snackBar.open(message, '✕', {
-      ...this.defaultConfig,
-      duration: 5000,
-      panelClass: ['error-snackbar']
-    });
+    this.show('error', message, 5200);
   }
-  
+
   info(message: string): void {
-    this.snackBar.open(message, 'ℹ', {
+    this.show('info', message);
+  }
+
+  warning(message: string): void {
+    this.show('warning', message, 4500);
+  }
+
+  private show(type: 'success' | 'error' | 'info' | 'warning', message: string, duration?: number): void {
+    const icon = this.getIcon(type);
+    const position = this.getResponsivePosition();
+
+    this.snackBar.open(`${icon} ${message}`, 'Fermer', {
       ...this.defaultConfig,
-      panelClass: ['info-snackbar']
+      ...position,
+      duration: duration ?? this.defaultConfig.duration,
+      panelClass: ['cx-snackbar', `cx-snackbar-${type}`]
     });
   }
-  
-  warning(message: string): void {
-    this.snackBar.open(message, '⚠', {
-      ...this.defaultConfig,
-      panelClass: ['warning-snackbar']
-    });
+
+  private getResponsivePosition(): Pick<MatSnackBarConfig, 'horizontalPosition' | 'verticalPosition'> {
+    const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches;
+
+    return {
+      horizontalPosition: 'center',
+      verticalPosition: isMobile ? 'bottom' : 'top'
+    };
+  }
+
+  private getIcon(type: 'success' | 'error' | 'info' | 'warning'): string {
+    switch (type) {
+      case 'success':
+        return '✓';
+      case 'error':
+        return '✕';
+      case 'warning':
+        return '!';
+      default:
+        return 'i';
+    }
   }
 }
