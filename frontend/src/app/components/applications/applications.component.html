@@ -1,0 +1,114 @@
+<div class="applications-container">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <h1>Candidex</h1>
+    </div>
+    <div class="navbar-menu">
+      <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+      <a routerLink="/applications" routerLinkActive="active">Applications</a>
+      <a routerLink="/kanban" routerLinkActive="active">Kanban</a>
+      <button class="btn-logout" (click)="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="applications-content">
+    <div class="header-section">
+      <h2>My Applications</h2>
+      <button class="btn btn-primary" (click)="openCreateModal()">
+        + Add Application
+      </button>
+    </div>
+
+    <div class="filters-section">
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Search by company or position..."
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearchChange()"
+      />
+      <select
+        class="filter-select"
+        [(ngModel)]="filterStatus"
+        (ngModelChange)="onFilterChange()"
+      >
+        <option value="ALL">All Statuses</option>
+        <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
+      </select>
+    </div>
+
+    <div *ngIf="isLoading" class="loading">Loading applications...</div>
+
+    <div *ngIf="!isLoading && filteredApplications.length === 0" class="empty-state">
+      <p>No applications found. Create your first one!</p>
+    </div>
+
+    <div *ngIf="!isLoading && filteredApplications.length > 0" class="applications-grid">
+      <div *ngFor="let app of filteredApplications" class="application-card">
+        <div class="card-header">
+          <h3>{{ app.position }}</h3>
+          <span class="status-badge" [ngClass]="getStatusClass(app.status)">
+            {{ app.status }}
+          </span>
+        </div>
+        <div class="card-body">
+          <p class="company">🏢 {{ app.company }}</p>
+          <p *ngIf="app.location" class="location">📍 {{ app.location }}</p>
+          <p *ngIf="app.salary" class="salary">💰 {{ app.salary }}</p>
+        </div>
+        <div class="card-actions">
+          <button class="btn-action btn-view" (click)="viewDetails(app.id)">View</button>
+          <button class="btn-action btn-edit" (click)="openEditModal(app)">Edit</button>
+          <button class="btn-action btn-delete" (click)="deleteApplication(app.id)">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <h3>{{ isEditMode ? 'Edit Application' : 'New Application' }}</h3>
+    <form (ngSubmit)="saveApplication()">
+      <div class="form-group">
+        <label>Company *</label>
+        <input type="text" [(ngModel)]="currentApplication.company" name="company" required />
+      </div>
+      <div class="form-group">
+        <label>Position *</label>
+        <input type="text" [(ngModel)]="currentApplication.position" name="position" required />
+      </div>
+      <div class="form-group">
+        <label>Status *</label>
+        <select [(ngModel)]="currentApplication.status" name="status" required>
+          <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Location</label>
+        <input type="text" [(ngModel)]="currentApplication.location" name="location" />
+      </div>
+      <div class="form-group">
+        <label>Salary</label>
+        <input type="text" [(ngModel)]="currentApplication.salary" name="salary" />
+      </div>
+      <div class="form-group">
+        <label>Job URL</label>
+        <input type="url" [(ngModel)]="currentApplication.jobUrl" name="jobUrl" />
+      </div>
+      <div class="form-group">
+        <label>Contact Person</label>
+        <input type="text" [(ngModel)]="currentApplication.contactPerson" name="contactPerson" />
+      </div>
+      <div class="form-group">
+        <label>Contact Email</label>
+        <input type="email" [(ngModel)]="currentApplication.contactEmail" name="contactEmail" />
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
