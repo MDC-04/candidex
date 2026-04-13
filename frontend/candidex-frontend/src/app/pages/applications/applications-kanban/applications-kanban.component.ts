@@ -5,8 +5,10 @@ import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatDividerModule } from '@angular/material/divider';
@@ -35,8 +37,10 @@ interface KanbanColumn {
     MatChipsModule,
     MatIconModule,
     MatButtonModule,
+    MatCheckboxModule,
     MatProgressSpinnerModule,
     MatMenuModule,
+    MatTooltipModule,
     MatBadgeModule,
     MatDividerModule
   ],
@@ -50,12 +54,15 @@ export class ApplicationsKanbanComponent implements OnInit {
     { status: ApplicationStatus.HR_INTERVIEW, label: ApplicationStatusLabels[ApplicationStatus.HR_INTERVIEW], applications: [], color: '#FF9800' },
     { status: ApplicationStatus.TECH_INTERVIEW, label: ApplicationStatusLabels[ApplicationStatus.TECH_INTERVIEW], applications: [], color: '#9C27B0' },
     { status: ApplicationStatus.OFFER, label: ApplicationStatusLabels[ApplicationStatus.OFFER], applications: [], color: '#4CAF50' },
+    { status: ApplicationStatus.OFFER_ACCEPTED, label: ApplicationStatusLabels[ApplicationStatus.OFFER_ACCEPTED], applications: [], color: '#2E7D32' },
+    { status: ApplicationStatus.OFFER_DECLINED, label: ApplicationStatusLabels[ApplicationStatus.OFFER_DECLINED], applications: [], color: '#D84315' },
     { status: ApplicationStatus.REJECTED, label: ApplicationStatusLabels[ApplicationStatus.REJECTED], applications: [], color: '#fc1100' },
     { status: ApplicationStatus.GHOSTED, label: ApplicationStatusLabels[ApplicationStatus.GHOSTED], applications: [], color: '#9E9E9E' }
   ];
   
   loading = false;
   sourceLabels = ApplicationSourceLabels;
+  selectedApplicationIds = new Set<string>();
   
   private httpErrorService = inject(HttpErrorService);
   private notificationService = inject(NotificationService);
@@ -72,7 +79,7 @@ export class ApplicationsKanbanComponent implements OnInit {
   
   loadApplications(): void {
     this.loading = true;
-    this.applicationsService.getAll().subscribe({
+    this.applicationsService.getAll({ page: 1, size: 100, sort: 'updatedAt,desc' }).subscribe({
       next: (response) => {
         // Reset columns
         this.columns.forEach(col => col.applications = []);
@@ -84,6 +91,8 @@ export class ApplicationsKanbanComponent implements OnInit {
             column.applications.push(app);
           }
         });
+
+        this.pruneSelection();
         
         this.loading = false;
       },
@@ -192,5 +201,99 @@ export class ApplicationsKanbanComponent implements OnInit {
   
   getColumnIds(): string[] {
     return this.columns.map(col => col.status);
+  }
+
+  getSelectedCount(): number {
+    return this.selectedApplicationIds.size;
+  }
+
+  isSelected(applicationId: string): boolean {
+    return this.selectedApplicationIds.has(applicationId);
+  }
+
+  toggleSelection(applicationId: string, event?: Event): void {
+    event?.stopPropagation();
+
+    if (this.selectedApplicationIds.has(applicationId)) {
+      this.selectedApplicationIds.delete(applicationId);
+      return;
+    }
+
+    this.selectedApplicationIds.add(applicationId);
+  }
+
+  clearSelection(): void {
+    this.selectedApplicationIds.clear();
+  }
+
+  hasSelection(): boolean {
+    return this.selectedApplicationIds.size > 0;
+  }
+
+  countSelectedInColumn(column: KanbanColumn): number {
+    return column.applications.filter(app => this.selectedApplicationIds.has(app.id)).length;
+  }
+
+  isColumnFullySelected(column: KanbanColumn): boolean {
+    return column.applications.length > 0 && column.applications.every(app => this.selectedApplicationIds.has(app.id));
+  }
+
+  toggleColumnSelection(column: KanbanColumn, event?: Event): void {
+    event?.stopPropagation();
+
+    if (this.isColumnFullySelected(column)) {
+      column.applications.forEach(app => this.selectedApplicationIds.delete(app.id));
+      return;
+    }
+
+    column.applications.forEach(app => this.selectedApplicationIds.add(app.id));
+  }
+
+  applyBatchStatus(status: ApplicationStatus): void {
+    const selectedApplications = this.columns
+      .flatMap(column => column.applications)
+      .filter(app => this.selectedApplicationIds.has(app.id) && app.status !== status);
+
+    if (selectedApplications.length === 0) {
+      this.notificationService.info('Aucune candidature sélectionnée à déplacer.');
+      return;
+    }
+
+    this.loading = true;
+    this.applicationsService.updateStatuses({
+      ids: selectedApplications.map(app => app.id),
+      status
+    }).subscribe({
+      next: () => {
+        this.notificationService.success(
+          `${selectedApplications.length} candidature${selectedApplications.length > 1 ? 's' : ''} déplacée${selectedApplications.length > 1 ? 's' : ''} vers ${this.getColumnLabel(status)}.`
+        );
+        this.clearSelection();
+        this.loadApplications();
+      },
+      error: (error) => {
+        this.loading = false;
+        this.notificationService.error(
+          this.httpErrorService.getActionMessage(
+            error,
+            'la mise à jour groupée des candidatures',
+            'Impossible de mettre à jour les candidatures sélectionnées.'
+          )
+        );
+      }
+    });
+  }
+
+  private getColumnLabel(status: ApplicationStatus): string {
+    return this.columns.find(column => column.status === status)?.label || status;
+  }
+
+  private pruneSelection(): void {
+    const ids = new Set(this.columns.flatMap(column => column.applications).map(app => app.id));
+    this.selectedApplicationIds.forEach(id => {
+      if (!ids.has(id)) {
+        this.selectedApplicationIds.delete(id);
+      }
+    });
   }
 }

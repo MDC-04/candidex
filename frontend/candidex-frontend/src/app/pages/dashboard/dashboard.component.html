@@ -33,11 +33,11 @@
         </mat-card-content>
       </mat-card>
       
-      <mat-card class="stat-card success" matTooltip="Nombre d'offres reçues">
+      <mat-card class="stat-card success" matTooltip="Nombre total d'offres reçues, acceptées ou déclinées">
         <mat-card-content>
           <mat-icon>local_offer</mat-icon>
           <div class="stat-value">{{ stats.offers }}</div>
-          <div class="stat-label">Offres</div>
+          <div class="stat-label">Offres reçues</div>
         </mat-card-content>
       </mat-card>
       
@@ -49,6 +49,52 @@
         </mat-card-content>
       </mat-card>
     </div>
+
+    <mat-card class="next-actions-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>bolt</mat-icon>
+          Prochaines actions
+        </mat-card-title>
+        <div class="next-actions-meta" *ngIf="nextActionItems.length > 0">
+          <span class="meta-pill overdue" *ngIf="overdueActionCount > 0">{{ overdueActionCount }} en retard</span>
+          <span class="meta-pill today" *ngIf="todayActionCount > 0">{{ todayActionCount }} à traiter aujourd’hui</span>
+        </div>
+      </mat-card-header>
+      <mat-card-content>
+        @if (nextActionItems.length === 0) {
+          <div class="empty-state next-actions-empty">
+            <mat-icon>task_alt</mat-icon>
+            <p>Aucune prochaine action prioritaire pour le moment</p>
+          </div>
+        } @else {
+          <div class="next-actions-list">
+            @for (item of nextActionItems; track item.id) {
+              <button type="button" class="next-action-item" (click)="viewApplication(item.id)">
+                <div class="next-action-leading" [ngClass]="getToneClass(item.tone)">
+                  <mat-icon>{{ item.icon }}</mat-icon>
+                </div>
+                <div class="next-action-body">
+                  <div class="next-action-topline">
+                    <span class="company">{{ item.companyName }}</span>
+                    <span class="tone-pill" [ngClass]="getToneClass(item.tone)">
+                      <mat-icon>{{ getToneIcon(item.tone) }}</mat-icon>
+                      {{ getToneLabel(item.tone) }}
+                    </span>
+                  </div>
+                  <div class="role">{{ item.roleTitle }}</div>
+                  <div class="action-label">{{ item.label }}</div>
+                  <div class="action-helper">{{ item.helperText }}</div>
+                </div>
+                <mat-chip class="status-chip" [style.background-color]="getStatusColor(item.status)">
+                  {{ getStatusLabel(item.status) }}
+                </mat-chip>
+              </button>
+            }
+          </div>
+        }
+      </mat-card-content>
+    </mat-card>
     
     <!-- Status Distribution & Recent Applications -->
     <div class="dashboard-content">

@@ -77,6 +77,8 @@ export interface ApplicationFormDialogData {
                 <option value="HR_INTERVIEW">Entretien RH</option>
                 <option value="TECH_INTERVIEW">Entretien technique</option>
                 <option value="OFFER">Offre reçue</option>
+                <option value="OFFER_ACCEPTED">Offre acceptée</option>
+                <option value="OFFER_DECLINED">Offre déclinée</option>
                 <option value="REJECTED">Refusée</option>
                 <option value="GHOSTED">Sans réponse</option>
               </select>
@@ -405,6 +407,8 @@ export class ApplicationFormComponent implements OnInit, AfterViewInit {
     'HR_INTERVIEW',
     'TECH_INTERVIEW',
     'OFFER',
+    'OFFER_ACCEPTED',
+    'OFFER_DECLINED',
     'REJECTED',
     'GHOSTED'
   ];

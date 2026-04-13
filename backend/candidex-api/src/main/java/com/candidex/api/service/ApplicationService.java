@@ -21,6 +21,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -168,6 +169,31 @@ public class ApplicationService {
         application.setUpdatedAt(Instant.now());
         
         return applicationRepository.save(application);
+    }
+
+    @Transactional
+    public List<Application> batchUpdateStatus(List<String> ids, ApplicationStatus status, String userId) {
+        log.info("Batch updating applications for user {} to status {}", userId, status);
+
+        if (status == null || ids == null || ids.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La mise à jour groupée est invalide.");
+        }
+
+        Instant now = Instant.now();
+        List<Application> applicationsToUpdate = new ArrayList<>();
+
+        for (String id : ids.stream().filter(StringUtils::hasText).distinct().toList()) {
+            Application application = getApplicationById(id, userId);
+            application.setStatus(status);
+            application.setUpdatedAt(now);
+            applicationsToUpdate.add(application);
+        }
+
+        if (applicationsToUpdate.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Aucune candidature valide à mettre à jour.");
+        }
+
+        return applicationRepository.saveAll(applicationsToUpdate);
     }
     
     /**

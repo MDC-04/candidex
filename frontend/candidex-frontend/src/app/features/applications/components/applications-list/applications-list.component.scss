@@ -164,6 +164,37 @@
         padding: 14px 12px;
       }
 
+      .sort-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        text-transform: inherit;
+        letter-spacing: inherit;
+        cursor: pointer;
+
+        mat-icon {
+          width: 16px;
+          height: 16px;
+          font-size: 16px;
+          color: var(--cx-text-muted);
+          transition: color 0.18s var(--cx-ease), transform 0.18s var(--cx-ease);
+        }
+
+        &:hover mat-icon,
+        &.active mat-icon {
+          color: var(--cx-primary);
+        }
+
+        &.active mat-icon {
+          transform: translateY(-1px);
+        }
+      }
+
       .table-row {
         transition: background 0.18s var(--cx-ease);
         cursor: pointer;
@@ -206,6 +237,8 @@
         &.status-applied   { background: #e3f2fd !important; color: #1565c0 !important; }
         &.status-interview  { background: #fff3e0 !important; color: #e65100 !important; }
         &.status-offer      { background: #e8f5e9 !important; color: #2e7d32 !important; }
+        &.status-offer-accepted { background: #dcedc8 !important; color: #33691e !important; }
+        &.status-offer-declined { background: #fbe9e7 !important; color: #bf360c !important; }
         &.status-rejected   { background: #ffebee !important; color: #c62828 !important; }
         &.status-ghosted    { background: #f5f5f5 !important; color: #616161 !important; }
       }
@@ -276,6 +309,11 @@
           color: var(--cx-primary);
         }
       }
+    }
+
+    mat-paginator {
+      border-top: 1px solid var(--cx-border);
+      background: #fff;
     }
   }
 }

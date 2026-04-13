@@ -9,6 +9,8 @@ public enum ApplicationStatus {
     HR_INTERVIEW,
     TECH_INTERVIEW,
     OFFER,
+    OFFER_ACCEPTED,
+    OFFER_DECLINED,
     REJECTED,
     GHOSTED
 }

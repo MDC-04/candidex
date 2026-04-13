@@ -80,6 +80,14 @@
               background-color: #e8f5e9;
               color: #388e3c;
             }
+            &.status-offer-accepted {
+              background-color: #dcedc8;
+              color: #33691e;
+            }
+            &.status-offer-declined {
+              background-color: #fbe9e7;
+              color: #bf360c;
+            }
             &.status-rejected {
               background-color: #ffebee;
               color: #d32f2f;

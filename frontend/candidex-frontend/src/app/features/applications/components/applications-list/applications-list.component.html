@@ -88,7 +88,12 @@
     <table mat-table [dataSource]="displayItems" class="applications-table" *ngIf="displayItems.length > 0">
         <!-- Company Column -->
         <ng-container matColumnDef="companyName">
-          <th mat-header-cell *matHeaderCellDef>Entreprise</th>
+          <th mat-header-cell *matHeaderCellDef>
+            <button type="button" class="sort-button" [class.active]="isSortActive('companyName')" [attr.aria-label]="getSortAriaLabel('companyName')" (click)="onSort('companyName')">
+              <span>Entreprise</span>
+              <mat-icon>{{ getSortIcon('companyName') }}</mat-icon>
+            </button>
+          </th>
           <td mat-cell *matCellDef="let app">
             <strong>{{ app.companyName }}</strong>
           </td>
@@ -96,13 +101,23 @@
 
         <!-- Role Column -->
         <ng-container matColumnDef="roleTitle">
-          <th mat-header-cell *matHeaderCellDef>Poste</th>
+          <th mat-header-cell *matHeaderCellDef>
+            <button type="button" class="sort-button" [class.active]="isSortActive('roleTitle')" [attr.aria-label]="getSortAriaLabel('roleTitle')" (click)="onSort('roleTitle')">
+              <span>Poste</span>
+              <mat-icon>{{ getSortIcon('roleTitle') }}</mat-icon>
+            </button>
+          </th>
           <td mat-cell *matCellDef="let app">{{ app.roleTitle }}</td>
         </ng-container>
 
         <!-- Status Column -->
         <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef>Statut</th>
+          <th mat-header-cell *matHeaderCellDef>
+            <button type="button" class="sort-button" [class.active]="isSortActive('status')" [attr.aria-label]="getSortAriaLabel('status')" (click)="onSort('status')">
+              <span>Statut</span>
+              <mat-icon>{{ getSortIcon('status') }}</mat-icon>
+            </button>
+          </th>
           <td mat-cell *matCellDef="let app">
             <mat-chip-set>
               <mat-chip [class]="getStatusClass(app.status)" class="status-chip">
@@ -114,7 +129,12 @@
 
         <!-- Source Column -->
         <ng-container matColumnDef="source">
-          <th mat-header-cell *matHeaderCellDef>Source</th>
+          <th mat-header-cell *matHeaderCellDef>
+            <button type="button" class="sort-button" [class.active]="isSortActive('source')" [attr.aria-label]="getSortAriaLabel('source')" (click)="onSort('source')">
+              <span>Source</span>
+              <mat-icon>{{ getSortIcon('source') }}</mat-icon>
+            </button>
+          </th>
           <td mat-cell *matCellDef="let app">
             <span class="source-badge">{{ getSourceLabel(app.source) }}</span>
           </td>
@@ -122,7 +142,12 @@
 
         <!-- Localisation Column -->
         <ng-container matColumnDef="localisation">
-          <th mat-header-cell *matHeaderCellDef>Localisation</th>
+          <th mat-header-cell *matHeaderCellDef>
+            <button type="button" class="sort-button" [class.active]="isSortActive('city')" [attr.aria-label]="getSortAriaLabel('city')" (click)="onSort('city')">
+              <span>Localisation</span>
+              <mat-icon>{{ getSortIcon('city') }}</mat-icon>
+            </button>
+          </th>
           <td mat-cell *matCellDef="let app">
             <mat-icon class="location-icon">location_on</mat-icon>
             {{ getLocationDisplay(app) }}
@@ -131,7 +156,12 @@
 
         <!-- Applied Date Column -->
         <ng-container matColumnDef="appliedDate">
-          <th mat-header-cell *matHeaderCellDef>Date de candidature</th>
+          <th mat-header-cell *matHeaderCellDef>
+            <button type="button" class="sort-button" [class.active]="isSortActive('appliedDate')" [attr.aria-label]="getSortAriaLabel('appliedDate')" (click)="onSort('appliedDate')">
+              <span>Date de candidature</span>
+              <mat-icon>{{ getSortIcon('appliedDate') }}</mat-icon>
+            </button>
+          </th>
           <td mat-cell *matCellDef="let app">
             {{ app.appliedDate || 'N/A' }}
           </td>
@@ -139,7 +169,12 @@
 
         <!-- Next Action Column -->
         <ng-container matColumnDef="nextAction">
-          <th mat-header-cell *matHeaderCellDef>Prochaine action</th>
+          <th mat-header-cell *matHeaderCellDef>
+            <button type="button" class="sort-button" [class.active]="isSortActive('updatedAt')" [attr.aria-label]="getSortAriaLabel('updatedAt')" (click)="onSort('updatedAt')">
+              <span>Prochaine action</span>
+              <mat-icon>{{ getSortIcon('updatedAt') }}</mat-icon>
+            </button>
+          </th>
           <td mat-cell *matCellDef="let app">
             <div class="next-action" *ngIf="getNextActionInfo(app) as actionInfo" [ngClass]="actionInfo.class">
               <mat-icon>{{ actionInfo.icon }}</mat-icon>
@@ -191,8 +226,18 @@
     <div class="pagination-info">
       <p *ngIf="displayItems.length > 0">
         <mat-icon>info</mat-icon>
-        <span class="pagination-text">Affichage de {{ displayItems.length }}<span *ngIf="displayItems.length !== data.totalItems"> sur {{ data.totalItems }}</span>&nbsp;candidature{{ displayItems.length > 1 ? 's' : '' }}</span>
+        <span class="pagination-text">Affichage de {{ getResultsStart() }} à {{ getResultsEnd() }} sur {{ data.totalItems }} candidature{{ data.totalItems > 1 ? 's' : '' }}</span>
       </p>
     </div>
+
+    <mat-paginator
+      *ngIf="data.totalItems > 0"
+      [length]="data.totalItems"
+      [pageIndex]="pageIndex"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="pageSizeOptions"
+      showFirstLastButtons
+      (page)="onPageChange($event)">
+    </mat-paginator>
   </div>
 </div>

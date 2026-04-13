@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Subscription, debounceTime, distinctUntilChanged, filter, map } from 'rxjs';
 import { Router } from '@angular/router';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
@@ -31,6 +32,9 @@ import { HttpErrorService } from '../../../../core/services/http-error.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { InterviewFormDialogComponent } from '../../../../features/interviews/components/interview-form-dialog/interview-form-dialog.component';
 
+type SortableField = 'companyName' | 'roleTitle' | 'status' | 'source' | 'city' | 'appliedDate' | 'updatedAt';
+type SortDirection = 'asc' | 'desc';
+
 /**
  * Component for displaying a list of job applications
  * 
@@ -46,6 +50,7 @@ import { InterviewFormDialogComponent } from '../../../../features/interviews/co
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    MatPaginatorModule,
     MatTableModule,
     MatChipsModule,
     MatIconModule,
@@ -100,6 +105,21 @@ export class ApplicationsListComponent implements OnInit, OnDestroy {
    */
   statusOptions = ['ALL', ...Object.values(ApplicationStatus)];
   sourceOptions = ['ALL', ...Object.values(ApplicationSource)];
+  pageIndex = 0;
+  pageSize = 10;
+  readonly pageSizeOptions = [10, 20, 50];
+  sortField: SortableField = 'updatedAt';
+  sortDirection: SortDirection = 'desc';
+
+  readonly sortLabels: Record<SortableField, string> = {
+    companyName: 'Entreprise',
+    roleTitle: 'Poste',
+    status: 'Statut',
+    source: 'Source',
+    city: 'Localisation',
+    appliedDate: 'Date de candidature',
+    updatedAt: 'Dernière mise à jour'
+  };
   
   private httpErrorService = inject(HttpErrorService);
   private notificationService = inject(NotificationService);
@@ -124,7 +144,7 @@ export class ApplicationsListComponent implements OnInit, OnDestroy {
           distinctUntilChanged(),
           filter(value => value.length === 0 || value.length >= 2)
         )
-        .subscribe(() => this.loadApplications())
+        .subscribe(() => this.resetAndLoadApplications())
     );
 
     this.filterSubscriptions.add(
@@ -135,20 +155,20 @@ export class ApplicationsListComponent implements OnInit, OnDestroy {
           distinctUntilChanged(),
           filter(value => value.length === 0 || value.length >= 2)
         )
-        .subscribe(() => this.loadApplications())
+        .subscribe(() => this.resetAndLoadApplications())
     );
 
     // Select filters can query immediately.
     this.filterSubscriptions.add(
       this.statusFilterControl.valueChanges
         .pipe(distinctUntilChanged())
-        .subscribe(() => this.loadApplications())
+        .subscribe(() => this.resetAndLoadApplications())
     );
 
     this.filterSubscriptions.add(
       this.sourceFilterControl.valueChanges
         .pipe(distinctUntilChanged())
-        .subscribe(() => this.loadApplications())
+        .subscribe(() => this.resetAndLoadApplications())
     );
   }
 
@@ -170,6 +190,13 @@ export class ApplicationsListComponent implements OnInit, OnDestroy {
       next: (data) => {
         this.data = data;
         this.displayItems = this.applyLocalSafetyFilters(data.items);
+
+        if (data.totalPages > 0 && this.pageIndex > data.totalPages - 1) {
+          this.pageIndex = data.totalPages - 1;
+          this.loadApplications();
+          return;
+        }
+
         this.loading = false;
       },
       error: (error) => {
@@ -178,7 +205,7 @@ export class ApplicationsListComponent implements OnInit, OnDestroy {
         this.data = {
           items: [],
           page: 1,
-          size: 100,
+          size: this.pageSize,
           totalItems: 0,
           totalPages: 0
         };
@@ -242,9 +269,9 @@ export class ApplicationsListComponent implements OnInit, OnDestroy {
 
   private buildQueryParams(): ApplicationListParams {
     const params: ApplicationListParams = {
-      page: 1,
-      size: 100,
-      sort: 'updatedAt,desc'
+      page: this.pageIndex + 1,
+      size: this.pageSize,
+      sort: `${this.sortField},${this.sortDirection}`
     };
 
     const searchTerm = (this.searchControl.value || '').trim();
@@ -283,6 +310,66 @@ export class ApplicationsListComponent implements OnInit, OnDestroy {
     this.statusFilterControl.setValue('ALL', { emitEvent: false });
     this.locationFilterControl.setValue('', { emitEvent: false });
     this.sourceFilterControl.setValue('ALL', { emitEvent: false });
+    this.resetAndLoadApplications();
+  }
+
+  onSort(field: SortableField): void {
+    if (this.sortField === field) {
+      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortField = field;
+      this.sortDirection = field === 'companyName' || field === 'roleTitle' || field === 'city' ? 'asc' : 'desc';
+    }
+
+    this.resetAndLoadApplications();
+  }
+
+  onPageChange(event: PageEvent): void {
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.loadApplications();
+  }
+
+  isSortActive(field: SortableField): boolean {
+    return this.sortField === field;
+  }
+
+  getSortIcon(field: SortableField): string {
+    if (!this.isSortActive(field)) {
+      return 'unfold_more';
+    }
+
+    return this.sortDirection === 'asc' ? 'north' : 'south';
+  }
+
+  getSortAriaLabel(field: SortableField): string {
+    const label = this.sortLabels[field];
+
+    if (!this.isSortActive(field)) {
+      return `Trier par ${label}`;
+    }
+
+    return `Trier par ${label} en ordre ${this.sortDirection === 'asc' ? 'décroissant' : 'croissant'}`;
+  }
+
+  getResultsStart(): number {
+    if (!this.data?.totalItems) {
+      return 0;
+    }
+
+    return this.pageIndex * this.pageSize + 1;
+  }
+
+  getResultsEnd(): number {
+    if (!this.data?.totalItems) {
+      return 0;
+    }
+
+    return Math.min(this.pageIndex * this.pageSize + this.displayItems.length, this.data.totalItems);
+  }
+
+  private resetAndLoadApplications(): void {
+    this.pageIndex = 0;
     this.loadApplications();
   }
 
@@ -349,6 +436,8 @@ export class ApplicationsListComponent implements OnInit, OnDestroy {
       'HR_INTERVIEW': 'status-interview',
       'TECH_INTERVIEW': 'status-interview',
       'OFFER': 'status-offer',
+      'OFFER_ACCEPTED': 'status-offer-accepted',
+      'OFFER_DECLINED': 'status-offer-declined',
       'REJECTED': 'status-rejected',
       'GHOSTED': 'status-ghosted'
     };
@@ -396,6 +485,10 @@ export class ApplicationsListComponent implements OnInit, OnDestroy {
         return { text: 'Préparer l\'entretien', icon: 'event', class: 'next-action-interview' };
       case ApplicationStatus.OFFER:
         return { text: 'Répondre à l\'offre', icon: 'check_circle', class: 'next-action-respond' };
+      case ApplicationStatus.OFFER_ACCEPTED:
+        return { text: 'Onboarding à préparer', icon: 'celebration', class: 'next-action-accepted' };
+      case ApplicationStatus.OFFER_DECLINED:
+        return { text: 'Suivi clôturé', icon: 'close', class: 'next-action-none' };
       case ApplicationStatus.REJECTED:
       case ApplicationStatus.GHOSTED:
         return { text: 'Clôturer le suivi', icon: 'inventory_2', class: 'next-action-none' };

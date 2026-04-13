@@ -1,5 +1,6 @@
 package com.candidex.api.controller;
 
+import com.candidex.api.dto.BatchUpdateApplicationStatusDto;
 import com.candidex.api.dto.CreateApplicationDto;
 import com.candidex.api.dto.UpdateApplicationDto;
 import com.candidex.api.model.Application;
@@ -19,6 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -133,6 +135,20 @@ public class ApplicationController {
         
         Application updated = applicationService.updateApplication(id, dto, userId);
         return ResponseEntity.ok(updated);
+    }
+
+    @PatchMapping("/batch/status")
+    public ResponseEntity<List<Application>> batchUpdateStatus(
+            Authentication authentication,
+            @Valid @RequestBody BatchUpdateApplicationStatusDto dto
+    ) {
+        String userId = authentication.getName();
+        log.info("PATCH /api/v1/applications/batch/status - userId: {}, count: {}, status: {}",
+                userId,
+                dto.getIds() != null ? dto.getIds().size() : 0,
+                dto.getStatus());
+
+        return ResponseEntity.ok(applicationService.batchUpdateStatus(dto.getIds(), dto.getStatus(), userId));
     }
     
     /**

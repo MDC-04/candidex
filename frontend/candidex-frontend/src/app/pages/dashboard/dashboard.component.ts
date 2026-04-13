@@ -26,13 +26,15 @@ interface DashboardStats {
   applied: number;
   interviewing: number;
   offers: number;
+  acceptedOffers: number;
+  declinedOffers: number;
   rejected: number;
   responseRate: number;
 }
 
 interface TimelineEvent {
   id: string;
-  type: 'application' | 'interview' | 'offer' | 'rejection';
+  type: 'application' | 'interview' | 'offer' | 'offerAccepted' | 'offerDeclined' | 'rejection';
   companyName: string;
   roleTitle: string;
   date: Date;
@@ -44,6 +46,20 @@ interface WeeklyData {
   week: string;
   applications: number;
   responses: number;
+}
+
+interface NextActionItem {
+  id: string;
+  companyName: string;
+  roleTitle: string;
+  status: ApplicationStatus;
+  label: string;
+  helperText: string;
+  icon: string;
+  tone: 'overdue' | 'today' | 'upcoming' | 'suggested';
+  priority: number;
+  note?: string;
+  sortDate: number;
 }
 
 @Component({
@@ -69,6 +85,8 @@ export class DashboardComponent implements OnInit {
     applied: 0,
     interviewing: 0,
     offers: 0,
+    acceptedOffers: 0,
+    declinedOffers: 0,
     rejected: 0,
     responseRate: 0
   };
@@ -78,6 +96,9 @@ export class DashboardComponent implements OnInit {
   timelineEvents: TimelineEvent[] = [];
   weeklyData: WeeklyData[] = [];
   maxWeeklyApplications = 0;
+  nextActionItems: NextActionItem[] = [];
+  overdueActionCount = 0;
+  todayActionCount = 0;
   
   constructor(
     private applicationsService: ApplicationsService,
@@ -95,6 +116,7 @@ export class DashboardComponent implements OnInit {
     this.applicationsService.getAll({ size: 100 }).subscribe({
       next: (response) => {
         this.calculateStats(response.items);
+        this.generateNextActionItems(response.items);
         this.recentApplications = response.items
           .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
           .slice(0, 5);
@@ -127,7 +149,12 @@ export class DashboardComponent implements OnInit {
     this.stats.interviewing = 
       (statusCounts.get(ApplicationStatus.HR_INTERVIEW) || 0) +
       (statusCounts.get(ApplicationStatus.TECH_INTERVIEW) || 0);
-    this.stats.offers = statusCounts.get(ApplicationStatus.OFFER) || 0;
+    this.stats.offers = 
+      (statusCounts.get(ApplicationStatus.OFFER) || 0) +
+      (statusCounts.get(ApplicationStatus.OFFER_ACCEPTED) || 0) +
+      (statusCounts.get(ApplicationStatus.OFFER_DECLINED) || 0);
+    this.stats.acceptedOffers = statusCounts.get(ApplicationStatus.OFFER_ACCEPTED) || 0;
+    this.stats.declinedOffers = statusCounts.get(ApplicationStatus.OFFER_DECLINED) || 0;
     this.stats.rejected = 
       (statusCounts.get(ApplicationStatus.REJECTED) || 0) +
       (statusCounts.get(ApplicationStatus.GHOSTED) || 0);
@@ -145,6 +172,8 @@ export class DashboardComponent implements OnInit {
       { status: ApplicationStatus.HR_INTERVIEW, label: ApplicationStatusLabels[ApplicationStatus.HR_INTERVIEW], count: statusCounts.get(ApplicationStatus.HR_INTERVIEW) || 0, color: '#FF9800', percentage: 0 },
       { status: ApplicationStatus.TECH_INTERVIEW, label: ApplicationStatusLabels[ApplicationStatus.TECH_INTERVIEW], count: statusCounts.get(ApplicationStatus.TECH_INTERVIEW) || 0, color: '#9C27B0', percentage: 0 },
       { status: ApplicationStatus.OFFER, label: ApplicationStatusLabels[ApplicationStatus.OFFER], count: statusCounts.get(ApplicationStatus.OFFER) || 0, color: '#4CAF50', percentage: 0 },
+      { status: ApplicationStatus.OFFER_ACCEPTED, label: ApplicationStatusLabels[ApplicationStatus.OFFER_ACCEPTED], count: statusCounts.get(ApplicationStatus.OFFER_ACCEPTED) || 0, color: '#2E7D32', percentage: 0 },
+      { status: ApplicationStatus.OFFER_DECLINED, label: ApplicationStatusLabels[ApplicationStatus.OFFER_DECLINED], count: statusCounts.get(ApplicationStatus.OFFER_DECLINED) || 0, color: '#D84315', percentage: 0 },
       { status: ApplicationStatus.REJECTED, label: ApplicationStatusLabels[ApplicationStatus.REJECTED], count: statusCounts.get(ApplicationStatus.REJECTED) || 0, color: '#F44336', percentage: 0 },
       { status: ApplicationStatus.GHOSTED, label: ApplicationStatusLabels[ApplicationStatus.GHOSTED], count: statusCounts.get(ApplicationStatus.GHOSTED) || 0, color: '#9E9E9E', percentage: 0 }
     ];
@@ -172,10 +201,38 @@ export class DashboardComponent implements OnInit {
       [ApplicationStatus.HR_INTERVIEW]: '#FF9800',
       [ApplicationStatus.TECH_INTERVIEW]: '#9C27B0',
       [ApplicationStatus.OFFER]: '#4CAF50',
+      [ApplicationStatus.OFFER_ACCEPTED]: '#2E7D32',
+      [ApplicationStatus.OFFER_DECLINED]: '#D84315',
       [ApplicationStatus.REJECTED]: '#F44336',
       [ApplicationStatus.GHOSTED]: '#9E9E9E'
     };
     return colors[status];
+  }
+
+  getToneLabel(tone: NextActionItem['tone']): string {
+    const labels: Record<NextActionItem['tone'], string> = {
+      overdue: 'En retard',
+      today: 'Aujourd’hui',
+      upcoming: 'À venir',
+      suggested: 'Suggestion'
+    };
+
+    return labels[tone];
+  }
+
+  getToneIcon(tone: NextActionItem['tone']): string {
+    const icons: Record<NextActionItem['tone'], string> = {
+      overdue: 'warning',
+      today: 'today',
+      upcoming: 'schedule',
+      suggested: 'tips_and_updates'
+    };
+
+    return icons[tone];
+  }
+
+  getToneClass(tone: NextActionItem['tone']): string {
+    return `tone-${tone}`;
   }
   
   private generateTimelineEvents(applications: Application[]): void {
@@ -199,6 +256,16 @@ export class DashboardComponent implements OnInit {
             icon = 'star';
             color = '#4CAF50';
             break;
+          case ApplicationStatus.OFFER_ACCEPTED:
+            type = 'offerAccepted';
+            icon = 'verified';
+            color = '#2E7D32';
+            break;
+          case ApplicationStatus.OFFER_DECLINED:
+            type = 'offerDeclined';
+            icon = 'remove_circle';
+            color = '#D84315';
+            break;
           case ApplicationStatus.REJECTED:
           case ApplicationStatus.GHOSTED:
             type = 'rejection';
@@ -217,6 +284,187 @@ export class DashboardComponent implements OnInit {
           color
         };
       });
+  }
+
+  private generateNextActionItems(applications: Application[]): void {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const prioritizedItems = applications
+      .map(app => this.toNextActionItem(app, today))
+      .filter((item): item is NextActionItem => item !== null)
+      .sort((left, right) => left.priority - right.priority || left.sortDate - right.sortDate || left.companyName.localeCompare(right.companyName, 'fr'));
+
+    this.nextActionItems = prioritizedItems.slice(0, 5);
+
+    this.overdueActionCount = prioritizedItems.filter(item => item.tone === 'overdue').length;
+    this.todayActionCount = prioritizedItems.filter(item => item.tone === 'today').length;
+  }
+
+  private toNextActionItem(app: Application, today: Date): NextActionItem | null {
+    if (app.nextAction && !app.nextAction.done) {
+      const actionDate = new Date(app.nextAction.date);
+      const hasValidDate = !Number.isNaN(actionDate.getTime());
+
+      if (!hasValidDate) {
+        return null;
+      }
+
+      actionDate.setHours(0, 0, 0, 0);
+      const dayDelta = this.getDayDelta(today, actionDate);
+      const note = app.nextAction.note?.trim() || undefined;
+      const statusPriorityOffset = this.getExplicitActionPriorityOffset(app.status);
+
+      if (dayDelta < 0) {
+        return {
+          id: app.id,
+          companyName: app.companyName,
+          roleTitle: app.roleTitle,
+          status: app.status,
+          label: note || 'Action en retard',
+          helperText: `Prévue le ${actionDate.toLocaleDateString('fr-FR')} • retard de ${Math.abs(dayDelta)} jour${Math.abs(dayDelta) > 1 ? 's' : ''}`,
+          icon: 'notification_important',
+          tone: 'overdue',
+          priority: statusPriorityOffset,
+          note,
+          sortDate: actionDate.getTime()
+        };
+      }
+
+      if (dayDelta === 0) {
+        return {
+          id: app.id,
+          companyName: app.companyName,
+          roleTitle: app.roleTitle,
+          status: app.status,
+          label: note || 'Action prévue aujourd’hui',
+          helperText: 'À traiter aujourd’hui',
+          icon: 'today',
+          tone: 'today',
+          priority: 10 + statusPriorityOffset,
+          note,
+          sortDate: actionDate.getTime()
+        };
+      }
+
+      if (dayDelta > 7) {
+        return null;
+      }
+
+      return {
+        id: app.id,
+        companyName: app.companyName,
+        roleTitle: app.roleTitle,
+        status: app.status,
+        label: note || 'Action planifiée',
+        helperText: dayDelta === 1
+          ? 'Prévue demain'
+          : `Prévue dans ${dayDelta} jours`,
+        icon: 'schedule',
+        tone: 'upcoming',
+        priority: 20 + statusPriorityOffset + dayDelta,
+        note,
+        sortDate: actionDate.getTime()
+      };
+    }
+
+    const suggestion = this.getSuggestedAction(app, today);
+    if (!suggestion) {
+      return null;
+    }
+
+    return {
+      id: app.id,
+      companyName: app.companyName,
+      roleTitle: app.roleTitle,
+      status: app.status,
+      label: suggestion.label,
+      helperText: suggestion.helperText,
+      icon: suggestion.icon,
+      tone: 'suggested',
+      priority: suggestion.priority,
+      sortDate: suggestion.sortDate
+    };
+  }
+
+  private getSuggestedAction(app: Application, today: Date): { label: string; helperText: string; icon: string; priority: number; sortDate: number } | null {
+    const updatedAt = this.toStartOfDay(new Date(app.updatedAt));
+    const applicationDate = this.toStartOfDay(new Date(app.appliedDate || app.createdAt));
+    const daysSinceUpdate = this.getDayDelta(updatedAt, today);
+    const daysSinceApplication = this.getDayDelta(applicationDate, today);
+
+    switch (app.status) {
+      case ApplicationStatus.APPLIED:
+        if (daysSinceApplication < 7 || daysSinceUpdate < 5) {
+          return null;
+        }
+
+        return {
+          label: 'Planifier une relance',
+          helperText: `Candidature envoyée ${this.getRelativeTime(applicationDate).toLowerCase()} sans prochaine action`,
+          icon: 'outgoing_mail',
+          priority: daysSinceApplication >= 14 ? 40 : 55,
+          sortDate: applicationDate.getTime()
+        };
+      case ApplicationStatus.HR_INTERVIEW:
+      case ApplicationStatus.TECH_INTERVIEW:
+        if (daysSinceUpdate > 10) {
+          return null;
+        }
+
+        return {
+          label: 'Préparer l’entretien',
+          helperText: `Statut mis à jour ${this.getRelativeTime(updatedAt).toLowerCase()} • aucune action enregistrée`,
+          icon: 'event_available',
+          priority: 35,
+          sortDate: updatedAt.getTime()
+        };
+      case ApplicationStatus.OFFER:
+        if (daysSinceUpdate > 14) {
+          return null;
+        }
+
+        return {
+          label: 'Répondre à l’offre',
+          helperText: `Offre reçue ${this.getRelativeTime(updatedAt).toLowerCase()} • aucune prochaine action`,
+          icon: 'workspace_premium',
+          priority: 30,
+          sortDate: updatedAt.getTime()
+        };
+      case ApplicationStatus.OFFER_ACCEPTED:
+      case ApplicationStatus.OFFER_DECLINED:
+        return null;
+      default:
+        return null;
+    }
+  }
+
+  private getExplicitActionPriorityOffset(status: ApplicationStatus): number {
+    switch (status) {
+      case ApplicationStatus.OFFER:
+        return 0;
+      case ApplicationStatus.OFFER_ACCEPTED:
+      case ApplicationStatus.OFFER_DECLINED:
+        return 8;
+      case ApplicationStatus.HR_INTERVIEW:
+      case ApplicationStatus.TECH_INTERVIEW:
+        return 2;
+      case ApplicationStatus.APPLIED:
+        return 4;
+      default:
+        return 6;
+    }
+  }
+
+  private getDayDelta(from: Date, to: Date): number {
+    const diffMs = this.toStartOfDay(to).getTime() - this.toStartOfDay(from).getTime();
+    return Math.round(diffMs / 86400000);
+  }
+
+  private toStartOfDay(date: Date): Date {
+    const normalized = new Date(date);
+    normalized.setHours(0, 0, 0, 0);
+    return normalized;
   }
   
   private generateWeeklyData(applications: Application[]): void {
@@ -293,6 +541,8 @@ export class DashboardComponent implements OnInit {
       'application': 'Candidature envoyée',
       'interview': 'Entretien programmé',
       'offer': 'Offre reçue',
+      'offerAccepted': 'Offre acceptée',
+      'offerDeclined': 'Offre déclinée',
       'rejection': 'Candidature refusée'
     };
     return labels[type];

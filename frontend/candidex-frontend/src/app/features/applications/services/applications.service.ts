@@ -38,6 +38,11 @@ export interface PaginatedApplications {
   totalPages: number;
 }
 
+export interface BatchUpdateApplicationStatusDto {
+  ids: string[];
+  status: ApplicationStatus;
+}
+
 /**
  * Service for managing job applications
  * 
@@ -136,6 +141,10 @@ export class ApplicationsService {
    */
   update(id: string, dto: UpdateApplicationDto): Observable<Application> {
     return this.http.patch<Application>(`${this.API_URL}/${id}`, dto);
+  }
+
+  updateStatuses(dto: BatchUpdateApplicationStatusDto): Observable<Application[]> {
+    return this.http.patch<Application[]>(`${this.API_URL}/batch/status`, dto);
   }
 
   /**

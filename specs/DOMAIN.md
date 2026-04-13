@@ -28,13 +28,15 @@ Fields:
 - userId: string (required, owner)
 - companyName: string (required, 1..120)
 - roleTitle: string (required, 1..120)
-- location: string (optional, 0..120)  (e.g., Paris, Remote, Hybrid)
+- city: string (optional, 0..100)
+- country: string (optional, 0..100)
 - source: ApplicationSource (required)
 - status: ApplicationStatus (required)
+- employmentType: EmploymentType (optional)
 - appliedDate: ISO date (optional)
-- salaryMin: number (optional, >= 0)
-- salaryMax: number (optional, >= 0, salaryMax >= salaryMin if both set)
+- salary: number (optional, >= 0)
 - currency: string (optional, default "EUR")
+- salaryPeriod: SalaryPeriod (optional)
 - tags: string[] (optional, each 1..30, max 10 tags)
 - links: ApplicationLinks (optional)
 - notes: string (optional, 0..5000)
@@ -70,6 +72,8 @@ Notes:
 - HR_INTERVIEW
 - TECH_INTERVIEW
 - OFFER
+- OFFER_ACCEPTED
+- OFFER_DECLINED
 - REJECTED
 - GHOSTED
 
@@ -84,12 +88,24 @@ Future extensibility:
 - REFERRAL
 - JOB_BOARD
 - EMAIL
+- SCHOOL_FORUM
 - OTHER
 
 Future extensibility:
 - WELCOME_TO_THE_JUNGLE
 - INDEED
 - GLASSDOOR
+
+### 3.3 EmploymentType
+- CDI
+- CDD
+- INTERNSHIP
+- ALTERNANCE
+- FREELANCE
+
+### 3.4 SalaryPeriod
+- ANNUAL
+- MONTHLY
 
 ## 4. Business rules (MVP)
 1. Ownership: every Application must have userId equal to the authenticated user.
@@ -101,8 +117,8 @@ Future extensibility:
    - createdAt is immutable
 6. Deletion:
    - only owner can delete
-7. Salary range:
-   - if salaryMin and salaryMax set, salaryMax >= salaryMin
+7. Salary:
+   - if salary is set, it must be >= 0
 
 ## 5. Suggested Mongo indexes
 Applications:

@@ -187,6 +187,8 @@ export class ApplicationDetailComponent implements OnInit {
       'HR_INTERVIEW': 'status-interview',
       'TECH_INTERVIEW': 'status-interview',
       'OFFER': 'status-offer',
+      'OFFER_ACCEPTED': 'status-offer-accepted',
+      'OFFER_DECLINED': 'status-offer-declined',
       'REJECTED': 'status-rejected',
       'GHOSTED': 'status-ghosted'
     };

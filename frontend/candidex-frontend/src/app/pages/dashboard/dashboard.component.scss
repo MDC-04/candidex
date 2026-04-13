@@ -1,7 +1,3 @@
-/* ================================================================
-   DASHBOARD — Premium Analytics View
-   ================================================================ */
-
 .dashboard-container {
   padding: 28px;
   max-width: 1500px;
@@ -25,7 +21,6 @@
   }
 }
 
-/* ---------- Summary Cards ---------- */
 .summary-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -92,7 +87,63 @@
   &.rate    { background: linear-gradient(135deg, #9C27B0, #6A1B9A); color: white; }
 }
 
-/* ---------- Content Grid ---------- */
+.next-actions-card {
+  margin-bottom: 32px;
+  mat-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--cx-border); }
+  mat-card-title {
+    font-size: 17px; font-weight: 700; color: var(--cx-text); display: flex; align-items: center;
+    mat-icon { color: #D97706; font-size: 24px; }
+  }
+}
+
+@media (max-width: 768px) { .next-actions-card mat-card-header, .next-action-topline { flex-direction: column; align-items: flex-start; } }
+
+.next-actions-meta { display: flex; }
+
+.meta-pill, .tone-pill { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 6px 10px; font-size: 11px; font-weight: 700; }
+
+.meta-pill.overdue,
+.tone-overdue { --tone-bg: rgba(239, 68, 68, 0.12); --tone-color: #B91C1C; }
+
+.meta-pill.today,
+.tone-today { --tone-bg: rgba(217, 119, 6, 0.12); --tone-color: #B45309; }
+
+.tone-upcoming { --tone-bg: rgba(37, 99, 235, 0.12); --tone-color: #1D4ED8; }
+.tone-suggested { --tone-bg: rgba(102, 126, 234, 0.12); --tone-color: var(--cx-primary); }
+
+.tone-pill, .next-action-leading { background: var(--tone-bg); color: var(--tone-color); }
+
+.next-actions-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; @media (max-width: 960px) { grid-template-columns: 1fr; } }
+
+.next-action-item {
+  width: 100%; display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; gap: 14px; align-items: start; text-align: left;
+  padding: 16px; border: 1px solid var(--cx-border); background: #fff; cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .next-action-item { grid-template-columns: 44px minmax(0, 1fr); }
+  .next-action-item .status-chip { grid-column: 2; justify-self: start; }
+}
+
+.next-action-leading { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; mat-icon { font-size: 20px; } }
+
+.next-action-body { min-width: 0; }
+
+.next-action-topline {
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 4px;
+  .company { font-size: 14px; font-weight: 700; color: var(--cx-text); }
+}
+
+.action-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--cx-text-secondary);
+}
+
+.action-helper {
+  color: var(--cx-text-muted);
+}
+
 .dashboard-content {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -112,7 +163,6 @@
   @media (max-width: 960px) { grid-template-columns: 1fr; }
 }
 
-/* ---------- Section Cards ---------- */
 .status-card, .recent-card {
   border-radius: var(--cx-radius-lg);
   transition: transform 0.22s var(--cx-ease), box-shadow 0.22s var(--cx-ease);
@@ -182,7 +232,6 @@
   }
 }
 
-/* ---------- Chart ---------- */
 .chart-container { padding: 16px 0; }
 
 .chart-legend {
@@ -281,7 +330,6 @@
   text-align: center;
 }
 
-/* ---------- Timeline ---------- */
 .timeline {
   display: flex;
   flex-direction: column;
@@ -382,7 +430,6 @@
   color: var(--cx-text-muted);
 }
 
-/* ---------- Status List ---------- */
 .status-list {
   display: flex;
   flex-direction: column;
@@ -445,7 +492,6 @@
   text-align: right;
 }
 
-/* ---------- Recent List ---------- */
 .recent-list {
   display: flex;
   flex-direction: column;
