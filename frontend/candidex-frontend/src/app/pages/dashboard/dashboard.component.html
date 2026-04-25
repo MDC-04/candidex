@@ -72,7 +72,8 @@
             @for (item of nextActionItems; track item.id) {
               <button type="button" class="next-action-item" (click)="viewApplication(item.id)">
                 <div class="next-action-leading" [ngClass]="getToneClass(item.tone)">
-                  <mat-icon>{{ item.icon }}</mat-icon>
+                  <img *ngIf="item.companyDomain" class="next-action-logo" [src]="getCompanyLogoUrl(item.companyDomain)" alt="" loading="lazy">
+                  <mat-icon *ngIf="!item.companyDomain">{{ item.icon }}</mat-icon>
                 </div>
                 <div class="next-action-body">
                   <div class="next-action-topline">
@@ -147,7 +148,8 @@
               @for (app of recentApplications; track app.id) {
                 <div class="recent-item" (click)="viewApplication(app.id)">
                   <div class="recent-icon">
-                    <mat-icon>business</mat-icon>
+                    <img *ngIf="app.companyDomain" class="recent-company-logo" [src]="getCompanyLogoUrl(app.companyDomain)" alt="" loading="lazy">
+                    <mat-icon *ngIf="!app.companyDomain">business</mat-icon>
                   </div>
                   <div class="recent-info">
                     <div class="recent-company">{{ app.companyName }}</div>

@@ -28,6 +28,9 @@ public class CreateApplicationDto {
     @Size(min = 1, max = 120)
     private String companyName;
     
+    @Size(max = 255)
+    private String companyDomain;
+    
     @NotBlank(message = "Role title is required")
     @Size(min = 1, max = 120)
     private String roleTitle;

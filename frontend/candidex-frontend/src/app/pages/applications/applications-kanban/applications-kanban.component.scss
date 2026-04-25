@@ -304,6 +304,36 @@ mat-card-header {
   cursor: pointer;
 }
 
+.card-company {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.kanban-company-logo {
+  width: 24px;
+  height: 24px;
+  border-radius: 5px;
+  object-fit: contain;
+  flex-shrink: 0;
+  background: #f1f5f9;
+}
+
+.kanban-company-fallback {
+  width: 24px;
+  height: 24px;
+  border-radius: 5px;
+  background: var(--cx-gradient);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
 .card-title {
   font-size: 14px;
   font-weight: 600;

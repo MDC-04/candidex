@@ -15,6 +15,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { Router } from '@angular/router';
 
 import { ApplicationsService } from '../../../features/applications/services/applications.service';
+import { CompanySuggestionService } from '../../../features/applications/services/company-suggestion.service';
 import { Application, ApplicationStatus, ApplicationStatusLabels, ApplicationSourceLabels } from '../../../features/applications/models';
 import { HttpErrorService } from '../../../core/services/http-error.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -66,6 +67,7 @@ export class ApplicationsKanbanComponent implements OnInit {
   
   private httpErrorService = inject(HttpErrorService);
   private notificationService = inject(NotificationService);
+  private companySuggestionService = inject(CompanySuggestionService);
   
   constructor(
     private applicationsService: ApplicationsService,
@@ -197,6 +199,10 @@ export class ApplicationsKanbanComponent implements OnInit {
     }
 
     return city || country || null;
+  }
+
+  getCompanyLogoUrl(app: Application): string {
+    return this.companySuggestionService.getLogoUrl(app.companyDomain);
   }
   
   getColumnIds(): string[] {

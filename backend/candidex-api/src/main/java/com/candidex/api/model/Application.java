@@ -43,6 +43,9 @@ public class Application {
     @Size(min = 1, max = 120, message = "Company name must be between 1 and 120 characters")
     private String companyName;
     
+    @Size(max = 255)
+    private String companyDomain;
+    
     @NotBlank(message = "Role title is required")
     @Size(min = 1, max = 120, message = "Role title must be between 1 and 120 characters")
     private String roleTitle;

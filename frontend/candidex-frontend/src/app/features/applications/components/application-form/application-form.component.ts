@@ -1,6 +1,9 @@
-import { AfterViewInit, Component, Inject, OnInit, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, Component, Inject, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
 
 import {
   Application,
@@ -10,6 +13,7 @@ import {
   UpdateApplicationDto,
 } from '../../models';
 import { ApplicationsService } from '../../services/applications.service';
+import { CompanySuggestionService, CompanySuggestion } from '../../services/company-suggestion.service';
 import { HttpErrorService } from '../../../../core/services/http-error.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 
@@ -20,7 +24,7 @@ export interface ApplicationFormDialogData {
 @Component({
   selector: 'app-application-form',
   standalone: true,
-  imports: [ReactiveFormsModule, MatDialogModule],
+  imports: [CommonModule, ReactiveFormsModule, MatDialogModule],
   encapsulation: ViewEncapsulation.None,
   template: `
     <h2 mat-dialog-title class="af-title">
@@ -33,9 +37,21 @@ export interface ApplicationFormDialogData {
         <div class="af-section">
           <div class="af-section-label">Informations</div>
 
-          <div class="af-field af-full">
+          <div class="af-field af-full af-company-field">
             <label>Entreprise <span class="af-req">*</span></label>
-            <input type="text" formControlName="companyName" placeholder="ex: Google">
+            <div class="af-company-input-wrapper" [class.has-logo]="selectedCompanyDomain">
+              <img *ngIf="selectedCompanyDomain" class="af-company-logo" [src]="getCompanyLogoUrl(selectedCompanyDomain)" alt="">
+              <input type="text" formControlName="companyName" placeholder="ex: Google" autocomplete="off" (focus)="showSuggestions = companySuggestions.length > 0">
+            </div>
+            <div class="af-suggestions" *ngIf="showSuggestions && companySuggestions.length > 0">
+              <button type="button" class="af-suggestion-item" *ngFor="let s of companySuggestions" (mousedown)="selectCompany(s)">
+                <img class="af-suggestion-logo" [src]="s.logoUrl" alt="" loading="lazy">
+                <div class="af-suggestion-info">
+                  <span class="af-suggestion-name">{{ s.name }}</span>
+                  <span class="af-suggestion-domain">{{ s.domain }}</span>
+                </div>
+              </button>
+            </div>
           </div>
 
           <div class="af-field af-full">
@@ -244,6 +260,97 @@ export interface ApplicationFormDialogData {
       color: #dc2626;
     }
 
+    .af-company-field {
+      position: relative;
+    }
+
+    .af-company-input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .af-company-logo {
+      position: absolute;
+      left: 12px;
+      width: 22px;
+      height: 22px;
+      border-radius: 4px;
+      object-fit: contain;
+      pointer-events: none;
+    }
+
+    .af-company-input-wrapper input {
+      padding-left: 13px;
+    }
+
+    .af-company-input-wrapper.has-logo input {
+      padding-left: 42px;
+    }
+
+    .af-company-logo + input {
+      padding-left: 42px;
+    }
+
+    .af-suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: #fff;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+      max-height: 220px;
+      overflow-y: auto;
+      margin-top: 4px;
+    }
+
+    .af-suggestion-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 10px 14px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      text-align: left;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+
+    .af-suggestion-item:hover {
+      background: rgba(102, 126, 234, 0.08);
+    }
+
+    .af-suggestion-logo {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      object-fit: contain;
+      flex-shrink: 0;
+      background: #f1f5f9;
+    }
+
+    .af-suggestion-info {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .af-suggestion-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    .af-suggestion-domain {
+      font-size: 12px;
+      color: #64748b;
+    }
+
     .af-field input,
     .af-field select,
     .af-field textarea {
@@ -386,11 +493,15 @@ export interface ApplicationFormDialogData {
     }
   `]
 })
-export class ApplicationFormComponent implements OnInit, AfterViewInit {
+export class ApplicationFormComponent implements OnInit, AfterViewInit, OnDestroy {
 
   form!: FormGroup;
   isEditMode = false;
   isSubmitting = false;
+  companySuggestions: CompanySuggestion[] = [];
+  showSuggestions = false;
+  selectedCompanyDomain: string | null = null;
+  private destroy$ = new Subject<void>();
 
   private readonly sourceValues = [
     'LINKEDIN',
@@ -421,6 +532,7 @@ export class ApplicationFormComponent implements OnInit, AfterViewInit {
   constructor(
     private fb: FormBuilder,
     private applicationsService: ApplicationsService,
+    private companySuggestionService: CompanySuggestionService,
     private httpErrorService: HttpErrorService,
     private notificationService: NotificationService,
     private dialogRef: MatDialogRef<ApplicationFormComponent>,
@@ -430,6 +542,8 @@ export class ApplicationFormComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.isEditMode = !!this.data?.application;
     const app = this.data?.application;
+
+    this.selectedCompanyDomain = app?.companyDomain ?? null;
 
     this.form = this.fb.group({
       companyName: [app?.companyName ?? '', [Validators.required, Validators.maxLength(120)]],
@@ -448,13 +562,37 @@ export class ApplicationFormComponent implements OnInit, AfterViewInit {
       nextActionNote: [app?.nextAction?.note ?? '', [Validators.maxLength(300)]],
     });
 
+    this.form.get('companyName')!.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap(val => this.companySuggestionService.suggest(val)),
+      takeUntil(this.destroy$)
+    ).subscribe(suggestions => {
+      this.companySuggestions = suggestions;
+      this.showSuggestions = suggestions.length > 0;
+    });
+
     this.ensureSelectDefaults();
   }
 
   ngAfterViewInit(): void {
-    // Native select controls inside dialogs can lose default rendering on Chrome/Windows.
-    // Re-apply defaults after first paint to keep values and validity stable.
     queueMicrotask(() => this.ensureSelectDefaults());
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  selectCompany(suggestion: CompanySuggestion): void {
+    this.form.get('companyName')!.setValue(suggestion.name, { emitEvent: false });
+    this.selectedCompanyDomain = suggestion.domain;
+    this.companySuggestions = [];
+    this.showSuggestions = false;
+  }
+
+  getCompanyLogoUrl(domain: string): string {
+    return this.companySuggestionService.getLogoUrl(domain);
   }
 
   private ensureSelectDefaults(): void {
@@ -495,6 +633,7 @@ export class ApplicationFormComponent implements OnInit, AfterViewInit {
 
     const payload: any = {
       companyName: v.companyName,
+      companyDomain: this.selectedCompanyDomain || undefined,
       roleTitle: v.roleTitle,
       source: v.source || 'LINKEDIN',
       status: v.status || 'APPLIED',

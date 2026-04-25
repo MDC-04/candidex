@@ -11,6 +11,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog } from '@angular/material/dialog';
 
 import { ApplicationsService } from '../../services/applications.service';
+import { CompanySuggestionService } from '../../services/company-suggestion.service';
 import { Application, ApplicationStatusLabels, ApplicationSourceLabels } from '../../models';
 import { ApplicationFormComponent } from '../application-form/application-form.component';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -56,7 +57,8 @@ export class ApplicationDetailComponent implements OnInit {
     private location: Location,
     private dialog: MatDialog,
     private httpErrorService: HttpErrorService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private companySuggestionService: CompanySuggestionService
   ) {}
 
   ngOnInit(): void {
@@ -193,5 +195,9 @@ export class ApplicationDetailComponent implements OnInit {
       'GHOSTED': 'status-ghosted'
     };
     return classes[status] || '';
+  }
+
+  getCompanyLogoUrl(domain: string | undefined): string {
+    return this.companySuggestionService.getLogoUrl(domain);
   }
 }

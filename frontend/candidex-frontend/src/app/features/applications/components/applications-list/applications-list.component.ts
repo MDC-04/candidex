@@ -19,6 +19,7 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatDividerModule } from '@angular/material/divider';
 
 import { ApplicationListParams, ApplicationsService, PaginatedApplications } from '../../services/applications.service';
+import { CompanySuggestionService } from '../../services/company-suggestion.service';
 import { 
   Application, 
   ApplicationStatus,
@@ -123,6 +124,7 @@ export class ApplicationsListComponent implements OnInit, OnDestroy {
   
   private httpErrorService = inject(HttpErrorService);
   private notificationService = inject(NotificationService);
+  private companySuggestionService = inject(CompanySuggestionService);
   private readonly filterSubscriptions = new Subscription();
   private loadSubscription: Subscription | null = null;
 
@@ -425,6 +427,10 @@ export class ApplicationsListComponent implements OnInit, OnDestroy {
       return `${city}, ${country}`;
     }
     return city || country || 'Non spécifié';
+  }
+
+  getCompanyLogoUrl(app: Application): string {
+    return this.companySuggestionService.getLogoUrl(app.companyDomain);
   }
 
   /**

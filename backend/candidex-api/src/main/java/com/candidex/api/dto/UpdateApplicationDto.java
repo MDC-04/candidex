@@ -29,6 +29,9 @@ public class UpdateApplicationDto {
     @Size(min = 1, max = 120)
     private String companyName;
     
+    @Size(max = 255)
+    private String companyDomain;
+    
     @Size(min = 1, max = 120)
     private String roleTitle;
     

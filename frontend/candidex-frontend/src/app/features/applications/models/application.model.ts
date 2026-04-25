@@ -49,6 +49,7 @@ export interface Application {
   id: string;
   userId: string;
   companyName: string;
+  companyDomain?: string;
   roleTitle: string;
   city?: string;
   country?: string;
@@ -73,6 +74,7 @@ export interface Application {
  */
 export interface CreateApplicationDto {
   companyName: string;
+  companyDomain?: string;
   roleTitle: string;
   city?: string;
   country?: string;
@@ -96,6 +98,7 @@ export interface CreateApplicationDto {
  */
 export interface UpdateApplicationDto {
   companyName?: string;
+  companyDomain?: string;
   roleTitle?: string;
   city?: string;
   country?: string;

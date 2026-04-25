@@ -119,6 +119,7 @@ public class ApplicationService {
         Application application = Application.builder()
                 .userId(userId)
                 .companyName(dto.getCompanyName())
+                .companyDomain(dto.getCompanyDomain())
                 .roleTitle(dto.getRoleTitle())
                 .city(dto.getCity())
                 .country(dto.getCountry())
@@ -151,6 +152,7 @@ public class ApplicationService {
         
         // Apply updates (only non-null fields)
         if (dto.getCompanyName() != null) application.setCompanyName(dto.getCompanyName());
+        if (dto.getCompanyDomain() != null) application.setCompanyDomain(dto.getCompanyDomain());
         if (dto.getRoleTitle() != null) application.setRoleTitle(dto.getRoleTitle());
         if (dto.getCity() != null) application.setCity(dto.getCity());
         if (dto.getCountry() != null) application.setCountry(dto.getCountry());

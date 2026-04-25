@@ -536,6 +536,20 @@
     width: 24px;
     height: 24px;
   }
+
+  .recent-company-logo {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    object-fit: contain;
+  }
+}
+
+.next-action-logo {
+  width: 24px;
+  height: 24px;
+  border-radius: 5px;
+  object-fit: contain;
 }
 
 .recent-info {

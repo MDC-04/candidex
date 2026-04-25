@@ -109,9 +109,13 @@
               </div>
               
               <mat-card-header (click)="viewApplication(app.id)">
-                <mat-card-title class="card-title">
-                  {{ app.companyName }}
-                </mat-card-title>
+                <div class="card-company">
+                  <img *ngIf="app.companyDomain" class="kanban-company-logo" [src]="getCompanyLogoUrl(app)" alt="" loading="lazy">
+                  <div *ngIf="!app.companyDomain" class="kanban-company-fallback">{{ app.companyName.charAt(0) }}</div>
+                  <mat-card-title class="card-title">
+                    {{ app.companyName }}
+                  </mat-card-title>
+                </div>
               </mat-card-header>
               
               <mat-card-content (click)="viewApplication(app.id)">

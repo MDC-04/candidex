@@ -9,6 +9,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { ApplicationsService } from '../../features/applications/services/applications.service';
+import { CompanySuggestionService } from '../../features/applications/services/company-suggestion.service';
 import { Application, ApplicationStatus, ApplicationStatusLabels } from '../../features/applications/models';
 import { HttpErrorService } from '../../core/services/http-error.service';
 import { NotificationService } from '../../core/services/notification.service';
@@ -51,6 +52,7 @@ interface WeeklyData {
 interface NextActionItem {
   id: string;
   companyName: string;
+  companyDomain?: string;
   roleTitle: string;
   status: ApplicationStatus;
   label: string;
@@ -102,6 +104,7 @@ export class DashboardComponent implements OnInit {
   
   constructor(
     private applicationsService: ApplicationsService,
+    private companySuggestionService: CompanySuggestionService,
     private router: Router,
     private httpErrorService: HttpErrorService,
     private notificationService: NotificationService
@@ -302,6 +305,8 @@ export class DashboardComponent implements OnInit {
   }
 
   private toNextActionItem(app: Application, today: Date): NextActionItem | null {
+    const base = { id: app.id, companyName: app.companyName, companyDomain: app.companyDomain, roleTitle: app.roleTitle, status: app.status };
+
     if (app.nextAction && !app.nextAction.done) {
       const actionDate = new Date(app.nextAction.date);
       const hasValidDate = !Number.isNaN(actionDate.getTime());
@@ -317,10 +322,7 @@ export class DashboardComponent implements OnInit {
 
       if (dayDelta < 0) {
         return {
-          id: app.id,
-          companyName: app.companyName,
-          roleTitle: app.roleTitle,
-          status: app.status,
+          ...base,
           label: note || 'Action en retard',
           helperText: `Prévue le ${actionDate.toLocaleDateString('fr-FR')} • retard de ${Math.abs(dayDelta)} jour${Math.abs(dayDelta) > 1 ? 's' : ''}`,
           icon: 'notification_important',
@@ -333,10 +335,7 @@ export class DashboardComponent implements OnInit {
 
       if (dayDelta === 0) {
         return {
-          id: app.id,
-          companyName: app.companyName,
-          roleTitle: app.roleTitle,
-          status: app.status,
+          ...base,
           label: note || 'Action prévue aujourd’hui',
           helperText: 'À traiter aujourd’hui',
           icon: 'today',
@@ -352,10 +351,7 @@ export class DashboardComponent implements OnInit {
       }
 
       return {
-        id: app.id,
-        companyName: app.companyName,
-        roleTitle: app.roleTitle,
-        status: app.status,
+        ...base,
         label: note || 'Action planifiée',
         helperText: dayDelta === 1
           ? 'Prévue demain'
@@ -374,10 +370,7 @@ export class DashboardComponent implements OnInit {
     }
 
     return {
-      id: app.id,
-      companyName: app.companyName,
-      roleTitle: app.roleTitle,
-      status: app.status,
+      ...base,
       label: suggestion.label,
       helperText: suggestion.helperText,
       icon: suggestion.icon,
@@ -560,5 +553,9 @@ export class DashboardComponent implements OnInit {
     if (diffDays === 0) return "Aujourd'hui";
     if (diffDays === 1) return 'Hier';
     return `Il y a ${diffDays} jours`;
+  }
+
+  getCompanyLogoUrl(domain: string | undefined): string {
+    return this.companySuggestionService.getLogoUrl(domain);
   }
 }

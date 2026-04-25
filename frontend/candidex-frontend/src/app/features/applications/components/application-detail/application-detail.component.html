@@ -11,8 +11,14 @@
   <!-- Main info card -->
   <mat-card class="main-card">
     <mat-card-header>
-      <mat-card-title>{{ app.roleTitle }}</mat-card-title>
-      <mat-card-subtitle>{{ app.companyName }}</mat-card-subtitle>
+      <div class="company-header">
+        <img *ngIf="app.companyDomain" class="company-logo-detail" [src]="getCompanyLogoUrl(app.companyDomain)" alt="">
+        <div *ngIf="!app.companyDomain" class="company-logo-fallback-detail">{{ app.companyName.charAt(0) }}</div>
+        <div>
+          <mat-card-title>{{ app.roleTitle }}</mat-card-title>
+          <mat-card-subtitle>{{ app.companyName }}</mat-card-subtitle>
+        </div>
+      </div>
     </mat-card-header>
 
     <mat-card-content>
