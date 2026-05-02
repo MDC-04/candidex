@@ -66,6 +66,10 @@
         flex: 2 1 300px;
         min-width: 200px;
         align-self: center;
+
+        .search-spinner {
+          margin-right: 8px;
+        }
       }
 
       .filter-field {
@@ -179,6 +183,12 @@
     .applications-table {
       width: 100%;
       margin-top: 0;
+
+      &.table-loading {
+        opacity: 0.5;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+      }
       border-top: none;
 
       th {

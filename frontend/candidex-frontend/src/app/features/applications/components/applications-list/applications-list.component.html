@@ -7,21 +7,22 @@
     </button>
   </div>
 
-  <!-- Loading spinner -->
-  <div class="loading-container" *ngIf="loading">
+  <!-- Loading spinner (initial load only) -->
+  <div class="loading-container" *ngIf="loading && !data">
     <mat-spinner></mat-spinner>
   </div>
 
   <!-- Applications table -->
-  <div class="table-container" *ngIf="!loading && data as data">
+  <div class="table-container" *ngIf="data as data">
     
     <!-- Filters bar -->
-    <div class="filters-bar" *ngIf="data.items.length > 0">
+    <div class="filters-bar" *ngIf="data.items.length > 0 || hasActiveFilters()">
       <mat-form-field appearance="outline" class="search-field">
         <mat-label>Rechercher</mat-label>
         <input matInput [formControl]="searchControl" placeholder="Entreprise ou poste (min. 2 caractères)...">
         <mat-icon matPrefix>search</mat-icon>
-        <button matSuffix mat-icon-button *ngIf="searchControl.value" (click)="searchControl.setValue('')">
+        <mat-spinner *ngIf="loading" matSuffix diameter="18" class="search-spinner"></mat-spinner>
+        <button matSuffix mat-icon-button *ngIf="!loading && searchControl.value" (click)="searchControl.setValue('')">
           <mat-icon>close</mat-icon>
         </button>
       </mat-form-field>
@@ -85,7 +86,7 @@
     </div>
 
     <!-- Table with data -->
-    <table mat-table [dataSource]="displayItems" class="applications-table" *ngIf="displayItems.length > 0">
+    <table mat-table [dataSource]="displayItems" class="applications-table" [class.table-loading]="loading" *ngIf="displayItems.length > 0">
         <!-- Company Column -->
         <ng-container matColumnDef="companyName">
           <th mat-header-cell *matHeaderCellDef>

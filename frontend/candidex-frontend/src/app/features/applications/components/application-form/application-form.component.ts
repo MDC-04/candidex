@@ -14,6 +14,7 @@ import {
 } from '../../models';
 import { ApplicationsService } from '../../services/applications.service';
 import { CompanySuggestionService, CompanySuggestion } from '../../services/company-suggestion.service';
+import { LocationSuggestionService, LocationSuggestion } from '../../services/location-suggestion.service';
 import { HttpErrorService } from '../../../../core/services/http-error.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 
@@ -108,14 +109,14 @@ export interface ApplicationFormDialogData {
 
         <div class="af-section">
           <div class="af-section-label">Localisation</div>
-          <div class="af-row">
-            <div class="af-field">
-              <label>Ville</label>
-              <input type="text" formControlName="city" placeholder="ex: Paris">
-            </div>
-            <div class="af-field">
-              <label>Pays</label>
-              <input type="text" formControlName="country" placeholder="ex: France">
+          <div class="af-field af-full af-location-field">
+            <label>Lieu</label>
+            <input type="text" formControlName="location" placeholder="ex: Paris, France" autocomplete="off" (focus)="showLocationSuggestions = locationSuggestions.length > 0" (blur)="onLocationBlur()">
+            <div class="af-suggestions" *ngIf="showLocationSuggestions && locationSuggestions.length > 0">
+              <button type="button" class="af-suggestion-item" *ngFor="let s of locationSuggestions" (mousedown)="selectLocation(s)">
+                <span class="af-location-icon">📍</span>
+                <span class="af-suggestion-name">{{ s.displayName }}</span>
+              </button>
             </div>
           </div>
         </div>
@@ -262,6 +263,16 @@ export interface ApplicationFormDialogData {
 
     .af-company-field {
       position: relative;
+    }
+
+    .af-location-field {
+      position: relative;
+    }
+
+    .af-location-icon {
+      flex-shrink: 0;
+      font-size: 16px;
+      line-height: 1;
     }
 
     .af-company-input-wrapper {
@@ -501,6 +512,10 @@ export class ApplicationFormComponent implements OnInit, AfterViewInit, OnDestro
   companySuggestions: CompanySuggestion[] = [];
   showSuggestions = false;
   selectedCompanyDomain: string | null = null;
+  locationSuggestions: LocationSuggestion[] = [];
+  showLocationSuggestions = false;
+  private selectedCity = '';
+  private selectedCountry = '';
   private destroy$ = new Subject<void>();
 
   private readonly sourceValues = [
@@ -533,6 +548,7 @@ export class ApplicationFormComponent implements OnInit, AfterViewInit, OnDestro
     private fb: FormBuilder,
     private applicationsService: ApplicationsService,
     private companySuggestionService: CompanySuggestionService,
+    private locationSuggestionService: LocationSuggestionService,
     private httpErrorService: HttpErrorService,
     private notificationService: NotificationService,
     private dialogRef: MatDialogRef<ApplicationFormComponent>,
@@ -545,11 +561,14 @@ export class ApplicationFormComponent implements OnInit, AfterViewInit, OnDestro
 
     this.selectedCompanyDomain = app?.companyDomain ?? null;
 
+    const locationDisplay = [app?.city, app?.country].filter(Boolean).join(', ');
+    this.selectedCity = app?.city ?? '';
+    this.selectedCountry = app?.country ?? '';
+
     this.form = this.fb.group({
       companyName: [app?.companyName ?? '', [Validators.required, Validators.maxLength(120)]],
       roleTitle: [app?.roleTitle ?? '', [Validators.required, Validators.maxLength(120)]],
-      city: [app?.city ?? ''],
-      country: [app?.country ?? ''],
+      location: [locationDisplay],
       source: [app?.source ?? 'LINKEDIN'],
       status: [app?.status ?? 'APPLIED'],
       employmentType: [app?.employmentType ?? ''],
@@ -570,6 +589,16 @@ export class ApplicationFormComponent implements OnInit, AfterViewInit, OnDestro
     ).subscribe(suggestions => {
       this.companySuggestions = suggestions;
       this.showSuggestions = suggestions.length > 0;
+    });
+
+    this.form.get('location')!.valueChanges.pipe(
+      debounceTime(400),
+      distinctUntilChanged(),
+      switchMap(val => this.locationSuggestionService.suggest(val)),
+      takeUntil(this.destroy$)
+    ).subscribe(suggestions => {
+      this.locationSuggestions = suggestions;
+      this.showLocationSuggestions = suggestions.length > 0;
     });
 
     this.ensureSelectDefaults();
@@ -593,6 +622,18 @@ export class ApplicationFormComponent implements OnInit, AfterViewInit, OnDestro
 
   getCompanyLogoUrl(domain: string): string {
     return this.companySuggestionService.getLogoUrl(domain);
+  }
+
+  selectLocation(suggestion: LocationSuggestion): void {
+    this.form.get('location')!.setValue(suggestion.displayName, { emitEvent: false });
+    this.selectedCity = suggestion.city;
+    this.selectedCountry = suggestion.country;
+    this.locationSuggestions = [];
+    this.showLocationSuggestions = false;
+  }
+
+  onLocationBlur(): void {
+    setTimeout(() => this.showLocationSuggestions = false, 200);
   }
 
   private ensureSelectDefaults(): void {
@@ -639,8 +680,8 @@ export class ApplicationFormComponent implements OnInit, AfterViewInit, OnDestro
       status: v.status || 'APPLIED',
       currency: v.currency || 'EUR',
     };
-    if (v.city) payload.city = v.city;
-    if (v.country) payload.country = v.country;
+    if (this.selectedCity) payload.city = this.selectedCity;
+    if (this.selectedCountry) payload.country = this.selectedCountry;
     if (v.employmentType) payload.employmentType = v.employmentType;
     if (v.appliedDate) payload.appliedDate = v.appliedDate;
     if (v.salary != null && v.salary !== '') payload.salary = +v.salary;

@@ -10,9 +10,11 @@ import { AuthService } from '../services/auth.service';
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const token = authService.getToken();
-  
-  // If token exists, clone request and add Authorization header
-  if (token) {
+
+  // Only attach JWT to requests targeting our own backend API
+  const isBackendRequest = req.url.includes('/api/v1');
+
+  if (token && isBackendRequest) {
     const clonedReq = req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`
@@ -20,7 +22,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     });
     return next(clonedReq);
   }
-  
-  // If no token, continue with original request
+
   return next(req);
 };
