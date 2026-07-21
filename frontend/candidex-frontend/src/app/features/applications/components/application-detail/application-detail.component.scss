@@ -99,32 +99,32 @@
             font-size: 13px;
             
             &.status-applied {
-              background-color: #e3f2fd;
-              color: #1976d2;
+              background-color: #bbdefb;
+              color: #0d47a1;
             }
             &.status-interview {
-              background-color: #fff3e0;
-              color: #f57c00;
-            }
-            &.status-offer {
-              background-color: #e8f5e9;
-              color: #388e3c;
-            }
-            &.status-offer-accepted {
-              background-color: #dcedc8;
-              color: #33691e;
-            }
-            &.status-offer-declined {
-              background-color: #fbe9e7;
+              background-color: #ffe0b2;
               color: #bf360c;
             }
+            &.status-offer {
+              background-color: #c8e6c9;
+              color: #1b5e20;
+            }
+            &.status-offer-accepted {
+              background-color: #aed581;
+              color: #1b5e20;
+            }
+            &.status-offer-declined {
+              background-color: #ffccbc;
+              color: #b71c1c;
+            }
             &.status-rejected {
-              background-color: #ffebee;
-              color: #d32f2f;
+              background-color: #ffcdd2;
+              color: #b71c1c;
             }
             &.status-ghosted {
-              background-color: #f5f5f5;
-              color: #757575;
+              background-color: #e0e0e0;
+              color: #424242;
             }
           }
         }

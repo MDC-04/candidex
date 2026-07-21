@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
+import { environment } from '../../../../environments/environment';
 
 export interface CompanySuggestion {
   name: string;
@@ -12,7 +13,7 @@ export interface CompanySuggestion {
 @Injectable({ providedIn: 'root' })
 export class CompanySuggestionService {
 
-  private readonly AUTOCOMPLETE_URL = 'https://autocomplete.clearbit.com/v1/companies/suggest';
+  private readonly AUTOCOMPLETE_URL = environment.companyAutocompleteUrl;
 
   constructor(private http: HttpClient) {}
 
@@ -38,6 +39,6 @@ export class CompanySuggestionService {
 
   getLogoUrl(domain: string | undefined | null): string {
     if (!domain) return '';
-    return `https://img.logo.dev/${encodeURIComponent(domain)}?token=pk_ZrCGxF7NSzGsqp5qUVPvnA&size=128&format=png`;
+    return `${environment.logoApiUrl}/${encodeURIComponent(domain)}?token=${environment.logoApiToken}&size=128&format=png`;
   }
 }

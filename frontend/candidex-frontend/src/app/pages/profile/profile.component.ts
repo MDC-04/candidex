@@ -100,18 +100,6 @@ export class ProfileComponent implements OnInit {
     });
   }
 
-  private loadCvFromLocalStorage(): void {
-    // No longer needed - CV is loaded from backend
-  }
-
-  private saveCvToLocalStorage(): void {
-    // No longer needed - CV is saved to backend
-  }
-
-  private removeCvFromLocalStorage(): void {
-    // No longer needed - CV is removed from backend
-  }
-  
   onSave(): void {
     if (this.profileForm.invalid) {
       return;
@@ -243,7 +231,6 @@ export class ProfileComponent implements OnInit {
           window.open(url, '_blank');
         },
         error: (error) => {
-          console.error('Error loading CV:', error);
           this.notificationService.error(
             this.httpErrorService.getActionMessage(
               error,

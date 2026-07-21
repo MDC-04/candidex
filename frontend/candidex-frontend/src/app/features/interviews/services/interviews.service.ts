@@ -7,6 +7,7 @@ import {
   CreateInterviewDto,
   UpdateInterviewDto
 } from '../models';
+import { environment } from '../../../../environments/environment';
 
 /**
  * Service for managing interviews
@@ -17,7 +18,7 @@ import {
 })
 export class InterviewsService {
 
-  private readonly API_URL = 'http://localhost:8080/api/v1/interviews';
+  private readonly API_URL = `${environment.apiUrl}/interviews`;
 
   constructor(private http: HttpClient) {}
 

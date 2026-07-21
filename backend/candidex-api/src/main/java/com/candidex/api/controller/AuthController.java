@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/api/v1/auth")
-@CrossOrigin(origins = "http://localhost:4200")
 @RequiredArgsConstructor
 public class AuthController {
     
@@ -51,12 +50,12 @@ public class AuthController {
     
     /**
      * Get current authenticated user
-     * GET /api/v1/me
+     * GET /api/v1/auth/me
      * 
      * @param authentication Spring Security authentication (injected)
      * @return 200 OK with user info
      */
-    @GetMapping("/api/v1/me")
+    @GetMapping("/me")
     public ResponseEntity<AuthResponse.UserDto> getCurrentUser(Authentication authentication) {
         String userId = authentication.getName(); // userId is stored as principal
         AuthResponse.UserDto user = authService.getCurrentUser(userId);

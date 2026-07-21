@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, tap } from 'rxjs';
 import { RegisterDto, LoginDto, AuthResponse, UserInfo } from '../models/auth.model';
+import { environment } from '../../../environments/environment';
 
 /**
  * Authentication service
@@ -13,7 +14,7 @@ import { RegisterDto, LoginDto, AuthResponse, UserInfo } from '../models/auth.mo
 })
 export class AuthService {
   
-  private readonly API_URL = 'http://localhost:8080/api/v1';
+  private readonly API_URL = environment.apiUrl;
   private readonly TOKEN_KEY = 'candidex_access_token';
   
   // Observable for current user state

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
+import { environment } from '../../../../environments/environment';
 
 export interface LocationSuggestion {
   displayName: string;
@@ -24,7 +25,7 @@ interface NominatimResult {
 @Injectable({ providedIn: 'root' })
 export class LocationSuggestionService {
 
-  private readonly NOMINATIM_URL = 'https://nominatim.openstreetmap.org/search';
+  private readonly NOMINATIM_URL = environment.nominatimUrl;
 
   constructor(private http: HttpClient) {}
 

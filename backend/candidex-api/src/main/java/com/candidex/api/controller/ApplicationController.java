@@ -32,7 +32,6 @@ import java.util.Map;
 @RequestMapping("/api/v1/applications")
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = "http://localhost:4200") // Allow Angular frontend
 public class ApplicationController {
     
     private final ApplicationService applicationService;

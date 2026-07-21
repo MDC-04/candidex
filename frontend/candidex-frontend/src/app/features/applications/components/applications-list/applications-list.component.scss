@@ -274,13 +274,13 @@
           transform: translateY(-1px);
         }
 
-        &.status-applied   { background: #e3f2fd !important; color: #1565c0 !important; }
-        &.status-interview  { background: #fff3e0 !important; color: #e65100 !important; }
-        &.status-offer      { background: #e8f5e9 !important; color: #2e7d32 !important; }
-        &.status-offer-accepted { background: #dcedc8 !important; color: #33691e !important; }
-        &.status-offer-declined { background: #fbe9e7 !important; color: #bf360c !important; }
-        &.status-rejected   { background: #ffebee !important; color: #c62828 !important; }
-        &.status-ghosted    { background: #f5f5f5 !important; color: #616161 !important; }
+        &.status-applied   { background: #bbdefb !important; color: #0d47a1 !important; }
+        &.status-interview  { background: #ffe0b2 !important; color: #bf360c !important; }
+        &.status-offer      { background: #c8e6c9 !important; color: #1b5e20 !important; }
+        &.status-offer-accepted { background: #aed581 !important; color: #1b5e20 !important; }
+        &.status-offer-declined { background: #ffccbc !important; color: #b71c1c !important; }
+        &.status-rejected   { background: #ffcdd2 !important; color: #b71c1c !important; }
+        &.status-ghosted    { background: #e0e0e0 !important; color: #424242 !important; }
       }
 
       .source-badge {

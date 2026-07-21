@@ -3,6 +3,7 @@ package com.candidex.api.config;
 import com.candidex.api.exception.ApiErrorResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.candidex.api.security.JwtAuthenticationFilter;
+import com.candidex.api.security.RateLimitingFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Spring Security Configuration
@@ -34,7 +36,11 @@ import java.util.Arrays;
 public class SecurityConfig {
     
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final RateLimitingFilter rateLimitingFilter;
     private final ObjectMapper objectMapper;
+
+    @org.springframework.beans.factory.annotation.Value("${cors.allowed-origins:http://localhost:4200}")
+    private String allowedOrigins;
     
     /**
      * Configure HTTP security
@@ -47,12 +53,32 @@ public class SecurityConfig {
             
             // Enable CORS
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+            // Security headers
+            .headers(headers -> headers
+                // Prevent clickjacking: page cannot be embedded in iframes
+                .frameOptions(frame -> frame.deny())
+                // Prevent MIME type sniffing
+                .contentTypeOptions(content -> {})
+                // Force HTTPS for 1 year (browsers will refuse HTTP)
+                .httpStrictTransportSecurity(hsts -> hsts
+                    .includeSubDomains(true)
+                    .maxAgeInSeconds(31536000)
+                )
+                // Control which resources the browser is allowed to load
+                .contentSecurityPolicy(csp -> csp
+                    .policyDirectives("default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https://img.logo.dev https://logo.clearbit.com data:; connect-src 'self' https://autocomplete.clearbit.com https://nominatim.openstreetmap.org; font-src 'self'; frame-ancestors 'none'")
+                )
+            )
             
             // Configure authorization
             .authorizeHttpRequests(auth -> auth
                 // Public endpoints (no authentication required)
                 .requestMatchers("/api/v1/auth/register", "/api/v1/auth/login").permitAll()
-                
+
+                // Health probe for container orchestration / load balancers
+                .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
+
                 // All other endpoints require authentication
                 .anyRequest().authenticated()
             )
@@ -82,6 +108,9 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             
+            // Add rate limiting filter before authentication (blocks brute force early)
+            .addFilterBefore(rateLimitingFilter, UsernamePasswordAuthenticationFilter.class)
+
             // Add JWT filter before UsernamePasswordAuthenticationFilter
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         
@@ -104,7 +133,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
+        configuration.setAllowedOrigins(List.of(allowedOrigins.split(",")));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);

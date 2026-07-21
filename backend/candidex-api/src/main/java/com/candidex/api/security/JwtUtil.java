@@ -3,6 +3,7 @@ package com.candidex.api.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -18,12 +19,28 @@ import java.util.Map;
  */
 @Component
 public class JwtUtil {
-    
-    @Value("${jwt.secret:candidex-super-secret-key-change-in-production-min-256-bits-required}")
+
+    /** HMAC-SHA256 requires a key of at least 256 bits (32 bytes). */
+    private static final int MIN_SECRET_BYTES = 32;
+
+    @Value("${jwt.secret}")
     private String secret;
     
     @Value("${jwt.expiration:86400000}") // 24 hours in milliseconds
     private long expiration;
+
+    /**
+     * Fail fast at startup if the configured secret is missing or too weak.
+     * This prevents accidentally shipping an insecure signing key to production.
+     */
+    @PostConstruct
+    void validateSecret() {
+        if (secret == null || secret.getBytes(StandardCharsets.UTF_8).length < MIN_SECRET_BYTES) {
+            throw new IllegalStateException(
+                    "jwt.secret must be configured with at least " + MIN_SECRET_BYTES
+                    + " bytes (256 bits). Set the JWT_SECRET environment variable.");
+        }
+    }
     
     /**
      * Generate JWT token for a user

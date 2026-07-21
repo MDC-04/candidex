@@ -115,29 +115,3 @@ export interface UpdateApplicationDto {
   nextAction?: NextAction;
 }
 
-// const app: Application = {
-//     id: '123',
-//     userId: 'user-456',
-//     companyName: 'Tech Company',
-//     roleTitle: 'Software Engineer',
-//     city: 'Paris',
-//     country: 'France',
-//     source: ApplicationSource.LINKEDIN,
-//     status: ApplicationStatus.APPLIED,
-//     appliedDate: '2024-06-01',
-//     salary: 60000,
-//     currency: 'EUR',
-//     tags: ['JavaScript', 'Remote'],
-//     links: {
-//         jobPostingUrl: 'https://linkedin.com/job-posting',
-//         companyWebsiteUrl: 'https://techcompany.com',
-//         resumeUrl: 'https://myresume.com/resume.pdf'
-//     },
-//     notes: 'Applied via LinkedIn. Waiting for response.',
-//     nextAction: {
-//         date: '2024-06-15',
-//         note: 'Follow up if no response by this date.'
-//     },
-//     createdAt: new Date().toISOString(),
-//     updatedAt: new Date().toISOString() 
-// }

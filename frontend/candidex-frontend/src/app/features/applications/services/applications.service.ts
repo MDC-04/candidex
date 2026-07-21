@@ -8,6 +8,7 @@ import {
   CreateApplicationDto,
   UpdateApplicationDto
 } from '../models';
+import { environment } from '../../../../environments/environment';
 
 /**
  * Query parameters for listing applications
@@ -46,7 +47,7 @@ export interface BatchUpdateApplicationStatusDto {
 /**
  * Service for managing job applications
  * 
- * Connects to Spring Boot REST API at http://localhost:8080/api/v1
+ * Connects to Spring Boot REST API
  * 
  * IMPORTANT: This service is framework-agnostic (pure TypeScript + RxJS)
  * and can be reused in mobile apps (Ionic/Capacitor/React Native).
@@ -56,7 +57,7 @@ export interface BatchUpdateApplicationStatusDto {
 })
 export class ApplicationsService {
   
-  private readonly API_URL = 'http://localhost:8080/api/v1/applications';
+  private readonly API_URL = `${environment.apiUrl}/applications`;
 
   constructor(private http: HttpClient) {}
 
