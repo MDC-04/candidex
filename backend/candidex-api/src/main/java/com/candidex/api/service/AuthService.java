@@ -4,6 +4,7 @@ import com.candidex.api.dto.AuthResponse;
 import com.candidex.api.dto.LoginDto;
 import com.candidex.api.dto.RegisterDto;
 import com.candidex.api.model.User;
+import com.candidex.api.model.enums.AuthProvider;
 import com.candidex.api.repository.UserRepository;
 import com.candidex.api.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +46,7 @@ public class AuthService {
         User user = User.builder()
                 .email(dto.getEmail())
                 .passwordHash(passwordEncoder.encode(dto.getPassword()))
+                .authProvider(AuthProvider.LOCAL)
                 .fullName(dto.getFullName())
                 .currentPosition(dto.getCurrentPosition())
                 .company(dto.getCompany())

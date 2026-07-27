@@ -1,5 +1,6 @@
 package com.candidex.api.model;
 
+import com.candidex.api.model.enums.AuthProvider;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -35,6 +36,14 @@ public class User {
     
     @NotBlank(message = "Password hash is required")
     private String passwordHash; // Never exposed to client
+
+    /**
+     * How this account authenticates. Defaults to LOCAL (email + password).
+     * Reserved for a future Google OAuth sign-in. Existing documents without
+     * this field are treated as LOCAL by the application.
+     */
+    @Builder.Default
+    private AuthProvider authProvider = AuthProvider.LOCAL;
     
     private String fullName;
     

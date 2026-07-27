@@ -85,6 +85,30 @@ export class AuthService {
   getCurrentUser(): UserInfo | null {
     return this.currentUserSubject.value;
   }
+
+  /**
+   * Fetch the authenticated user from the backend (GET /auth/me).
+   * This is the source of truth: the JWT does not carry the full name,
+   * so we re-hydrate the user from the server (e.g. after a page reload).
+   */
+  fetchCurrentUser(): Observable<UserInfo> {
+    return this.http.get<UserInfo>(`${this.API_URL}/auth/me`).pipe(
+      tap(user => this.currentUserSubject.next(user))
+    );
+  }
+
+  /**
+   * Re-hydrate the current user on app startup if a valid token exists.
+   * If the backend rejects the token, the local session is cleared.
+   */
+  loadCurrentUser(): void {
+    if (!this.isAuthenticated()) {
+      return;
+    }
+    this.fetchCurrentUser().subscribe({
+      error: () => this.logout()
+    });
+  }
   
   /**
    * Handle authentication response (store token and update state)

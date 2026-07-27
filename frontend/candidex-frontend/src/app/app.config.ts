@@ -7,6 +7,7 @@ import { MatPaginatorIntl } from '@angular/material/paginator';
 import { routes } from './app.routes';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { authErrorInterceptor } from './core/interceptors/auth-error.interceptor';
 import { createFrenchPaginatorIntl } from './core/i18n/french-paginator-intl';
 
 export const appConfig: ApplicationConfig = {
@@ -14,7 +15,7 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }), 
     provideRouter(routes), 
     provideAnimations(),
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(withInterceptors([authInterceptor, authErrorInterceptor])),
     provideNativeDateAdapter(),
     { provide: LOCALE_ID, useValue: 'fr-FR' },
     { provide: MAT_DATE_LOCALE, useValue: 'fr-FR' },
