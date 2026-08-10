@@ -15,7 +15,7 @@
     <groupId>com.candidex</groupId>
     <artifactId>candidex-api</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Candidex API</name>
+    <name>CandiNote API</name>
     <description>Job application tracking API - Spring Boot backend</description>
     
     <properties>

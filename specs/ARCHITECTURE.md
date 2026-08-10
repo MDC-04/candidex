@@ -1,4 +1,4 @@
-# Candidex – Architecture and Conventions
+# CandiNote – Architecture and Conventions
 
 ## 1. Repository structure (mono-repo)
 candidex/

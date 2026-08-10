@@ -1,7 +1,7 @@
-# Candidex – Domain Model and Business Rules
+# CandiNote – Domain Model and Business Rules
 
 ## 1. Domain overview
-Candidex manages job applications for authenticated users. Each record is owned by exactly one user (MVP). Future versions may add workspaces and shared ownership.
+CandiNote manages job applications for authenticated users. Each record is owned by exactly one user (MVP). Future versions may add workspaces and shared ownership.
 
 ## 2. Entities
 

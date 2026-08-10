@@ -1,4 +1,4 @@
-# Candidex – REST API Contract (v1)
+# CandiNote – REST API Contract (v1)
 
 Base URL:
 - /api/v1

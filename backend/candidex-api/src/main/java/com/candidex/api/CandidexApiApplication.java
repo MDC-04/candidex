@@ -5,12 +5,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
 
 /**
- * Candidex API - Main Application
+ * CandiNote API - Main Application
  * 
  * Job application tracking SaaS backend.
  * Built with Spring Boot, MongoDB, and following REST best practices.
  * 
- * @author Candidex Team
+ * @author CandiNote Team
  * @version 1.0.0
  */
 // We authenticate users ourselves via JWT (see SecurityConfig / AuthService),

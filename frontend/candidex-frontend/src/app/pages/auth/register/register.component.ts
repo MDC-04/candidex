@@ -523,7 +523,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
     this.authService.register(this.registerForm.value).subscribe({
       next: () => {
         this.loading = false;
-        this.notificationService.success('Compte créé avec succès ! Bienvenue sur Candidex.');
+        this.notificationService.success('Compte créé avec succès ! Bienvenue sur CandiNote.');
         this.router.navigate(['/applications']);
       },
       error: (error) => {

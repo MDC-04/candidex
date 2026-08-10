@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🚀 Lancement de Candidex (DB + Backend + Frontend)"
+echo "🚀 Lancement de CandiNote (DB + Backend + Frontend)"
 
 # DB
 docker start candidex-mongo

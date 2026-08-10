@@ -1,4 +1,4 @@
-# Contributing to Candidex
+# Contributing to CandiNote
 
 This project is currently developed by a single maintainer, but contributions and improvements are welcome through pull requests.
 
@@ -51,4 +51,4 @@ Backend:
 - Basic tests added or updated when reasonable
 
 ## 6. Extensibility note
-Candidex is designed to evolve. When adding new features, keep backward compatibility in mind, and avoid breaking API contracts under /api/v1.
+CandiNote is designed to evolve. When adding new features, keep backward compatibility in mind, and avoid breaking API contracts under /api/v1.

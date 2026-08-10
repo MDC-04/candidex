@@ -1,4 +1,4 @@
-# Candidex – Security Specification (MVP)
+# CandiNote – Security Specification (MVP)
 
 ## 1. Security goals
 - Protect user data (strict isolation by user)

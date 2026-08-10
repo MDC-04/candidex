@@ -1,4 +1,4 @@
-# Candidex API
+# CandiNote API
 
 Job application tracking SaaS - Spring Boot backend
 

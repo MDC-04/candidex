@@ -1,7 +1,7 @@
-# Candidex – Mini Product Spec (MVP)
+# CandiNote – Mini Product Spec (MVP)
 
 ## 1. Vision
-Candidex is a web-based SaaS application that helps users track, manage, and analyze their job applications. The goal is to make a job search more structured through a pipeline, reminders, and simple analytics.
+CandiNote is a web-based SaaS application that helps users track, manage, and analyze their job applications. The goal is to make a job search more structured through a pipeline, reminders, and simple analytics.
 
 This document defines the MVP scope. The product is designed to be extensible: additional features can be added later without breaking the core architecture.
 
@@ -68,4 +68,4 @@ Notes:
 - Basic automated checks (lint/test/build) can be added progressively
 
 ## 8. Extensibility statement
-Candidex is built to evolve. The MVP should be implemented with maintainable code structure and stable API contracts so that future features (AI, teams, integrations, billing, mobile) can be added without major rewrites.
+CandiNote is built to evolve. The MVP should be implemented with maintainable code structure and stable API contracts so that future features (AI, teams, integrations, billing, mobile) can be added without major rewrites.
