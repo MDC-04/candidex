@@ -69,9 +69,9 @@
           (cdkDropListDropped)="drop($event, column)">
           
           @for (app of column.applications; track app.id) {
-            <mat-card class="application-card" [class.selected]="isSelected(app.id)" cdkDrag>
-              <div class="drag-handle" cdkDragHandle>
-                <mat-icon>drag_indicator</mat-icon>
+            <mat-card class="application-card" [class.selected]="isSelected(app.id)" [class.just-moved]="isJustMoved(app.id)" [style.--land-color]="column.color" cdkDrag>
+              <div class="drag-handle" cdkDragHandle matTooltip="Glisser pour déplacer" matTooltipPosition="above">
+                <mat-icon>drag_handle</mat-icon>
               </div>
 
               <button
@@ -122,8 +122,8 @@
                 <div class="role">{{ app.roleTitle }}</div>
                 @if (getLocationDisplay(app); as locationDisplay) {
                   <div class="location">
-                    <mat-icon>location_on</mat-icon>
-                    {{ locationDisplay }}
+                    <mat-icon>place</mat-icon>
+                    <span>{{ locationDisplay }}</span>
                   </div>
                 }
                 

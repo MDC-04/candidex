@@ -9,38 +9,95 @@
 
 /* ---------- Sidebar ---------- */
 .sidenav {
-  width: 240px;
-  border-right: 1px solid rgba(0, 0, 0, 0.04) !important;
-  background: #fff;
-}
+  width: 244px;
+  border-right: 1px solid var(--cx-border) !important;
+  background:
+    linear-gradient(180deg, #ffffff 0%, #ffffff 60%, var(--cx-surface-alt) 100%);
 
-.brand {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 16px 4px;
-  text-decoration: none;
-  cursor: pointer;
-  transition: opacity 0.2s var(--cx-ease);
-
-  &:hover {
-    opacity: 0.85;
+  /* Lay the projected content as a column so the account section sits at the bottom */
+  ::ng-deep .mat-drawer-inner-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
   }
 }
 
+.nav-spacer {
+  flex: 1 1 auto;
+  min-height: 12px;
+}
+
+.nav-divider {
+  margin: 4px 18px 6px;
+  border-top-color: var(--cx-border-strong);
+  opacity: 0.8;
+}
+
+.brand {
+  display: block;
+  padding: 10px 14px 2px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.2s var(--cx-ease), transform 0.3s var(--cx-spring);
+
+  &:hover {
+    opacity: 0.92;
+    transform: translateY(-1px);
+  }
+}
+
+/* The PNG is a tall portrait with the mark in its centre band; we crop to it
+   via background and keep it compact so it reads as a tidy brand mark. */
 .brand-logo {
-  height: 290px;
-  width: auto;
-  object-fit: contain;
+  display: block;
+  width: 100%;
+  height: 124px;
+  background-image: url('/Logo_CandiNote_Trans.png');
+  background-repeat: no-repeat;
+  background-position: 50% 37%;
+  background-size: 118%;
+  filter: drop-shadow(0 6px 14px rgba(67, 56, 202, 0.18));
+}
+
+.nav-label {
+  padding: 0 22px;
+  margin: 18px 0 8px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--cx-text-muted);
+}
+
+.nav-label--secondary {
+  margin-top: 0;
+}
+
+/* Logout entry — same shape as nav items but a danger accent on hover */
+.nav-logout {
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(244, 63, 94, 0.08) !important;
+    color: var(--cx-danger) !important;
+    transform: none !important;
+
+    mat-icon {
+      background: rgba(244, 63, 94, 0.16) !important;
+      color: var(--cx-danger) !important;
+    }
+  }
 }
 
 /* ---------- Navigation ---------- */
 mat-nav-list {
-  padding: 8px 12px;
+  padding: 6px 12px;
 
   a {
-    margin: 3px 0;
-    padding: 11px 14px;
+    display: flex;
+    align-items: center;
+    margin: 4px 0;
+    padding: 8px 12px;
     border-radius: var(--cx-radius-md);
     transition: all 0.25s var(--cx-ease);
     font-weight: 500;
@@ -50,49 +107,51 @@ mat-nav-list {
     overflow: hidden;
 
     mat-icon {
-      margin-right: 10px;
-      color: var(--cx-text-muted);
+      flex-shrink: 0;
+      margin-right: 12px;
+      width: 38px;
+      height: 38px;
+      font-size: 21px;
+      line-height: 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 11px;
+      background: rgba(var(--cx-primary-rgb), 0.09);
+      color: var(--cx-primary);
       transition: all 0.25s var(--cx-ease);
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
-    }
-
-    /* Active indicator bar */
-    &::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 50%;
-      transform: translateY(-50%) scaleY(0);
-      height: 60%;
-      width: 3px;
-      border-radius: 0 3px 3px 0;
-      background: var(--cx-gradient);
-      transition: transform 0.25s var(--cx-spring);
     }
 
     &:hover {
-      background: rgba(102, 126, 234, 0.06);
+      background: rgba(var(--cx-primary-rgb), 0.06);
       color: var(--cx-text);
-      transform: translateX(2px);
+      transform: translateX(3px);
 
       mat-icon {
+        background: rgba(var(--cx-primary-rgb), 0.16);
         color: var(--cx-primary);
+        transform: scale(1.05);
       }
     }
 
     &.active {
-      background: rgba(102, 126, 234, 0.10);
-      color: var(--cx-primary);
+      background: var(--cx-gradient);
+      color: #fff;
       font-weight: 600;
+      box-shadow: 0 10px 24px rgba(var(--cx-primary-rgb), 0.38);
+      transform: none;
 
-      &::before {
-        transform: translateY(-50%) scaleY(1);
+      &:hover {
+        transform: none;
+        background: var(--cx-gradient);
+        color: #fff;
+
+        mat-icon { transform: none; }
       }
 
       mat-icon {
-        color: var(--cx-primary);
+        background: rgba(255, 255, 255, 0.22);
+        color: #fff;
       }
     }
   }
@@ -100,22 +159,128 @@ mat-nav-list {
 
 /* ---------- Toolbar ---------- */
 .toolbar {
+  position: relative;
+  overflow: hidden;
   background: var(--cx-gradient) !important;
-  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 14px rgba(67, 56, 202, 0.18);
   min-height: 60px;
+
+  /* Animated light sweep across the gradient */
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -30%;
+    width: 28%;
+    height: 100%;
+    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+    transform: skewX(-20deg);
+    animation: toolbar-shine 7s ease-in-out infinite;
+    pointer-events: none;
+  }
 
   .menu-toggle {
     margin-right: 6px;
     color: #fff;
     flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .toolbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+  }
+
+  .toolbar-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    box-shadow: inset 0 1px 4px rgba(255, 255, 255, 0.2);
+
+    mat-icon { color: #fff; font-size: 21px; width: 21px; height: 21px; }
   }
 
   .toolbar-title {
     font-size: 18px;
-    font-weight: 600;
-    letter-spacing: 0.3px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
     color: white;
-    opacity: 0.95;
+    opacity: 0.98;
+  }
+}
+
+@keyframes toolbar-shine {
+  0%        { left: -30%; }
+  55%, 100% { left: 130%; }
+}
+
+.status-dot {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #16b981;
+  border: 2px solid rgba(255, 255, 255, 0.95);
+  animation: status-pulse 2.4s ease-in-out infinite;
+}
+@keyframes status-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(22, 185, 129, 0.5); }
+  50%      { box-shadow: 0 0 0 5px rgba(22, 185, 129, 0); }
+}
+
+/* Light toolbar variant (used only on the Home route, which is a dark page) */
+.toolbar--light {
+  background: #fff !important;
+  color: var(--cx-text) !important;
+  border-bottom: 1px solid var(--cx-border);
+  box-shadow: 0 1px 10px rgba(67, 56, 202, 0.06) !important;
+
+  .menu-toggle { color: var(--cx-text); }
+
+  .toolbar-title {
+    color: var(--cx-text);
+    opacity: 1;
+  }
+
+  .toolbar-icon {
+    background: rgba(var(--cx-primary-rgb), 0.10);
+    border-color: rgba(var(--cx-primary-rgb), 0.22);
+    box-shadow: none;
+    mat-icon { color: var(--cx-primary); }
+  }
+
+  .user-button {
+    background: rgba(var(--cx-primary-rgb), 0.06);
+
+    &:hover {
+      background: rgba(var(--cx-primary-rgb), 0.12);
+      .user-name { color: var(--cx-text); }
+    }
+  }
+
+  .user-name { color: var(--cx-text); }
+
+  .user-avatar {
+    background: var(--cx-gradient);
+    border-color: rgba(var(--cx-primary-rgb), 0.35);
+    color: #fff;
+  }
+
+  .user-button > .mat-icon,
+  .user-button .mat-icon {
+    color: var(--cx-text-secondary);
   }
 }
 
@@ -167,6 +332,7 @@ mat-nav-list {
   width: 38px;
   height: 38px;
   border-radius: 50%;
+  position: relative;
   background: rgba(255, 255, 255, 0.2);
   border: 2px solid rgba(255, 255, 255, 0.4);
   display: flex;
@@ -259,7 +425,7 @@ mat-nav-list {
 /* ---------- Content Area ---------- */
 .content {
   padding: 24px;
-  background: transparent;
+  background: #ffffff;
   min-height: calc(100vh - 60px);
   position: relative;
 }
@@ -267,11 +433,11 @@ mat-nav-list {
 @media (max-width: 960px) {
   .sidenav {
     width: min(82vw, 300px);
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06), 0 16px 40px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06), 0 16px 40px rgba(67, 56, 202, 0.22);
   }
 
   .brand-logo {
-    height: 170px;
+    height: 96px;
   }
 
   mat-nav-list {
@@ -284,5 +450,19 @@ mat-nav-list {
 
   .content {
     padding: 16px;
+  }
+}
+
+@media (max-width: 560px) {
+  .toolbar .toolbar-title {
+    font-size: 15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 48vw;
+  }
+
+  .content {
+    padding: 12px;
   }
 }

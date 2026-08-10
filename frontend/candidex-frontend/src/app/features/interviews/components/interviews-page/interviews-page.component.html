@@ -74,7 +74,12 @@
                       (click)="editInterview(iv)"
                       [matTooltip]="iv.title + ' · ' + formatTime(iv.startAt, getInterviewTimezone(iv)) + ' (' + getInterviewTimezone(iv) + ')'"
                     >
-                      <span class="event-time">{{ formatTime(iv.startAt, getInterviewTimezone(iv)) }}</span>
+                      <span class="event-time">
+                        @if (getInterviewLogoUrl(iv); as logo) {
+                          <img class="event-logo" [src]="logo" alt="" loading="lazy">
+                        }
+                        {{ formatTime(iv.startAt, getInterviewTimezone(iv)) }}
+                      </span>
                       <span class="event-title">{{ iv.title }}</span>
                     </button>
                   }
@@ -183,13 +188,22 @@
             <mat-icon>cancel</mat-icon> Annuler
           </button>
         }
-        <button mat-menu-item (click)="deleteInterview(iv)" class="delete-item">
+        <button mat-menu-item (click)="deleteInterview(iv)" class="delete-action">
           <mat-icon color="warn">delete</mat-icon> Supprimer
         </button>
       </mat-menu>
     </div>
 
-    <h3 class="interview-title">{{ iv.title }}</h3>
+    <div class="interview-head">
+      @if (getInterviewLogoUrl(iv); as logo) {
+        <img class="iv-company-logo" [src]="logo" alt="" loading="lazy">
+      } @else {
+        @if (getInterviewCompanyName(iv); as companyName) {
+          <div class="iv-company-fallback">{{ companyName.charAt(0) }}</div>
+        }
+      }
+      <h3 class="interview-title">{{ iv.title }}</h3>
+    </div>
 
     <div class="interview-datetime">
       <mat-icon>schedule</mat-icon>

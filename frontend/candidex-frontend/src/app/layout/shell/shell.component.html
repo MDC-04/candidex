@@ -5,9 +5,11 @@
     (closedStart)="onSidenavClosed()"
     class="sidenav"
   >
-    <a class="brand" routerLink="/home" aria-label="Accueil Candidex">
-      <img src="candidex_logo_light.png" alt="Candidex" class="brand-logo">
+    <a class="brand" routerLink="/home" aria-label="Accueil CandiNote">
+      <span class="brand-logo" role="img" aria-label="CandiNote"></span>
     </a>
+
+    <div class="nav-label">Menu principal</div>
 
     <mat-nav-list>
       <a mat-list-item routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" matTooltip="Écran d'accueil" matTooltipPosition="right" (click)="onNavItemClick()">
@@ -30,26 +32,41 @@
         <mat-icon>event</mat-icon>
         <span>Entretiens</span>
       </a>
+    </mat-nav-list>
+
+    <div class="nav-spacer"></div>
+
+    <mat-divider class="nav-divider"></mat-divider>
+    <div class="nav-label nav-label--secondary">Compte</div>
+
+    <mat-nav-list>
       <a mat-list-item routerLink="/profile" routerLinkActive="active" matTooltip="Gérer votre profil et vos préférences" matTooltipPosition="right" (click)="onNavItemClick()">
         <mat-icon>person</mat-icon>
         <span>Profil</span>
+      </a>
+      <a mat-list-item class="nav-logout" (click)="openLogoutConfirm()" matTooltip="Se déconnecter" matTooltipPosition="right" role="button" tabindex="0">
+        <mat-icon>logout</mat-icon>
+        <span>Déconnexion</span>
       </a>
     </mat-nav-list>
   </mat-sidenav>
 
   <mat-sidenav-content>
-    <mat-toolbar color="primary" class="toolbar">
+    <mat-toolbar color="primary" class="toolbar" [class.toolbar--light]="isHomeRoute">
       @if (isMobileViewport) {
         <button mat-icon-button class="menu-toggle" (click)="toggleSidenav()" aria-label="Ouvrir la navigation">
           <mat-icon>menu</mat-icon>
         </button>
       }
-      <span class="toolbar-title">Suivi des Candidatures</span>
+      <span class="toolbar-brand">
+        <span class="toolbar-icon"><mat-icon>work_history</mat-icon></span>
+        <span class="toolbar-title">Suivi des Candidatures</span>
+      </span>
       <span class="spacer"></span>
       @if (currentUser$ | async; as user) {
         <button mat-button [matMenuTriggerFor]="userMenu" class="user-button">
           <div class="user-info">
-            <div class="user-avatar">{{ getInitials(user.email) }}</div>
+            <div class="user-avatar">{{ getInitials(user.email) }}<span class="status-dot"></span></div>
             <span class="user-name">{{ user.fullName || user.email }}</span>
           </div>
           <mat-icon>arrow_drop_down</mat-icon>

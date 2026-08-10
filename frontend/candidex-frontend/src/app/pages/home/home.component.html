@@ -1,18 +1,46 @@
-<section class="home-container" aria-label="Accueil Candidex">
+<section class="home-container" aria-label="Accueil CandiNote">
 
-  <!-- Hero Header -->
+  <!-- Hero Header (Finary-inspired, dark premium) -->
   <header class="home-hero">
-    <div class="hero-content">
-      <div class="hero-icon-wrapper">
-        <mat-icon class="hero-icon">rocket_launch</mat-icon>
+    <div class="hero-glow hero-glow--1"></div>
+    <div class="hero-glow hero-glow--2"></div>
+
+    <div class="hero-inner">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <mat-icon>auto_awesome</mat-icon>
+          <span>Votre assistant de recherche d'emploi</span>
+        </div>
+        <h1 class="hero-title">
+          <span class="hero-line">Suivez.</span>
+          <span class="hero-line">Préparez.</span>
+          <span class="hero-line hero-line--accent">Décrochez.</span>
+        </h1>
+        <p class="hero-subtitle">CandiNote centralise vos candidatures, organise vos entretiens et éclaire chaque étape de votre recherche — dans un espace clair et élégant.</p>
       </div>
-      <h1 class="hero-title">Bienvenue sur <span class="brand-gradient">Candidex</span></h1>
-      <p class="hero-subtitle">Suivez vos candidatures, préparez vos entretiens et décrochez le poste idéal.</p>
+
+      <div class="hero-visual" aria-hidden="true">
+        <div class="orbit">
+          <div class="orbit-ring orbit-ring--outer"></div>
+          <div class="orbit-ring orbit-ring--inner"></div>
+          <div class="orbit-core"><mat-icon>work</mat-icon></div>
+          <div class="orbit-chip orbit-chip--1"><mat-icon>description</mat-icon></div>
+          <div class="orbit-chip orbit-chip--2"><mat-icon>event_available</mat-icon></div>
+          <div class="orbit-chip orbit-chip--3"><mat-icon>trending_up</mat-icon></div>
+          <div class="orbit-chip orbit-chip--4"><mat-icon>check_circle</mat-icon></div>
+        </div>
+      </div>
     </div>
   </header>
 
+  <!-- Section heading -->
+  <div class="section-heading">
+    <h2>Accès rapide</h2>
+    <p>Rejoignez vos espaces de travail en un clic</p>
+  </div>
+
   <!-- Tiles Grid -->
-  <div class="tiles-grid" role="navigation" aria-label="Navigation rapide">
+  <div class="tiles-grid cx-stagger" role="navigation" aria-label="Navigation rapide">
     @for (tile of tiles; track tile.route) {
       <a
         class="tile-card {{ tile.accentClass }}"
@@ -48,7 +76,7 @@
 
   <!-- Footer -->
   <footer class="home-footer">
-    <p>Candidex &copy; 2026 — Votre assistant de recherche d'emploi</p>
+    <p>CandiNote &copy; 2026 — Votre assistant de recherche d'emploi</p>
   </footer>
 
 </section>

@@ -1,20 +1,23 @@
-<h2 mat-dialog-title>
-  <mat-icon class="dialog-icon">{{ data.confirmColor === 'warn' ? 'warning' : 'help' }}</mat-icon>
-  {{ data.title }}
-</h2>
+<div class="cx-confirm" [class.cx-confirm--warn]="data.confirmColor === 'warn'">
 
-<mat-dialog-content>
-  <p>{{ data.message }}</p>
-</mat-dialog-content>
+  <div class="cx-confirm__badge">
+    <span class="cx-confirm__ring"></span>
+    <mat-icon>{{ data.confirmColor === 'warn' ? 'warning' : 'help' }}</mat-icon>
+  </div>
 
-<mat-dialog-actions align="end">
-  <button mat-button (click)="onCancel()">
-    {{ data.cancelText }}
-  </button>
-  <button 
-    mat-raised-button 
-    [color]="data.confirmColor" 
-    (click)="onConfirm()">
-    {{ data.confirmText }}
-  </button>
-</mat-dialog-actions>
+  <h2 mat-dialog-title class="cx-confirm__title">{{ data.title }}</h2>
+
+  <mat-dialog-content class="cx-confirm__message">
+    <p>{{ data.message }}</p>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="cx-confirm__actions">
+    <button mat-button class="cx-confirm__cancel" (click)="onCancel()">
+      {{ data.cancelText }}
+    </button>
+    <button mat-flat-button class="cx-confirm__confirm" (click)="onConfirm()">
+      {{ data.confirmText }}
+    </button>
+  </mat-dialog-actions>
+
+</div>

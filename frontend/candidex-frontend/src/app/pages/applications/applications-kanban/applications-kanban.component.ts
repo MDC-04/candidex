@@ -51,14 +51,14 @@ interface KanbanColumn {
 export class ApplicationsKanbanComponent implements OnInit {
   
   columns: KanbanColumn[] = [
-    { status: ApplicationStatus.APPLIED, label: ApplicationStatusLabels[ApplicationStatus.APPLIED], applications: [], color: '#2196F3' },
-    { status: ApplicationStatus.HR_INTERVIEW, label: ApplicationStatusLabels[ApplicationStatus.HR_INTERVIEW], applications: [], color: '#FF9800' },
-    { status: ApplicationStatus.TECH_INTERVIEW, label: ApplicationStatusLabels[ApplicationStatus.TECH_INTERVIEW], applications: [], color: '#9C27B0' },
-    { status: ApplicationStatus.OFFER, label: ApplicationStatusLabels[ApplicationStatus.OFFER], applications: [], color: '#4CAF50' },
-    { status: ApplicationStatus.OFFER_ACCEPTED, label: ApplicationStatusLabels[ApplicationStatus.OFFER_ACCEPTED], applications: [], color: '#2E7D32' },
-    { status: ApplicationStatus.OFFER_DECLINED, label: ApplicationStatusLabels[ApplicationStatus.OFFER_DECLINED], applications: [], color: '#D84315' },
-    { status: ApplicationStatus.REJECTED, label: ApplicationStatusLabels[ApplicationStatus.REJECTED], applications: [], color: '#fc1100' },
-    { status: ApplicationStatus.GHOSTED, label: ApplicationStatusLabels[ApplicationStatus.GHOSTED], applications: [], color: '#9E9E9E' }
+    { status: ApplicationStatus.APPLIED, label: ApplicationStatusLabels[ApplicationStatus.APPLIED], applications: [], color: '#3b82f6' },
+    { status: ApplicationStatus.HR_INTERVIEW, label: ApplicationStatusLabels[ApplicationStatus.HR_INTERVIEW], applications: [], color: '#f59e0b' },
+    { status: ApplicationStatus.TECH_INTERVIEW, label: ApplicationStatusLabels[ApplicationStatus.TECH_INTERVIEW], applications: [], color: '#8b5cf6' },
+    { status: ApplicationStatus.OFFER, label: ApplicationStatusLabels[ApplicationStatus.OFFER], applications: [], color: '#22c55e' },
+    { status: ApplicationStatus.OFFER_ACCEPTED, label: ApplicationStatusLabels[ApplicationStatus.OFFER_ACCEPTED], applications: [], color: '#15803d' },
+    { status: ApplicationStatus.OFFER_DECLINED, label: ApplicationStatusLabels[ApplicationStatus.OFFER_DECLINED], applications: [], color: '#f97316' },
+    { status: ApplicationStatus.REJECTED, label: ApplicationStatusLabels[ApplicationStatus.REJECTED], applications: [], color: '#ef4444' },
+    { status: ApplicationStatus.GHOSTED, label: ApplicationStatusLabels[ApplicationStatus.GHOSTED], applications: [], color: '#94a3b8' }
   ];
   
   loading = false;
@@ -111,37 +111,56 @@ export class ApplicationsKanbanComponent implements OnInit {
     });
   }
   
+  justMovedIds = new Set<string>();
+
   drop(event: CdkDragDrop<Application[]>, targetColumn: KanbanColumn): void {
     if (event.previousContainer === event.container) {
       // Reorder within same column
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
-    } else {
-      // Move to different column
-      const application = event.previousContainer.data[event.previousIndex];
-      
-      // Update status in backend
-      this.applicationsService.update(application.id, { status: targetColumn.status }).subscribe({
-        next: () => {
-          // Update UI
-          transferArrayItem(
-            event.previousContainer.data,
-            event.container.data,
-            event.previousIndex,
-            event.currentIndex
-          );
-          this.notificationService.success(`Statut mis à jour: ${targetColumn.label}`);
-        },
-        error: (error) => {
-          this.notificationService.error(
-            this.httpErrorService.getActionMessage(
-              error,
-              'la mise à jour du statut',
-              'Échec de la mise à jour du statut. Veuillez réessayer.'
-            )
-          );
-        }
-      });
+      return;
     }
+
+    const application = event.previousContainer.data[event.previousIndex];
+    const previousContainerData = event.previousContainer.data;
+    const currentContainerData = event.container.data;
+    const previousIndex = event.previousIndex;
+    const currentIndex = event.currentIndex;
+    const previousStatus = application.status;
+
+    // Optimistic move: the card lands instantly where dropped (fluid),
+    // we only revert if the backend update fails.
+    transferArrayItem(previousContainerData, currentContainerData, previousIndex, currentIndex);
+    application.status = targetColumn.status;
+    this.markJustMoved(application.id);
+
+    this.applicationsService.update(application.id, { status: targetColumn.status }).subscribe({
+      next: () => {
+        this.notificationService.success(`Statut mis à jour: ${targetColumn.label}`);
+      },
+      error: (error) => {
+        const revertIndex = currentContainerData.indexOf(application);
+        if (revertIndex > -1) {
+          transferArrayItem(currentContainerData, previousContainerData, revertIndex, previousIndex);
+        }
+        application.status = previousStatus;
+        this.notificationService.error(
+          this.httpErrorService.getActionMessage(
+            error,
+            'la mise à jour du statut',
+            'Échec de la mise à jour du statut. Veuillez réessayer.'
+          )
+        );
+      }
+    });
+  }
+
+  private markJustMoved(id: string): void {
+    this.justMovedIds.add(id);
+    setTimeout(() => this.justMovedIds.delete(id), 900);
+  }
+
+  isJustMoved(id: string): boolean {
+    return this.justMovedIds.has(id);
   }
   
   viewApplication(id: string): void {

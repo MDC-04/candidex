@@ -171,14 +171,14 @@ export class DashboardComponent implements OnInit {
     
     // Status distribution
     this.statusStats = [
-      { status: ApplicationStatus.APPLIED, label: ApplicationStatusLabels[ApplicationStatus.APPLIED], count: statusCounts.get(ApplicationStatus.APPLIED) || 0, color: '#2196F3', percentage: 0 },
-      { status: ApplicationStatus.HR_INTERVIEW, label: ApplicationStatusLabels[ApplicationStatus.HR_INTERVIEW], count: statusCounts.get(ApplicationStatus.HR_INTERVIEW) || 0, color: '#FF9800', percentage: 0 },
-      { status: ApplicationStatus.TECH_INTERVIEW, label: ApplicationStatusLabels[ApplicationStatus.TECH_INTERVIEW], count: statusCounts.get(ApplicationStatus.TECH_INTERVIEW) || 0, color: '#9C27B0', percentage: 0 },
-      { status: ApplicationStatus.OFFER, label: ApplicationStatusLabels[ApplicationStatus.OFFER], count: statusCounts.get(ApplicationStatus.OFFER) || 0, color: '#4CAF50', percentage: 0 },
-      { status: ApplicationStatus.OFFER_ACCEPTED, label: ApplicationStatusLabels[ApplicationStatus.OFFER_ACCEPTED], count: statusCounts.get(ApplicationStatus.OFFER_ACCEPTED) || 0, color: '#2E7D32', percentage: 0 },
-      { status: ApplicationStatus.OFFER_DECLINED, label: ApplicationStatusLabels[ApplicationStatus.OFFER_DECLINED], count: statusCounts.get(ApplicationStatus.OFFER_DECLINED) || 0, color: '#D84315', percentage: 0 },
-      { status: ApplicationStatus.REJECTED, label: ApplicationStatusLabels[ApplicationStatus.REJECTED], count: statusCounts.get(ApplicationStatus.REJECTED) || 0, color: '#F44336', percentage: 0 },
-      { status: ApplicationStatus.GHOSTED, label: ApplicationStatusLabels[ApplicationStatus.GHOSTED], count: statusCounts.get(ApplicationStatus.GHOSTED) || 0, color: '#9E9E9E', percentage: 0 }
+      { status: ApplicationStatus.APPLIED, label: ApplicationStatusLabels[ApplicationStatus.APPLIED], count: statusCounts.get(ApplicationStatus.APPLIED) || 0, color: '#3b82f6', percentage: 0 },
+      { status: ApplicationStatus.HR_INTERVIEW, label: ApplicationStatusLabels[ApplicationStatus.HR_INTERVIEW], count: statusCounts.get(ApplicationStatus.HR_INTERVIEW) || 0, color: '#f59e0b', percentage: 0 },
+      { status: ApplicationStatus.TECH_INTERVIEW, label: ApplicationStatusLabels[ApplicationStatus.TECH_INTERVIEW], count: statusCounts.get(ApplicationStatus.TECH_INTERVIEW) || 0, color: '#8b5cf6', percentage: 0 },
+      { status: ApplicationStatus.OFFER, label: ApplicationStatusLabels[ApplicationStatus.OFFER], count: statusCounts.get(ApplicationStatus.OFFER) || 0, color: '#22c55e', percentage: 0 },
+      { status: ApplicationStatus.OFFER_ACCEPTED, label: ApplicationStatusLabels[ApplicationStatus.OFFER_ACCEPTED], count: statusCounts.get(ApplicationStatus.OFFER_ACCEPTED) || 0, color: '#15803d', percentage: 0 },
+      { status: ApplicationStatus.OFFER_DECLINED, label: ApplicationStatusLabels[ApplicationStatus.OFFER_DECLINED], count: statusCounts.get(ApplicationStatus.OFFER_DECLINED) || 0, color: '#f97316', percentage: 0 },
+      { status: ApplicationStatus.REJECTED, label: ApplicationStatusLabels[ApplicationStatus.REJECTED], count: statusCounts.get(ApplicationStatus.REJECTED) || 0, color: '#ef4444', percentage: 0 },
+      { status: ApplicationStatus.GHOSTED, label: ApplicationStatusLabels[ApplicationStatus.GHOSTED], count: statusCounts.get(ApplicationStatus.GHOSTED) || 0, color: '#94a3b8', percentage: 0 }
     ];
     
     this.statusStats.forEach(stat => {
@@ -200,14 +200,14 @@ export class DashboardComponent implements OnInit {
   
   getStatusColor(status: ApplicationStatus): string {
     const colors: Record<ApplicationStatus, string> = {
-      [ApplicationStatus.APPLIED]: '#2196F3',
-      [ApplicationStatus.HR_INTERVIEW]: '#FF9800',
-      [ApplicationStatus.TECH_INTERVIEW]: '#9C27B0',
-      [ApplicationStatus.OFFER]: '#4CAF50',
-      [ApplicationStatus.OFFER_ACCEPTED]: '#2E7D32',
-      [ApplicationStatus.OFFER_DECLINED]: '#D84315',
-      [ApplicationStatus.REJECTED]: '#F44336',
-      [ApplicationStatus.GHOSTED]: '#9E9E9E'
+      [ApplicationStatus.APPLIED]: '#3b82f6',
+      [ApplicationStatus.HR_INTERVIEW]: '#f59e0b',
+      [ApplicationStatus.TECH_INTERVIEW]: '#8b5cf6',
+      [ApplicationStatus.OFFER]: '#22c55e',
+      [ApplicationStatus.OFFER_ACCEPTED]: '#15803d',
+      [ApplicationStatus.OFFER_DECLINED]: '#f97316',
+      [ApplicationStatus.REJECTED]: '#ef4444',
+      [ApplicationStatus.GHOSTED]: '#94a3b8'
     };
     return colors[status];
   }
@@ -245,35 +245,35 @@ export class DashboardComponent implements OnInit {
       .map(app => {
         let type: TimelineEvent['type'] = 'application';
         let icon = 'send';
-        let color = '#2196F3';
+        let color = '#3b82f6';
         
         switch (app.status) {
           case ApplicationStatus.HR_INTERVIEW:
           case ApplicationStatus.TECH_INTERVIEW:
             type = 'interview';
             icon = 'event';
-            color = '#FF9800';
+            color = '#f59e0b';
             break;
           case ApplicationStatus.OFFER:
             type = 'offer';
-            icon = 'star';
-            color = '#4CAF50';
+            icon = 'local_offer';
+            color = '#22c55e';
             break;
           case ApplicationStatus.OFFER_ACCEPTED:
             type = 'offerAccepted';
             icon = 'verified';
-            color = '#2E7D32';
+            color = '#15803d';
             break;
           case ApplicationStatus.OFFER_DECLINED:
             type = 'offerDeclined';
-            icon = 'remove_circle';
-            color = '#D84315';
+            icon = 'do_not_disturb_on';
+            color = '#f97316';
             break;
           case ApplicationStatus.REJECTED:
           case ApplicationStatus.GHOSTED:
             type = 'rejection';
             icon = 'cancel';
-            color = '#F44336';
+            color = '#ef4444';
             break;
         }
         

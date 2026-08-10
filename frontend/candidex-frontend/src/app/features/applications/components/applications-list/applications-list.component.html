@@ -60,14 +60,15 @@
     </div>
     
     <!-- Empty state - no applications -->
-    <div class="empty-state" *ngIf="data.totalItems === 0 && !hasActiveFilters()">
-      <div class="empty-icon">
+    <div class="empty-state empty-state--main" *ngIf="data.totalItems === 0 && !hasActiveFilters()">
+      <div class="empty-badge">
+        <span class="empty-badge__ring"></span>
         <mat-icon>work_outline</mat-icon>
       </div>
       <h2>Commencez votre suivi de candidatures</h2>
       <p>Organisez et suivez toutes vos candidatures au même endroit.<br>
          Ne ratez plus jamais une opportunité !</p>
-      <button mat-raised-button color="primary" (click)="onCreateNew()" class="cta-button">
+      <button mat-flat-button (click)="onCreateNew()" class="cta-button">
         <mat-icon>add</mat-icon>
         Ajouter votre première candidature
       </button>
@@ -154,8 +155,10 @@
             </button>
           </th>
           <td mat-cell *matCellDef="let app">
-            <mat-icon class="location-icon">location_on</mat-icon>
-            {{ getLocationDisplay(app) }}
+            <span class="location-cell">
+              <mat-icon class="location-icon">place</mat-icon>
+              <span class="location-text">{{ getLocationDisplay(app) }}</span>
+            </span>
           </td>
         </ng-container>
 

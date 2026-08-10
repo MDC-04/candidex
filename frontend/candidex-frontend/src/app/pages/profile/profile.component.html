@@ -1,18 +1,50 @@
 <div class="profile-container">
-  <div class="profile-header">
-    <h1>Mon profil</h1>
-    <p class="subtitle">Gérez vos informations personnelles et professionnelles</p>
-  </div>
 
   @if (loading) {
     <div class="loading-container">
       <mat-spinner></mat-spinner>
     </div>
   } @else {
+
+    <!-- Creative hero banner -->
+    <section class="profile-hero">
+      <span class="hero-orb hero-orb--1"></span>
+      <span class="hero-orb hero-orb--2"></span>
+      <div class="hero-body">
+        <div class="hero-avatar">
+          <span>{{ avatarInitials }}</span>
+          <span class="hero-avatar__ring"></span>
+        </div>
+        <div class="hero-text">
+          <span class="hero-eyebrow"><mat-icon>badge</mat-icon> Mon profil</span>
+          <h1 class="hero-name">{{ profileForm.get('fullName')?.value || 'Votre nom' }}</h1>
+          <p class="hero-role">
+            @if (profileForm.get('currentPosition')?.value) {
+              {{ profileForm.get('currentPosition')?.value }}@if (profileForm.get('company')?.value) {<span class="hero-company"> · {{ profileForm.get('company')?.value }}</span>}
+            } @else {
+              Complétez vos informations professionnelles
+            }
+          </p>
+          <div class="hero-chips">
+            @if (profileForm.get('location')?.value) {
+              <span class="hero-chip"><mat-icon>location_on</mat-icon>{{ profileForm.get('location')?.value }}</span>
+            }
+            @if (profile?.email) {
+              <span class="hero-chip"><mat-icon>email</mat-icon>{{ profile?.email }}</span>
+            }
+            <span class="hero-chip" [class.hero-chip--ok]="uploadedCvName">
+              <mat-icon>{{ uploadedCvName ? 'task_alt' : 'description' }}</mat-icon>
+              {{ uploadedCvName ? 'CV en ligne' : 'CV manquant' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <form [formGroup]="profileForm" (ngSubmit)="onSave()" class="profile-form">
       
       <!-- Personal Information Card -->
-      <mat-card>
+      <mat-card class="section-card section-personal">
         <mat-card-header>
           <mat-card-title>
             <mat-icon>person</mat-icon>
@@ -38,11 +70,25 @@
           </div>
 
           <div class="form-row two-columns">
-            <mat-form-field appearance="outline">
-              <mat-label>Localisation</mat-label>
-              <input matInput formControlName="location" placeholder="Paris, France">
-              <mat-icon matPrefix>location_on</mat-icon>
-            </mat-form-field>
+            <div class="ac-field">
+              <mat-form-field appearance="outline">
+                <mat-label>Localisation</mat-label>
+                <input matInput formControlName="location" placeholder="Paris, France" autocomplete="off"
+                       (focus)="showLocationSuggestions = locationSuggestions.length > 0"
+                       (blur)="onLocationBlur()">
+                <mat-icon matPrefix>location_on</mat-icon>
+              </mat-form-field>
+              @if (showLocationSuggestions && locationSuggestions.length > 0) {
+                <div class="ac-panel">
+                  @for (s of locationSuggestions; track s.displayName) {
+                    <button type="button" class="ac-item" (mousedown)="selectLocation(s)">
+                      <mat-icon>place</mat-icon>
+                      <span class="ac-item-name">{{ s.displayName }}</span>
+                    </button>
+                  }
+                </div>
+              }
+            </div>
 
             <mat-form-field appearance="outline">
               <mat-label>Téléphone</mat-label>
@@ -54,7 +100,7 @@
       </mat-card>
 
       <!-- Professional Information Card -->
-      <mat-card>
+      <mat-card class="section-card section-professional">
         <mat-card-header>
           <mat-card-title>
             <mat-icon>work</mat-icon>
@@ -69,11 +115,32 @@
               <mat-icon matPrefix>work_outline</mat-icon>
             </mat-form-field>
 
-            <mat-form-field appearance="outline">
-              <mat-label>Entreprise / École</mat-label>
-              <input matInput formControlName="company" placeholder="Tech Corp">
-              <mat-icon matPrefix>business</mat-icon>
-            </mat-form-field>
+            <div class="ac-field">
+              <mat-form-field appearance="outline">
+                <mat-label>Entreprise / École</mat-label>
+                <input matInput formControlName="company" placeholder="Tech Corp" autocomplete="off"
+                       (focus)="showCompanySuggestions = companySuggestions.length > 0"
+                       (blur)="onCompanyBlur()">
+                @if (selectedCompanyDomain) {
+                  <img matPrefix class="ac-company-logo" [src]="getCompanyLogoUrl(selectedCompanyDomain)" alt="">
+                } @else {
+                  <mat-icon matPrefix>business</mat-icon>
+                }
+              </mat-form-field>
+              @if (showCompanySuggestions && companySuggestions.length > 0) {
+                <div class="ac-panel">
+                  @for (s of companySuggestions; track s.domain) {
+                    <button type="button" class="ac-item" (mousedown)="selectCompany(s)">
+                      <img class="ac-item-logo" [src]="s.logoUrl" alt="" loading="lazy">
+                      <span class="ac-item-main">
+                        <span class="ac-item-name">{{ s.name }}</span>
+                        <span class="ac-item-sub">{{ s.domain }}</span>
+                      </span>
+                    </button>
+                  }
+                </div>
+              }
+            </div>
           </div>
 
           <div class="form-row">
@@ -105,11 +172,11 @@
                 <div class="cv-file-info">
                   <mat-icon color="primary">insert_drive_file</mat-icon>
                   <span class="cv-filename">{{ uploadedCvName }}</span>
-                  <button mat-icon-button color="accent" (click)="viewCv()" type="button" matTooltip="Voir le CV">
+                  <button mat-icon-button class="cv-action cv-view" (click)="viewCv()" type="button" matTooltip="Voir le CV">
                     <mat-icon>visibility</mat-icon>
                   </button>
                 </div>
-                <button mat-icon-button color="warn" (click)="removeCv()" type="button" matTooltip="Supprimer le CV">
+                <button mat-icon-button class="cv-action cv-delete" (click)="removeCv()" type="button" matTooltip="Supprimer le CV">
                   <mat-icon>delete</mat-icon>
                 </button>
               </div>
@@ -137,7 +204,7 @@
       </mat-card>
 
       <!-- Social Links Card -->
-      <mat-card>
+      <mat-card class="section-card section-social">
         <mat-card-header>
           <mat-card-title>
             <mat-icon>link</mat-icon>
@@ -166,16 +233,17 @@
       <!-- Action Buttons -->
       <div class="form-actions">
         <button 
-          mat-raised-button 
+          mat-button 
           type="button" 
+          class="btn-cancel"
           (click)="onCancel()"
           [disabled]="saving">
           Annuler
         </button>
         <button 
-          mat-raised-button 
-          color="primary" 
+          mat-flat-button 
           type="submit"
+          class="btn-save"
           [disabled]="profileForm.invalid || saving">
           @if (saving) {
             <mat-spinner diameter="20"></mat-spinner>

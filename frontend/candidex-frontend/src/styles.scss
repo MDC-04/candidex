@@ -5,39 +5,46 @@
 
 /* ---------- 1. CSS Custom Properties (tokens) ---------- */
 :root {
-  /* Palette */
-  --cx-primary:       #667eea;
-  --cx-primary-dark:  #5a6fd6;
-  --cx-accent:        #764ba2;
-  --cx-gradient:      linear-gradient(135deg, var(--cx-primary) 0%, var(--cx-accent) 100%);
+  /* Brand palette — aligned with the CandiNote logo (royal blue → indigo → violet) */
+  --cx-primary:       #5566f0;
+  --cx-primary-dark:  #4338ca;
+  --cx-accent:        #7c4dcf;
+  --cx-violet:        #8b4fd6;
+  --cx-primary-rgb:   85, 102, 240;
+  --cx-accent-rgb:    124, 77, 207;
+  --cx-gradient:      linear-gradient(135deg, #4f6ef7 0%, #6355e6 48%, #8b4fd6 100%);
+  --cx-gradient-soft: linear-gradient(135deg, rgba(79,110,247,0.12) 0%, rgba(139,79,214,0.12) 100%);
 
-  /* Neutrals */
-  --cx-bg:            #f0f2f7;
+  /* Neutrals — pure white surfaces, brand-coloured outlines (no grey) */
+  --cx-bg:            #ffffff;
   --cx-surface:       #ffffff;
-  --cx-surface-hover: #fafbff;
-  --cx-border:        rgba(0, 0, 0, 0.06);
-  --cx-text:          #1e293b;
-  --cx-text-secondary:#64748b;
-  --cx-text-muted:    #94a3b8;
+  --cx-surface-hover: #f6f7ff;
+  --cx-surface-alt:   #ffffff;
+  --cx-border:        rgba(85, 102, 240, 0.40);
+  --cx-border-strong: rgba(85, 102, 240, 0.60);
+  --cx-text:          #1a1a2e;
+  --cx-text-secondary:#5b6480;
+  --cx-text-muted:    #949cb5;
 
-  /* Feedback */
-  --cx-success:       #22c55e;
+  /* Feedback (vivid, matching the lively badge style) */
+  --cx-success:       #16b981;
   --cx-warning:       #f59e0b;
-  --cx-danger:        #ef4444;
-  --cx-info:          #3b82f6;
+  --cx-danger:        #f43f5e;
+  --cx-info:          #4f6ef7;
 
-  /* Elevation (subtle, natural) */
-  --cx-shadow-xs:  0 1px 2px rgba(0,0,0,0.04);
-  --cx-shadow-sm:  0 2px 6px rgba(0,0,0,0.06);
-  --cx-shadow-md:  0 4px 14px rgba(0,0,0,0.08);
-  --cx-shadow-lg:  0 8px 28px rgba(0,0,0,0.10);
-  --cx-shadow-xl:  0 16px 48px rgba(0,0,0,0.12);
+  /* Elevation — soft, indigo-tinted shadows */
+  --cx-shadow-xs:  0 1px 2px rgba(67, 56, 202, 0.05);
+  --cx-shadow-sm:  0 2px 8px rgba(67, 56, 202, 0.07);
+  --cx-shadow-md:  0 6px 18px rgba(67, 56, 202, 0.10);
+  --cx-shadow-lg:  0 12px 32px rgba(67, 56, 202, 0.13);
+  --cx-shadow-xl:  0 20px 56px rgba(67, 56, 202, 0.18);
+  --cx-shadow-brand: 0 10px 30px rgba(85, 102, 240, 0.35);
 
-  /* Radii */
-  --cx-radius-sm:  8px;
-  --cx-radius-md:  12px;
-  --cx-radius-lg:  16px;
-  --cx-radius-xl:  20px;
+  /* Radii — rounder, softer, more premium */
+  --cx-radius-sm:  10px;
+  --cx-radius-md:  14px;
+  --cx-radius-lg:  20px;
+  --cx-radius-xl:  26px;
 
   /* Transitions */
   --cx-ease:   cubic-bezier(0.4, 0, 0.2, 1);
@@ -72,19 +79,26 @@ body::after {
 }
 
 body::before {
-  width: 600px;
-  height: 600px;
-  top: -10%;
+  width: 620px;
+  height: 620px;
+  top: -12%;
   left: -8%;
-  background: radial-gradient(circle, rgba(102,126,234,0.10) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(79,110,247,0.14) 0%, transparent 70%);
 }
 
 body::after {
-  width: 500px;
-  height: 500px;
-  bottom: -5%;
-  right: -5%;
-  background: radial-gradient(circle, rgba(118,75,162,0.08) 0%, transparent 70%);
+  width: 520px;
+  height: 520px;
+  bottom: -6%;
+  right: -6%;
+  background: radial-gradient(circle, rgba(139,79,214,0.12) 0%, transparent 70%);
+}
+
+/* ---------- 3b. Confirm Dialog Surface ---------- */
+.mat-mdc-dialog-surface:has(app-confirm-dialog) {
+  border-radius: 26px !important;
+  overflow: hidden;
+  box-shadow: 0 30px 72px rgba(30, 27, 90, 0.30) !important;
 }
 
 /* ---------- 4. Snackbar Feedback ---------- */
@@ -93,35 +107,40 @@ body::after {
   --mdc-snackbar-supporting-text-color: var(--cx-text) !important;
   --mat-mdc-snack-bar-button-color: var(--cx-primary-dark) !important;
 
-  border-radius: 14px !important;
-  border: 1px solid rgba(148, 163, 184, 0.28) !important;
-  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.18) !important;
-  backdrop-filter: blur(6px);
+  border-radius: 16px !important;
+  border: none !important;
+  box-shadow: 0 20px 46px rgba(67, 56, 202, 0.35) !important;
   overflow: hidden;
+  animation: snackIn 0.5s var(--cx-spring) both;
 
   .mdc-snackbar__surface {
     position: relative;
     padding: 0 !important;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.96)) !important;
+    background: var(--toast-gradient, var(--cx-gradient)) !important;
   }
 
-  .mdc-snackbar__surface::before {
+  .mdc-snackbar__surface::after {
     content: '';
     position: absolute;
-    left: 0;
     top: 0;
-    bottom: 0;
-    width: 4px;
-    background: var(--toast-color, var(--cx-primary));
+    left: -45%;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.30), transparent);
+    transform: skewX(-20deg);
+    animation: snackShine 1.1s var(--cx-ease) 0.18s;
+    pointer-events: none;
   }
 
   .mat-mdc-snack-bar-label,
   .mdc-snackbar__label {
-    font-size: 0.95rem !important;
-    font-weight: 600 !important;
+    font-size: 0.96rem !important;
+    font-weight: 700 !important;
     letter-spacing: 0.01em;
-    color: var(--cx-text) !important;
-    padding: 14px 14px 14px 18px !important;
+    color: #ffffff !important;
+    padding: 15px 14px 15px 18px !important;
+    position: relative;
+    z-index: 1;
   }
 
   .mat-mdc-snack-bar-actions,
@@ -133,33 +152,47 @@ body::after {
   .mat-mdc-snack-bar-action {
     min-width: auto !important;
     height: 34px;
-    border-radius: 8px !important;
-    color: var(--toast-color, var(--cx-primary-dark)) !important;
+    border-radius: 9px !important;
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.18) !important;
     font-weight: 700;
     letter-spacing: 0.02em;
-    padding: 0 10px !important;
+    padding: 0 14px !important;
+    position: relative;
+    z-index: 1;
   }
 
   .mat-mdc-button:hover,
   .mat-mdc-snack-bar-action:hover {
-    background: rgba(148, 163, 184, 0.14) !important;
+    background: rgba(255, 255, 255, 0.30) !important;
   }
 }
 
 .mat-mdc-snack-bar-container.cx-snackbar-success {
-  --toast-color: var(--cx-success);
+  --toast-gradient: linear-gradient(135deg, #16b981, #0f9d6f);
 }
 
 .mat-mdc-snack-bar-container.cx-snackbar-error {
-  --toast-color: var(--cx-danger);
+  --toast-gradient: linear-gradient(135deg, #fb5a70, #e11d48);
 }
 
 .mat-mdc-snack-bar-container.cx-snackbar-warning {
-  --toast-color: var(--cx-warning);
+  --toast-gradient: linear-gradient(135deg, #fbbf24, #d97706);
 }
 
 .mat-mdc-snack-bar-container.cx-snackbar-info {
-  --toast-color: var(--cx-info);
+  --toast-gradient: var(--cx-gradient);
+}
+
+@keyframes snackIn {
+  0%   { opacity: 0; transform: translateY(24px) scale(0.85); }
+  60%  { opacity: 1; transform: translateY(-4px) scale(1.02); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes snackShine {
+  0%   { left: -45%; }
+  100% { left: 130%; }
 }
 
 /* ---------- 5. Animations ---------- */
@@ -214,13 +247,18 @@ body::after {
 
 /* ---------- 7. Material Card Enhancement ---------- */
 mat-card, .mat-mdc-card {
+  /* Force pure white surface (MDC defaults to a light-grey container colour) */
+  --mdc-elevated-card-container-color: #ffffff;
+  --mdc-outlined-card-container-color: #ffffff;
+  background: #ffffff !important;
   border-radius: var(--cx-radius-lg) !important;
-  border: 1px solid var(--cx-border);
+  border: 2px solid var(--cx-border-strong) !important;
   box-shadow: var(--cx-shadow-sm) !important;
-  transition: box-shadow 0.3s var(--cx-ease), transform 0.25s var(--cx-ease);
+  transition: box-shadow 0.3s var(--cx-ease), transform 0.25s var(--cx-ease), border-color 0.25s var(--cx-ease);
 
   &:hover {
     box-shadow: var(--cx-shadow-md) !important;
+    border-color: var(--cx-primary) !important;
   }
 }
 
@@ -234,7 +272,7 @@ mat-card, .mat-mdc-card {
 
   &:hover:not([disabled]) {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
+    box-shadow: 0 6px 16px rgba(var(--cx-primary-rgb), 0.30);
   }
   &:active:not([disabled]) {
     transform: translateY(0);
@@ -245,7 +283,7 @@ mat-card, .mat-mdc-card {
   transition: all 0.2s var(--cx-ease);
   &:hover:not([disabled]) {
     transform: scale(1.08);
-    background-color: rgba(102, 126, 234, 0.06);
+    background-color: rgba(var(--cx-primary-rgb), 0.07);
   }
 }
 
@@ -263,7 +301,7 @@ mat-card, .mat-mdc-card {
 .mat-mdc-form-field {
   transition: all 0.25s var(--cx-ease);
   &:hover .mat-mdc-text-field-wrapper {
-    background-color: rgba(102, 126, 234, 0.015);
+    background-color: rgba(var(--cx-primary-rgb), 0.02);
   }
 }
 
@@ -275,12 +313,58 @@ mat-card, .mat-mdc-card {
   border-radius: 6px !important;
 }
 
-/* ---------- 12. Menu ---------- */
+/* ---------- 12. Menu (indigo popup, white content) ---------- */
 .mat-mdc-menu-panel {
   border-radius: var(--cx-radius-md) !important;
   box-shadow: var(--cx-shadow-lg) !important;
-  border: 1px solid var(--cx-border);
+  border: none !important;
+  overflow: hidden;
   animation: menuEnter 0.2s var(--cx-ease);
+  --mat-menu-container-color: transparent;
+  background: var(--cx-gradient) !important;
+}
+.mat-mdc-menu-panel .mat-mdc-menu-content { padding: 6px !important; }
+
+.mat-mdc-menu-item {
+  border-radius: 10px;
+  min-height: 44px;
+  transition: background 0.18s var(--cx-ease);
+
+  .mdc-list-item__primary-text,
+  span { color: #fff !important; }
+  .mat-icon { color: #fff !important; }
+
+  &:hover:not([disabled]) {
+    background: rgba(255, 255, 255, 0.16) !important;
+  }
+}
+
+/* Delete stays red, readable on the indigo panel */
+.mat-mdc-menu-item.delete-action {
+  .mdc-list-item__primary-text,
+  span,
+  .mat-icon { color: #ff3b52 !important; }
+
+  &:hover:not([disabled]) { background: rgba(244, 63, 94, 0.30) !important; }
+}
+
+.mat-mdc-menu-panel mat-divider,
+.mat-mdc-menu-panel .mat-divider {
+  border-top-color: rgba(255, 255, 255, 0.22) !important;
+}
+
+/* Re-brand the Material azure-blue prebuilt theme to CandiNote indigo */
+:root {
+  --mat-sys-primary: #5566f0;
+  --mat-sys-on-primary: #ffffff;
+  --mat-sys-primary-container: #e6e8ff;
+  --mat-sys-on-primary-container: #10123a;
+}
+
+/* Form-field leading/trailing icons follow the brand (not the azure default) */
+.mat-mdc-form-field-icon-prefix > .mat-icon,
+.mat-mdc-form-field-icon-suffix > .mat-icon {
+  color: var(--cx-primary) !important;
 }
 
 /* ---------- 13. Dialog ---------- */
@@ -314,12 +398,149 @@ a {
   animation: badgePulse 2s ease-in-out infinite;
 }
 @keyframes badgePulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(102,126,234,0.6); }
-  50%      { box-shadow: 0 0 0 6px rgba(102,126,234,0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(var(--cx-primary-rgb),0.6); }
+  50%      { box-shadow: 0 0 0 6px rgba(var(--cx-primary-rgb),0); }
+}
+
+/* ---------- 17b. Page transition (route enter) ---------- */
+.content > * {
+  animation: pageEnter 0.4s var(--cx-ease);
+}
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ---------- 17. Scrollbar ---------- */
-::-webkit-scrollbar       { width: 6px; height: 6px; }
+::-webkit-scrollbar       { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track  { background: transparent; }
-::-webkit-scrollbar-thumb  { background: #c4c9d4; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #9ca3b0; }
+::-webkit-scrollbar-thumb  { background: rgba(var(--cx-primary-rgb), 0.28); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(var(--cx-primary-rgb), 0.45); }
+
+/* ================================================================
+   18. Reusable "luxury" building blocks (opt-in utility classes)
+   ================================================================ */
+
+/* Page shell */
+.cx-page {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 4px 4px 32px;
+}
+
+.cx-page-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.cx-page-title {
+  font-size: 1.7rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--cx-text);
+  margin: 0;
+}
+.cx-page-subtitle {
+  margin: 4px 0 0;
+  font-size: 0.95rem;
+  color: var(--cx-text-secondary);
+}
+
+/* Premium surface card */
+.cx-card {
+  background: var(--cx-surface);
+  border: 1px solid var(--cx-border);
+  border-radius: var(--cx-radius-lg);
+  box-shadow: var(--cx-shadow-sm);
+  transition: transform 0.3s var(--cx-ease), box-shadow 0.3s var(--cx-ease);
+}
+.cx-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--cx-shadow-lg);
+}
+
+/* Gradient hero surface */
+.cx-hero {
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+  background: var(--cx-gradient);
+  border-radius: var(--cx-radius-xl);
+  box-shadow: var(--cx-shadow-brand);
+}
+.cx-hero::after {
+  content: '';
+  position: absolute;
+  top: -40%;
+  right: -10%;
+  width: 340px;
+  height: 340px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.22) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* Gradient button */
+.cx-btn-gradient {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  cursor: pointer;
+  padding: 11px 22px;
+  border-radius: var(--cx-radius-sm);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #fff;
+  background: var(--cx-gradient);
+  box-shadow: var(--cx-shadow-brand);
+  transition: transform 0.22s var(--cx-ease), box-shadow 0.22s var(--cx-ease), filter 0.22s var(--cx-ease);
+}
+.cx-btn-gradient:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+  box-shadow: 0 14px 34px rgba(var(--cx-primary-rgb), 0.42);
+}
+.cx-btn-gradient:active { transform: translateY(0); }
+
+/* Vivid pill badges (inspired by the transactions/status style) */
+.cx-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.4;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+.cx-badge--blue    { color:#3f5bd6; background:rgba(79,110,247,0.12);  border-color:rgba(79,110,247,0.22); }
+.cx-badge--violet  { color:#7c3aed; background:rgba(139,79,214,0.13);  border-color:rgba(139,79,214,0.24); }
+.cx-badge--green   { color:#0f9d6f; background:rgba(22,185,129,0.13);  border-color:rgba(22,185,129,0.24); }
+.cx-badge--amber   { color:#c2740a; background:rgba(245,158,11,0.15);  border-color:rgba(245,158,11,0.26); }
+.cx-badge--red     { color:#e11d48; background:rgba(244,63,94,0.12);   border-color:rgba(244,63,94,0.24); }
+.cx-badge--pink    { color:#db2777; background:rgba(236,72,153,0.12);  border-color:rgba(236,72,153,0.24); }
+.cx-badge--teal    { color:#0d9488; background:rgba(20,184,166,0.13);  border-color:rgba(20,184,166,0.24); }
+.cx-badge--gray    { color:#64748b; background:rgba(100,116,139,0.12); border-color:rgba(100,116,139,0.22); }
+.cx-badge--dot::before {
+  content: '';
+  width: 6px; height: 6px; border-radius: 50%;
+  background: currentColor;
+}
+
+/* Cascade entrance for grids/lists */
+.cx-stagger > * { opacity: 0; animation: slideUp 0.45s var(--cx-ease) forwards; }
+.cx-stagger > *:nth-child(1) { animation-delay: 0.04s; }
+.cx-stagger > *:nth-child(2) { animation-delay: 0.09s; }
+.cx-stagger > *:nth-child(3) { animation-delay: 0.14s; }
+.cx-stagger > *:nth-child(4) { animation-delay: 0.19s; }
+.cx-stagger > *:nth-child(5) { animation-delay: 0.24s; }
+.cx-stagger > *:nth-child(6) { animation-delay: 0.29s; }
+.cx-stagger > *:nth-child(7) { animation-delay: 0.34s; }
+.cx-stagger > *:nth-child(8) { animation-delay: 0.39s; }

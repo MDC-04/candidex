@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
@@ -15,6 +15,10 @@ import { HttpErrorService } from '../../core/services/http-error.service';
 import { UserService } from '../../core/services/user.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { UserProfile } from '../../core/models/auth.model';
+import { CompanySuggestionService, CompanySuggestion } from '../../features/applications/services/company-suggestion.service';
+import { LocationSuggestionService, LocationSuggestion } from '../../features/applications/services/location-suggestion.service';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-profile',
@@ -34,7 +38,7 @@ import { UserProfile } from '../../core/models/auth.model';
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss'
 })
-export class ProfileComponent implements OnInit {
+export class ProfileComponent implements OnInit, OnDestroy {
   
   profileForm: FormGroup;
   loading = false;
@@ -43,11 +47,20 @@ export class ProfileComponent implements OnInit {
   uploadedCvName: string | null = null;
   uploadedCvFile: File | null = null;
   uploadingCv = false;
+
+  locationSuggestions: LocationSuggestion[] = [];
+  showLocationSuggestions = false;
+  companySuggestions: CompanySuggestion[] = [];
+  showCompanySuggestions = false;
+  selectedCompanyDomain: string | null = null;
+  private destroy$ = new Subject<void>();
   
   private httpErrorService = inject(HttpErrorService);
   private userService = inject(UserService);
   private notificationService = inject(NotificationService);
   private dialog = inject(MatDialog);
+  private companySuggestionService = inject(CompanySuggestionService);
+  private locationSuggestionService = inject(LocationSuggestionService);
   
   constructor(private fb: FormBuilder) {
     this.profileForm = this.fb.group({
@@ -64,6 +77,69 @@ export class ProfileComponent implements OnInit {
   
   ngOnInit(): void {
     this.loadProfile();
+
+    this.profileForm.get('company')!.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      switchMap(val => {
+        this.selectedCompanyDomain = null;
+        return this.companySuggestionService.suggest(val || '');
+      }),
+      takeUntil(this.destroy$)
+    ).subscribe(suggestions => {
+      this.companySuggestions = suggestions;
+      this.showCompanySuggestions = suggestions.length > 0;
+    });
+
+    this.profileForm.get('location')!.valueChanges.pipe(
+      debounceTime(400),
+      distinctUntilChanged(),
+      switchMap(val => this.locationSuggestionService.suggest(val || '')),
+      takeUntil(this.destroy$)
+    ).subscribe(suggestions => {
+      this.locationSuggestions = suggestions;
+      this.showLocationSuggestions = suggestions.length > 0;
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  selectCompany(suggestion: CompanySuggestion): void {
+    this.profileForm.get('company')!.setValue(suggestion.name, { emitEvent: false });
+    this.selectedCompanyDomain = suggestion.domain;
+    this.companySuggestions = [];
+    this.showCompanySuggestions = false;
+  }
+
+  onCompanyBlur(): void {
+    setTimeout(() => (this.showCompanySuggestions = false), 200);
+  }
+
+  getCompanyLogoUrl(domain: string): string {
+    return this.companySuggestionService.getLogoUrl(domain);
+  }
+
+  selectLocation(suggestion: LocationSuggestion): void {
+    this.profileForm.get('location')!.setValue(suggestion.displayName, { emitEvent: false });
+    this.locationSuggestions = [];
+    this.showLocationSuggestions = false;
+  }
+
+  onLocationBlur(): void {
+    setTimeout(() => (this.showLocationSuggestions = false), 200);
+  }
+
+  get avatarInitials(): string {
+    const name = this.profileForm?.get('fullName')?.value?.trim();
+    if (name) {
+      const parts = name.split(/\s+/);
+      return (parts[0].charAt(0) + (parts[1]?.charAt(0) || '')).toUpperCase();
+    }
+    const email = this.profile?.email;
+    return email ? email.charAt(0).toUpperCase() : '?';
   }
   
   loadProfile(): void {
@@ -80,7 +156,7 @@ export class ProfileComponent implements OnInit {
           bio: profile.bio || '',
           linkedinUrl: profile.linkedinUrl || '',
           portfolioUrl: profile.portfolioUrl || ''
-        });
+        }, { emitEvent: false });
         // Load CV filename from profile
         if (profile.cvOriginalFilename) {
           this.uploadedCvName = profile.cvOriginalFilename;
@@ -136,7 +212,7 @@ export class ProfileComponent implements OnInit {
         bio: this.profile.bio || '',
         linkedinUrl: this.profile.linkedinUrl || '',
         portfolioUrl: this.profile.portfolioUrl || ''
-      });
+      }, { emitEvent: false });
     }
   }
 

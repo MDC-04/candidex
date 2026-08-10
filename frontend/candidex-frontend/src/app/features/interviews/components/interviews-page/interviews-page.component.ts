@@ -25,6 +25,8 @@ import { PrepPackDialogComponent } from '../prep-pack-dialog/prep-pack-dialog.co
 import { HttpErrorService } from '../../../../core/services/http-error.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { ConfirmDialogComponent } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { ApplicationsService } from '../../../applications/services/applications.service';
+import { CompanySuggestionService } from '../../../applications/services/company-suggestion.service';
 
 type InterviewsViewMode = 'agenda' | 'calendar';
 
@@ -65,17 +67,41 @@ export class InterviewsPageComponent implements OnInit {
   calendarMonth = this.getStartOfMonth(new Date());
   calendarDays: CalendarDay[] = [];
   weekDayLabels = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+  private companyByAppId = new Map<string, { name?: string; domain?: string }>();
 
   private httpErrorService = inject(HttpErrorService);
   private notificationService = inject(NotificationService);
 
   constructor(
     private interviewsService: InterviewsService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private applicationsService: ApplicationsService,
+    private companySuggestionService: CompanySuggestionService
   ) {}
 
   ngOnInit(): void {
+    this.loadCompanies();
     this.loadInterviews();
+  }
+
+  private loadCompanies(): void {
+    this.applicationsService.getAll({ size: 100 }).subscribe({
+      next: (res) => {
+        res.items.forEach(app =>
+          this.companyByAppId.set(app.id, { name: app.companyName, domain: app.companyDomain })
+        );
+      },
+      error: () => {}
+    });
+  }
+
+  getInterviewLogoUrl(interview: Interview): string | null {
+    const domain = this.companyByAppId.get(interview.applicationId)?.domain;
+    return domain ? this.companySuggestionService.getLogoUrl(domain) : null;
+  }
+
+  getInterviewCompanyName(interview: Interview): string | null {
+    return this.companyByAppId.get(interview.applicationId)?.name ?? null;
   }
 
   loadInterviews(): void {
@@ -197,34 +223,62 @@ export class InterviewsPageComponent implements OnInit {
 
   // Actions
   markAsDone(interview: Interview): void {
-    this.interviewsService.update(interview.id, { status: InterviewStatus.DONE }).subscribe({
-      next: () => {
-        this.notificationService.success('Entretien marqué comme terminé');
-        this.loadInterviews();
-      },
-      error: (error) => this.notificationService.error(
-        this.httpErrorService.getActionMessage(
-          error,
-          'la mise à jour de l\'entretien',
-          'Échec de la mise à jour de l\'entretien.'
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '420px',
+      data: {
+        title: 'Marquer comme terminé',
+        message: `Confirmez-vous que l'entretien "${interview.title}" est terminé ? Son statut passera à « Terminé ».`,
+        confirmText: 'Marquer terminé',
+        cancelText: 'Annuler',
+        confirmColor: 'primary' as const
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(confirmed => {
+      if (!confirmed) return;
+      this.interviewsService.update(interview.id, { status: InterviewStatus.DONE }).subscribe({
+        next: () => {
+          this.notificationService.success('Entretien marqué comme terminé');
+          this.loadInterviews();
+        },
+        error: (error) => this.notificationService.error(
+          this.httpErrorService.getActionMessage(
+            error,
+            'la mise à jour de l\'entretien',
+            'Échec de la mise à jour de l\'entretien.'
+          )
         )
-      )
+      });
     });
   }
 
   cancelInterview(interview: Interview): void {
-    this.interviewsService.update(interview.id, { status: InterviewStatus.CANCELED }).subscribe({
-      next: () => {
-        this.notificationService.success('Entretien annulé');
-        this.loadInterviews();
-      },
-      error: (error) => this.notificationService.error(
-        this.httpErrorService.getActionMessage(
-          error,
-          'l\'annulation de l\'entretien',
-          'Échec de l\'annulation de l\'entretien.'
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '420px',
+      data: {
+        title: 'Annuler l\'entretien',
+        message: `Êtes-vous sûr de vouloir annuler l'entretien "${interview.title}" ? Son statut passera à « Annulé ».`,
+        confirmText: 'Annuler l\'entretien',
+        cancelText: 'Retour',
+        confirmColor: 'warn' as const
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(confirmed => {
+      if (!confirmed) return;
+      this.interviewsService.update(interview.id, { status: InterviewStatus.CANCELED }).subscribe({
+        next: () => {
+          this.notificationService.success('Entretien annulé');
+          this.loadInterviews();
+        },
+        error: (error) => this.notificationService.error(
+          this.httpErrorService.getActionMessage(
+            error,
+            'l\'annulation de l\'entretien',
+            'Échec de l\'annulation de l\'entretien.'
+          )
         )
-      )
+      });
     });
   }
 

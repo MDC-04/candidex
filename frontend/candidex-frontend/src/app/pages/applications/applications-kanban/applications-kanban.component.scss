@@ -17,12 +17,28 @@
   margin-bottom: 20px;
 
   h1 {
+    position: relative;
     margin: 0;
+    padding-left: 16px;
     font-size: 28px;
-    font-weight: 700;
+    font-weight: 800;
+    letter-spacing: -0.02em;
     background: var(--cx-gradient);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 5px;
+      height: 0.8em;
+      border-radius: 3px;
+      background: var(--cx-gradient);
+    }
   }
 }
 
@@ -40,8 +56,8 @@
   padding: 14px 18px;
   margin-bottom: 18px;
   border-radius: var(--cx-radius-lg);
-  border: 1px solid rgba(102, 126, 234, 0.16);
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(255, 255, 255, 0.94));
+  border: 1.5px solid var(--cx-border-strong);
+  background: linear-gradient(135deg, rgba(85, 102, 240, 0.10), #ffffff);
 }
 
 .selection-summary {
@@ -89,7 +105,7 @@
   }
 
   &::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.03);
+    background: rgba(85, 102, 240, 0.06);
     border-radius: 3px;
   }
 }
@@ -101,14 +117,20 @@
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  background: rgba(0, 0, 0, 0.02);
+  background: #ffffff;
   border-radius: var(--cx-radius-lg);
-  border: 1px solid var(--cx-border);
+  border: 1.5px solid var(--cx-border-strong);
   overflow: hidden;
   transition: transform 0.2s var(--cx-ease), box-shadow 0.2s var(--cx-ease);
+  animation: colIn 0.5s var(--cx-ease) backwards;
+
+  @for $i from 1 through 8 {
+    &:nth-child(#{$i}) { animation-delay: #{$i * 0.06}s; }
+  }
 
   &:hover {
-    box-shadow: var(--cx-shadow-sm);
+    box-shadow: var(--cx-shadow-md);
+    transform: translateY(-2px);
   }
 }
 
@@ -117,11 +139,29 @@
   background: var(--cx-gradient);
   color: white;
   position: relative;
+  overflow: hidden;
+  /* Top accent uses the per-column status colour (via [style.border-color]) */
+  border-top: 4px solid;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -40%;
+    width: 35%;
+    height: 100%;
+    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+    transform: skewX(-20deg);
+    animation: colShine 6s ease-in-out infinite;
+    pointer-events: none;
+  }
 
   .header-content {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    position: relative;
+    z-index: 1;
   }
 
   .column-title {
@@ -169,6 +209,7 @@
     font-size: 12px;
     background: rgba(255, 255, 255, 0.22);
     border: 2px solid rgba(255, 255, 255, 0.45);
+    animation: badgePop 0.45s var(--cx-spring) backwards;
   }
 
   .column-select-button {
@@ -188,12 +229,18 @@
 
   &::-webkit-scrollbar { width: 4px; }
   &::-webkit-scrollbar-thumb {
-    background: rgba(102, 126, 234, 0.2);
+    background: rgba(85, 102, 240, 0.28);
     border-radius: 2px;
   }
 
   &.cdk-drop-list-dragging .application-card:not(.cdk-drag-placeholder) {
-    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+    transition: transform 300ms cubic-bezier(0.2, 0.9, 0.25, 1);
+  }
+
+  &.cdk-drop-list-receiving {
+    background: rgba(85, 102, 240, 0.07);
+    box-shadow: inset 0 0 0 2px rgba(85, 102, 240, 0.35);
+    border-radius: var(--cx-radius-md);
   }
 }
 
@@ -208,47 +255,96 @@
   border: 1px solid var(--cx-border);
   background: #fff;
 
+  /* While dragging, kill the transition so the card follows the cursor 1:1 (fluid) */
+  &.cdk-drag-dragging,
+  &.cdk-drag-preview {
+    transition: none !important;
+  }
+
+  &.just-moved {
+    z-index: 3;
+  }
+  /* Colour flash in the destination status colour */
+  &.just-moved::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    border-radius: inherit;
+    pointer-events: none;
+    background: var(--land-color, var(--cx-primary));
+    animation: landFlash 0.7s var(--cx-ease) forwards;
+  }
+  /* Expanding ring in the destination status colour */
+  &.just-moved::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    border-radius: inherit;
+    pointer-events: none;
+    animation: landRing 0.85s var(--cx-ease) forwards;
+  }
+
   &.selected {
-    border-color: rgba(102, 126, 234, 0.34);
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: rgba(85, 102, 240, 0.5) !important;
+    box-shadow: 0 0 0 3px rgba(85, 102, 240, 0.14) !important;
   }
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--cx-shadow-sm);
-    border-color: rgba(102, 126, 234, 0.2);
+    transform: translateY(-3px);
+    box-shadow: 0 14px 30px rgba(67, 56, 202, 0.22) !important;
+    border-color: var(--cx-primary) !important;
 
     .card-actions { opacity: 1; }
   }
 
   &.cdk-drag-preview {
-    box-shadow: var(--cx-shadow-lg);
-    transform: rotate(2deg);
-    opacity: 0.95;
+    box-shadow: 0 30px 64px rgba(67, 56, 202, 0.5) !important;
+    transform: scale(1.05) rotate(-3deg);
+    opacity: 1;
+    border: 2px solid var(--cx-primary) !important;
+    cursor: grabbing;
   }
 
   &.cdk-drag-placeholder {
-    opacity: 0.3;
-    border: 2px dashed var(--cx-primary);
-    background: rgba(102, 126, 234, 0.04);
+    opacity: 1;
+    border: 2px dashed var(--cx-primary) !important;
+    background: rgba(85, 102, 240, 0.12) !important;
+    outline: 2px solid rgba(85, 102, 240, 0.4);
+    outline-offset: -6px;
+    animation: dropPulse 1.1s ease-in-out infinite;
+
+    > * { visibility: hidden; }
   }
 
   &.cdk-drag-animating {
-    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+    transition: transform 450ms cubic-bezier(0.2, 0.9, 0.25, 1);
   }
 }
 
 .drag-handle {
   position: absolute;
-  top: 8px;
-  left: 8px;
-  color: var(--cx-text-muted);
-  cursor: move;
-  opacity: 0.3;
-  transition: opacity 0.2s;
+  top: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 18px;
+  padding: 0 16px;
+  border-radius: 8px;
+  color: var(--cx-primary);
+  background: rgba(85, 102, 240, 0.10);
+  cursor: grab;
+  opacity: 0.7;
+  transition: opacity 0.2s var(--cx-ease), background 0.2s var(--cx-ease);
+  z-index: 12;
 
-  mat-icon { font-size: 16px; width: 16px; height: 16px; }
-  .application-card:hover & { opacity: 0.6; }
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+
+  &:hover { opacity: 1; background: rgba(85, 102, 240, 0.18); }
+  &:active { cursor: grabbing; }
 }
 
 .selection-toggle {
@@ -300,7 +396,7 @@
 }
 
 mat-card-header {
-  padding: 0.85rem 0.85rem 0.4rem;
+  padding: 1.6rem 0.85rem 0.4rem;
   cursor: pointer;
 }
 
@@ -316,7 +412,7 @@ mat-card-header {
   border-radius: 5px;
   object-fit: contain;
   flex-shrink: 0;
-  background: #f1f5f9;
+  background: rgba(85, 102, 240, 0.08);
 }
 
 .kanban-company-fallback {
@@ -360,12 +456,22 @@ mat-card-content {
 .location {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   font-size: 12px;
   color: var(--cx-text-muted);
   margin-bottom: 8px;
 
-  mat-icon { font-size: 15px; width: 15px; height: 15px; color: var(--cx-primary); }
+  mat-icon {
+    font-size: 14px;
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    background: rgba(85, 102, 240, 0.10);
+    color: var(--cx-primary);
+  }
 }
 
 .metadata {
@@ -380,9 +486,9 @@ mat-card-content {
   font-size: 11px;
   min-height: 22px;
   padding: 0 7px;
-  background: rgba(102, 126, 234, 0.08);
-  border: 1px solid rgba(102, 126, 234, 0.15);
-  color: var(--cx-primary);
+  background: rgba(85, 102, 240, 0.10);
+  border: 1px solid rgba(85, 102, 240, 0.22);
+  color: var(--cx-primary-dark);
   font-weight: 600;
 }
 
@@ -419,17 +525,59 @@ mat-card-content {
     font-size: 48px;
     width: 48px;
     height: 48px;
-    opacity: 0.25;
+    color: rgba(85, 102, 240, 0.35);
     margin-bottom: 10px;
+    animation: emptyFloat 3.5s ease-in-out infinite;
   }
 
   p { margin: 0; font-size: 13px; }
+}
+
+@keyframes emptyFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-7px); }
 }
 
 /* ---------- Animations ---------- */
 @keyframes cx-fadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
+}
+
+@keyframes colIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes landFlash {
+  0%   { opacity: 0.32; }
+  100% { opacity: 0; }
+}
+
+@keyframes landRing {
+  0%   { box-shadow: 0 0 0 2px var(--land-color, #5566f0); opacity: 0.85; }
+  100% { box-shadow: 0 0 0 16px var(--land-color, #5566f0); opacity: 0; }
+}
+
+@keyframes dropPulse {
+  0%, 100% { outline-color: rgba(85, 102, 240, 0.3); }
+  50%      { outline-color: rgba(85, 102, 240, 0.75); }
+}
+
+@keyframes badgePop {
+  0%   { transform: scale(0); }
+  60%  { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+@keyframes colShine {
+  0%        { left: -40%; }
+  55%, 100% { left: 130%; }
 }
 
 @media (max-width: 768px) {

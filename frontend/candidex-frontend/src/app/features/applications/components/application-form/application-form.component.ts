@@ -2,6 +2,7 @@ import { AfterViewInit, Component, Inject, OnInit, OnDestroy, ViewEncapsulation 
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
 
@@ -25,11 +26,12 @@ export interface ApplicationFormDialogData {
 @Component({
   selector: 'app-application-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatDialogModule],
+  imports: [CommonModule, ReactiveFormsModule, MatDialogModule, MatIconModule],
   encapsulation: ViewEncapsulation.None,
   template: `
     <h2 mat-dialog-title class="af-title">
-      {{ isEditMode ? 'Modifier la candidature' : 'Nouvelle candidature' }}
+      <span class="af-title-badge"><mat-icon>{{ isEditMode ? 'edit_note' : 'add_business' }}</mat-icon></span>
+      <span class="af-title-text">{{ isEditMode ? 'Modifier la candidature' : 'Nouvelle candidature' }}</span>
     </h2>
 
     <form [formGroup]="form" class="af-form" (ngSubmit)="onSubmit()">
@@ -111,10 +113,13 @@ export interface ApplicationFormDialogData {
           <div class="af-section-label">Localisation</div>
           <div class="af-field af-full af-location-field">
             <label>Lieu</label>
-            <input type="text" formControlName="location" placeholder="ex: Paris, France" autocomplete="off" (focus)="showLocationSuggestions = locationSuggestions.length > 0" (blur)="onLocationBlur()">
+            <div class="af-location-input-wrapper">
+              <mat-icon class="af-input-pin">place</mat-icon>
+              <input type="text" formControlName="location" placeholder="ex: Paris, France" autocomplete="off" (focus)="showLocationSuggestions = locationSuggestions.length > 0" (blur)="onLocationBlur()">
+            </div>
             <div class="af-suggestions" *ngIf="showLocationSuggestions && locationSuggestions.length > 0">
               <button type="button" class="af-suggestion-item" *ngFor="let s of locationSuggestions" (mousedown)="selectLocation(s)">
-                <span class="af-location-icon">📍</span>
+                <mat-icon class="af-location-icon">place</mat-icon>
                 <span class="af-suggestion-name">{{ s.displayName }}</span>
               </button>
             </div>
@@ -200,12 +205,13 @@ export interface ApplicationFormDialogData {
       height: 4px;
       border-radius: 999px;
       background: var(--cx-gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+      opacity: 0;
     }
 
     .af-form {
       display: flex;
       flex-direction: column;
-      background: linear-gradient(180deg, rgba(248, 250, 252, 0.9), rgba(240, 249, 255, 0.55));
+      background: #ffffff;
     }
 
     .af-content {
@@ -214,28 +220,79 @@ export interface ApplicationFormDialogData {
     }
 
     .af-section {
+      position: relative;
       margin-bottom: 16px;
-      padding: 14px;
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      border-radius: 14px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.92));
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+      padding: 16px 16px 16px 22px;
+      border: 1.5px solid rgba(85, 102, 240, 0.28);
+      border-radius: 16px;
+      background: #ffffff;
+      box-shadow: 0 6px 18px rgba(67, 56, 202, 0.06);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+      animation: afSectionIn 0.45s var(--cx-ease, ease) both;
+    }
+
+    .af-section::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 2px;
+      bottom: 2px;
+      width: 4px;
+      border-radius: 16px 0 0 16px;
+      background: var(--cx-gradient, linear-gradient(135deg, #5566f0 0%, #8b4fd6 100%));
+      opacity: 0.85;
+    }
+
+    .af-section:hover {
+      border-color: rgba(85, 102, 240, 0.5);
+      box-shadow: 0 12px 26px rgba(67, 56, 202, 0.12);
+      transform: translateY(-2px);
+    }
+
+    /* Lift the active section (open dropdown) above the following sections */
+    .af-section:focus-within {
+      z-index: 30;
+    }
+
+    .af-section:nth-of-type(1) { animation-delay: 0.02s; }
+    .af-section:nth-of-type(2) { animation-delay: 0.07s; }
+    .af-section:nth-of-type(3) { animation-delay: 0.12s; }
+    .af-section:nth-of-type(4) { animation-delay: 0.17s; }
+    .af-section:nth-of-type(5) { animation-delay: 0.22s; }
+    .af-section:nth-of-type(6) { animation-delay: 0.27s; }
+
+    @keyframes afSectionIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes afBadgePop {
+      0% { opacity: 0; transform: scale(0.4) rotate(-12deg); }
+      100% { opacity: 1; transform: scale(1) rotate(0); }
     }
 
     .af-section-label {
       display: inline-flex;
       align-items: center;
       margin: 0 0 12px;
-      padding: 5px 10px;
+      padding: 5px 11px;
       border-radius: 999px;
       font-size: 12px !important;
       line-height: 1;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      color: var(--cx-primary-dark, #5a6fd6);
-      background: rgba(102, 126, 234, 0.12);
-      border: 1px solid rgba(102, 126, 234, 0.24);
+      color: var(--cx-primary-dark, #4338ca);
+      background: rgba(85, 102, 240, 0.12);
+      border: 1px solid rgba(85, 102, 240, 0.28);
+    }
+
+    .af-section-label::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      margin-right: 8px;
+      background: var(--cx-gradient, linear-gradient(135deg, #5566f0 0%, #8b4fd6 100%));
     }
 
     .af-field {
@@ -271,8 +328,33 @@ export interface ApplicationFormDialogData {
 
     .af-location-icon {
       flex-shrink: 0;
-      font-size: 16px;
-      line-height: 1;
+      color: var(--cx-primary, #5566f0);
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      line-height: 18px;
+    }
+
+    .af-location-input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .af-input-pin {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--cx-primary, #5566f0);
+      font-size: 19px;
+      width: 19px;
+      height: 19px;
+      pointer-events: none;
+    }
+
+    .af-location-field .af-location-input-wrapper input {
+      padding-left: 42px !important;
     }
 
     .af-company-input-wrapper {
@@ -333,7 +415,7 @@ export interface ApplicationFormDialogData {
     }
 
     .af-suggestion-item:hover {
-      background: rgba(102, 126, 234, 0.08);
+      background: rgba(85, 102, 240, 0.08);
     }
 
     .af-suggestion-logo {
@@ -342,7 +424,7 @@ export interface ApplicationFormDialogData {
       border-radius: 6px;
       object-fit: contain;
       flex-shrink: 0;
-      background: #f1f5f9;
+      background: rgba(85, 102, 240, 0.08);
     }
 
     .af-suggestion-info {
@@ -370,11 +452,10 @@ export interface ApplicationFormDialogData {
       padding: 0 13px;
       font-size: 14px;
       font-family: inherit;
-      border: 1px solid #cbd5e1;
+      border: 1.5px solid rgba(85, 102, 240, 0.28);
       border-radius: 10px;
-      background: #fcfdff;
+      background: #ffffff;
       color: #0f172a;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
       transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
       box-sizing: border-box;
     }
@@ -394,15 +475,15 @@ export interface ApplicationFormDialogData {
     .af-field select:hover,
     .af-field textarea:hover {
       background: #ffffff;
-      border-color: #94a3b8;
+      border-color: rgba(85, 102, 240, 0.5);
     }
 
     .af-field input:focus,
     .af-field select:focus,
     .af-field textarea:focus {
       outline: none;
-      border-color: var(--cx-primary, #667eea);
-      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.22);
+      border-color: var(--cx-primary, #5566f0);
+      box-shadow: 0 0 0 4px rgba(85, 102, 240, 0.18);
       background: #ffffff;
     }
 
@@ -428,8 +509,8 @@ export interface ApplicationFormDialogData {
     .af-actions {
       margin: 0;
       padding: 14px 30px 20px !important;
-      border-top: 1px solid rgba(148, 163, 184, 0.26);
-      background: linear-gradient(180deg, rgba(248, 250, 252, 0.88), rgba(241, 245, 249, 1));
+      border-top: 1.5px solid var(--cx-border, rgba(85, 102, 240, 0.2));
+      background: #ffffff;
       gap: 10px;
     }
 
@@ -446,26 +527,26 @@ export interface ApplicationFormDialogData {
     }
 
     .af-btn-cancel {
-      border: 1px solid #cbd5e1;
+      border: 1.5px solid rgba(85, 102, 240, 0.30);
       background: #ffffff;
-      color: #334155;
+      color: var(--cx-primary-dark, #4338ca);
     }
 
     .af-btn-cancel:hover {
-      background: #f8fafc;
-      border-color: #94a3b8;
+      background: rgba(85, 102, 240, 0.06);
+      border-color: rgba(85, 102, 240, 0.5);
     }
 
     .af-btn-primary {
       border: 1px solid transparent;
-      background: var(--cx-gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+      background: var(--cx-gradient, linear-gradient(135deg, #5566f0 0%, #8b4fd6 100%));
       color: #ffffff;
-      box-shadow: 0 8px 18px rgba(102, 126, 234, 0.35);
+      box-shadow: 0 8px 18px rgba(85, 102, 240, 0.35);
     }
 
     .af-btn-primary:hover:not(:disabled) {
       transform: translateY(-1px);
-      box-shadow: 0 10px 22px rgba(102, 126, 234, 0.45);
+      box-shadow: 0 10px 22px rgba(85, 102, 240, 0.45);
     }
 
     .af-btn-primary:active:not(:disabled) {
