@@ -45,7 +45,7 @@ export interface InterviewFormDialogData {
   template: `
     <h2 mat-dialog-title>
       <mat-icon>event</mat-icon>
-      {{ isEdit ? 'Modifier l\'entretien' : 'Planifier un entretien' }}
+      {{ isEdit ? "Modifier l'entretien" : "Planifier un entretien" }}
     </h2>
 
     <mat-dialog-content>
@@ -117,9 +117,9 @@ export interface InterviewFormDialogData {
       </form>
     </mat-dialog-content>
 
-    <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close>Annuler</button>
-      <button mat-raised-button color="primary" (click)="onSave()" [disabled]="form.invalid || saving">
+    <mat-dialog-actions align="end" class="iv-actions">
+      <button type="button" class="iv-btn-cancel" mat-dialog-close>Annuler</button>
+      <button type="button" class="iv-btn-primary" (click)="onSave()" [disabled]="form.invalid || saving">
         <mat-icon>{{ isEdit ? 'save' : 'event_available' }}</mat-icon>
         {{ isEdit ? 'Enregistrer' : 'Planifier' }}
       </button>
@@ -153,6 +153,59 @@ export interface InterviewFormDialogData {
     @media (max-width: 600px) {
       .interview-form { min-width: auto; }
       .row { flex-direction: column; gap: 4px; }
+    }
+
+    /* Design-system action buttons (match the application form) */
+    .iv-actions {
+      padding: 14px 24px 18px !important;
+      gap: 10px;
+    }
+    .iv-btn-cancel,
+    .iv-btn-primary {
+      height: 42px;
+      padding: 0 18px;
+      min-width: 108px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.14s, box-shadow 0.18s, opacity 0.18s, background-color 0.18s;
+    }
+    .iv-btn-cancel {
+      border: 1.5px solid rgba(85, 102, 240, 0.30);
+      background: #ffffff;
+      color: var(--cx-primary-dark, #4338ca);
+    }
+    .iv-btn-cancel:hover {
+      background: rgba(85, 102, 240, 0.06);
+      border-color: rgba(85, 102, 240, 0.5);
+    }
+    .iv-btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border: 1px solid transparent;
+      background: var(--cx-gradient, linear-gradient(135deg, #5566f0 0%, #8b4fd6 100%));
+      color: #ffffff;
+      box-shadow: 0 8px 18px rgba(85, 102, 240, 0.35);
+    }
+    .iv-btn-primary mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+    .iv-btn-primary:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(85, 102, 240, 0.45);
+    }
+    .iv-btn-primary:active:not(:disabled) {
+      transform: translateY(0);
+    }
+    .iv-btn-primary:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      box-shadow: none;
     }
   `]
 })
