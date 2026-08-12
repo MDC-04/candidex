@@ -495,10 +495,22 @@
     .table-container {
       .filters-bar {
         flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
 
+        /* Reset the flex basis (it becomes a HEIGHT in column mode → giant boxes) */
         .search-field,
         .filter-field,
-        .clear-filters-btn { width: 100%; }
+        .clear-filters-btn {
+          flex: 0 0 auto;
+          width: 100%;
+          min-width: 0;
+        }
+
+        .clear-filters-btn {
+          height: 44px;
+          justify-content: center;
+        }
       }
 
       overflow-x: auto;
