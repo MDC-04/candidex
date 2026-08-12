@@ -1,46 +1,12 @@
 services:
-  mongodb:
-    image: mongo:7.0
-    container_name: candidex-mongo
-    restart: unless-stopped
-    ports:
-      - "${MONGODB_PORT:-27017}:27017"
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
-      MONGO_INITDB_DATABASE: ${MONGODB_DATABASE:-candidex}
-      # Consumed by mongo-init.js to create the dedicated application user
-      MONGODB_DATABASE: ${MONGODB_DATABASE:-candidex}
-      MONGODB_APP_USERNAME: ${MONGODB_APP_USERNAME:-candidex_user}
-      MONGODB_APP_PASSWORD: ${MONGODB_APP_PASSWORD}
-    volumes:
-      - candidex-mongo-data:/data/db
-      - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
-    networks:
-      - candidex-network
-    healthcheck:
-      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
-      interval: 30s
-      timeout: 5s
-      retries: 5
-      start_period: 20s
-
   backend:
     build:
       context: ./backend/candidex-api
     container_name: candidex-backend
     restart: unless-stopped
-    depends_on:
-      mongodb:
-        condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: prod
-      MONGODB_HOST: mongodb
-      MONGODB_PORT: 27017
-      MONGODB_DATABASE: ${MONGODB_DATABASE:-candidex}
-      MONGODB_USERNAME: ${MONGODB_APP_USERNAME:-candidex_user}
-      MONGODB_PASSWORD: ${MONGODB_APP_PASSWORD}
-      MONGODB_AUTH_DB: ${MONGODB_DATABASE:-candidex}
+      MONGODB_URI: ${MONGODB_URI}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
@@ -69,8 +35,6 @@ services:
       - candidex-network
 
 volumes:
-  candidex-mongo-data:
-    driver: local
   candidex-cv-uploads:
     driver: local
 
