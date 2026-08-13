@@ -1,0 +1,3 @@
+candinote.fr, www.candinote.fr {
+	reverse_proxy frontend:80
+}
