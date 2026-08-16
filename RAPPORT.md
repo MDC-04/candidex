@@ -34,6 +34,7 @@
 17. [Pièges connus & dépannage](#17-pièges-connus--dépannage)
 18. [Roadmap / ce qui reste](#18-roadmap--ce-qui-reste)
 19. [Cheat-sheet des commandes](#19-cheat-sheet-des-commandes)
+20. [Onboarding d'un nouveau développeur](#20-onboarding-dun-nouveau-développeur)
 
 ---
 
@@ -572,6 +573,57 @@ curl.exe -sS -o NUL -w "HTTP %{http_code}\n" https://candinote.fr
 # Résolution DNS (après flush si besoin : ipconfig /flushdns)
 Resolve-DnsName candinote.fr -Type A
 ```
+
+---
+
+## 20. Onboarding d'un nouveau développeur
+
+> Objectif : partir de **zéro accès** jusqu'à faire tourner l'app en local, puis déployer un changement. À suivre dans l'ordre.
+
+### 20.1 Obtenir les accès
+1. **Dépôt Git** : public (`github.com/MDC-04/candidex`) → `git clone` suffit pour lire/coder. Pour **pousser**, demander à être **collaborateur** GitHub (ou fork + pull request).
+2. **Serveur (VPS OVH)** : demander au propriétaire un accès SSH — idéalement en ajoutant sa **clé SSH publique** dans `~/.ssh/authorized_keys` du serveur (plutôt que le mot de passe `ubuntu`).
+3. **MongoDB Atlas** : se faire **inviter au projet Atlas** (ou obtenir l'utilisateur DB) ; pour un dev local contre Atlas, ajouter son IP dans **Network Access**.
+4. **Domaine / DNS** : accès à l'**espace client OVH** (uniquement si on touche au domaine/DNS/HTTPS).
+5. **Secrets** : récupérer le contenu du `.env` de prod (`~/candidex/.env` sur le serveur) via un **canal privé** — jamais public. À défaut, savoir le **recréer** (voir 20.4).
+
+### 20.2 Prérequis machine
+- **Node.js 18+** + Angular CLI (`npm i -g @angular/cli`).
+- **Java 21** + **Maven** (backend en local ; sinon il se compile dans Docker).
+- **Docker** + **Docker Compose**.
+- **Git**.
+
+### 20.3 Lancer en local
+```bash
+git clone https://github.com/MDC-04/candidex.git
+cd candidex
+
+# Frontend (http://localhost:4200, proxy /api -> backend :8080)
+cd frontend/candidex-frontend && npm install && npm start
+
+# Backend (autre terminal) — Java 21 + Maven + un Mongo (local ou Atlas)
+cd backend/candidex-api && mvn spring-boot:run     # http://localhost:8080
+```
+- **Mongo local rapide** : `docker run -d --name candidex-mongo -p 27017:27017 mongo:7` (le backend dev pointe sur `localhost:27017` par défaut) — ou renseigner l'URI **Atlas**.
+- Vérifier le backend : `http://localhost:8080/actuator/health` → `{"status":"UP"}`.
+
+### 20.4 Recréer le `.env` de prod (si perdu)
+Sur le serveur, dans `~/candidex/.env` (voir aussi `.env.example`) :
+```
+MONGODB_URI=mongodb+srv://<user>:<pass>@cluster0.xxxxx.mongodb.net/candidex?retryWrites=true&w=majority&appName=Cluster0
+JWT_SECRET=<clé générée : openssl rand -base64 48>
+JWT_EXPIRATION=86400000
+CORS_ALLOWED_ORIGINS=https://candinote.fr,https://www.candinote.fr
+```
+Puis `docker compose up -d --build`. ⚠️ Le nom de base (`/candidex`) doit être **dans** l'URI, sinon Mongo écrit dans la base `test`.
+
+### 20.5 Déployer un changement
+Suivre **§14** : en local `git add . && git commit && git push` ; sur le serveur `ssh ubuntu@51.178.87.209`, `cd candidex && git pull && docker compose up -d --build <frontend|backend>` (rebuild **backend** obligatoire si la config a changé, car embarquée dans le jar).
+
+### 20.6 Quand ça casse — où regarder
+- **Logs** : `docker compose logs -f backend` · `docker compose logs caddy` (certificats HTTPS).
+- **Santé** : `docker compose ps` · `/actuator/health`.
+- **Pièges fréquents** : voir **§17** (noms de variables `.env`, CORS exact, cache DNS, TLS sous PowerShell).
 
 ---
 
