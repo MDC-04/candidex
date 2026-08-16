@@ -35,7 +35,7 @@
 
 .brand {
   display: block;
-  padding: 10px 14px 2px;
+  padding: 14px 14px 6px;
   text-decoration: none;
   cursor: pointer;
   transition: opacity 0.2s var(--cx-ease), transform 0.3s var(--cx-spring);
@@ -51,17 +51,17 @@
 .brand-logo {
   display: block;
   width: 100%;
-  height: 124px;
+  height: 200px;
   background-image: url('/Logo_CandiNote_Trans.png');
   background-repeat: no-repeat;
-  background-position: 50% 37%;
-  background-size: 118%;
+  background-position: 50% 40%;
+  background-size: 138%;
   filter: drop-shadow(0 6px 14px rgba(67, 56, 202, 0.18));
 }
 
 .nav-label {
   padding: 0 22px;
-  margin: 18px 0 8px;
+  margin: 22px 0 8px;
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -122,36 +122,56 @@ mat-nav-list {
       transition: all 0.25s var(--cx-ease);
     }
 
-    &:hover {
-      background: rgba(var(--cx-primary-rgb), 0.06);
-      color: var(--cx-text);
+    span {
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    /* Material controls the projected icon + text row internally — force it
+       to flex-center so the label sits perfectly aligned with the icon. */
+    ::ng-deep .mat-mdc-list-item-unscoped-content {
+      display: flex;
+      align-items: center;
+    }
+
+    &:hover:not(.active):not(.nav-logout) {
+      background: var(--cx-gradient);
+      color: #fff !important;
       transform: translateX(3px);
+      box-shadow: 0 8px 18px rgba(var(--cx-primary-rgb), 0.28);
+
+      span { color: #fff !important; }
+      ::ng-deep .mat-mdc-list-item-unscoped-content { color: #fff !important; }
 
       mat-icon {
-        background: rgba(var(--cx-primary-rgb), 0.16);
-        color: var(--cx-primary);
+        background: rgba(255, 255, 255, 0.22);
+        color: #fff !important;
         transform: scale(1.05);
       }
     }
 
     &.active {
       background: var(--cx-gradient);
-      color: #fff;
+      color: #fff !important;
       font-weight: 600;
       box-shadow: 0 10px 24px rgba(var(--cx-primary-rgb), 0.38);
       transform: none;
 
+      span { color: #fff !important; }
+      ::ng-deep .mat-mdc-list-item-unscoped-content { color: #fff !important; }
+
       &:hover {
         transform: none;
         background: var(--cx-gradient);
-        color: #fff;
+        color: #fff !important;
 
         mat-icon { transform: none; }
       }
 
       mat-icon {
         background: rgba(255, 255, 255, 0.22);
-        color: #fff;
+        color: #fff !important;
       }
     }
   }
@@ -159,7 +179,9 @@ mat-nav-list {
 
 /* ---------- Toolbar ---------- */
 .toolbar {
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 20;
   overflow: hidden;
   background: var(--cx-gradient) !important;
   box-shadow: 0 2px 14px rgba(67, 56, 202, 0.18);
@@ -434,6 +456,12 @@ mat-nav-list {
   .sidenav {
     width: min(82vw, 300px);
     box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06), 0 16px 40px rgba(67, 56, 202, 0.22);
+  }
+
+  .brand-logo {
+    height: 224px;
+    background-size: 120%;
+    background-position: 50% 42%;
   }
 
   mat-nav-list {

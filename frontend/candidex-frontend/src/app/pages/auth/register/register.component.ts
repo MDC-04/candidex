@@ -180,8 +180,8 @@ import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/o
     .auth-left {
       display: flex;
       align-items: flex-start;
-      justify-content: flex-start;
-      padding: clamp(2rem, 5vh, 3.5rem) clamp(2.5rem, 6%, 4.5rem) clamp(2rem, 5vh, 3.5rem) 2.75rem;
+      justify-content: center;
+      padding: clamp(2rem, 5vh, 3.5rem) 2rem;
       overflow-y: auto;
       overflow-x: hidden;
       max-height: 100vh;
@@ -190,21 +190,23 @@ import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/o
     .auth-inner {
       width: 100%;
       max-width: 400px;
-      margin: auto 0;
+      margin: 0 auto;
       animation: authIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
     }
 
-    .auth-brand { margin-bottom: 0.35rem; }
+    .auth-brand { text-align: center; margin-bottom: 0.4rem; }
     .auth-brand img {
-      height: 138px;
+      height: 300px;
       width: auto;
       object-fit: contain;
-      margin: -10px 0 -12px -12px;
+      margin: 0;
     }
 
     .auth-head { margin-bottom: 1.5rem; }
     .auth-eyebrow {
-      display: inline-block;
+      display: block;
+      width: fit-content;
+      margin: 0 auto 0.9rem;
       font-size: 0.72rem;
       font-weight: 700;
       letter-spacing: 0.14em;
@@ -213,7 +215,6 @@ import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/o
       background: rgba(85, 102, 240, 0.10);
       padding: 0.25rem 0.65rem;
       border-radius: 999px;
-      margin-bottom: 0.75rem;
     }
     .auth-title {
       margin: 0 0 0.4rem;
@@ -229,7 +230,7 @@ import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/o
     .field { display: flex; flex-direction: column; gap: 0.4rem; }
     .field > label { font-size: 0.82rem; font-weight: 600; color: #334155; }
 
-    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+    .two-col { display: flex; flex-direction: column; gap: 1rem; }
 
     .divider {
       display: flex;
@@ -408,11 +409,14 @@ import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/o
     mat-spinner { margin: 0 auto; }
 
     @media (max-width: 900px) {
-      .auth-split { grid-template-columns: 1fr; }
+      .auth-split { grid-template-columns: 1fr; height: auto; min-height: 100vh; }
       .auth-right { display: none; }
-    }
-    @media (max-width: 1024px) {
-      .two-col { grid-template-columns: 1fr; }
+      .auth-left {
+        max-height: none;
+        overflow-y: visible;
+        padding: 2rem 1.25rem 3rem;
+      }
+      .auth-brand img { height: 220px; }
     }
   `]
 })

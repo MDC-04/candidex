@@ -94,6 +94,7 @@ export class DashboardComponent implements OnInit {
   };
   
   statusStats: StatusStats[] = [];
+  showEmptyStatuses = false;
   recentApplications: Application[] = [];
   timelineEvents: TimelineEvent[] = [];
   weeklyData: WeeklyData[] = [];
@@ -192,6 +193,19 @@ export class DashboardComponent implements OnInit {
   
   goToApplications(): void {
     this.router.navigate(['/applications']);
+  }
+
+  /** Statuses with at least one application (empty ones are collapsed by default). */
+  get visibleStatusStats(): StatusStats[] {
+    return this.showEmptyStatuses ? this.statusStats : this.statusStats.filter(s => s.count > 0);
+  }
+
+  get emptyStatusCount(): number {
+    return this.statusStats.filter(s => s.count === 0).length;
+  }
+
+  toggleEmptyStatuses(): void {
+    this.showEmptyStatuses = !this.showEmptyStatuses;
   }
   
   getStatusLabel(status: ApplicationStatus): string {

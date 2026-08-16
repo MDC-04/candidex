@@ -43,6 +43,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   profileForm: FormGroup;
   loading = false;
   saving = false;
+  editMode = false;
   profile: UserProfile | null = null;
   uploadedCvName: string | null = null;
   uploadedCvFile: File | null = null;
@@ -186,6 +187,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
       next: (profile) => {
         this.profile = profile;
         this.saving = false;
+        this.editMode = false;
         this.notificationService.success('Profil mis à jour avec succès !');
       },
       error: (error) => {
@@ -214,6 +216,13 @@ export class ProfileComponent implements OnInit, OnDestroy {
         portfolioUrl: this.profile.portfolioUrl || ''
       }, { emitEvent: false });
     }
+    this.showCompanySuggestions = false;
+    this.showLocationSuggestions = false;
+    this.editMode = false;
+  }
+
+  enterEdit(): void {
+    this.editMode = true;
   }
 
   onFileSelected(event: Event): void {

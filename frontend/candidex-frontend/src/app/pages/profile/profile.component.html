@@ -39,8 +39,17 @@
           </div>
         </div>
       </div>
+      @if (!editMode) {
+        <div class="hero-actions">
+          <button type="button" class="hero-edit-btn" (click)="enterEdit()">
+            <mat-icon>edit</mat-icon>
+            <span>Modifier</span>
+          </button>
+        </div>
+      }
     </section>
 
+    @if (editMode) {
     <form [formGroup]="profileForm" (ngSubmit)="onSave()" class="profile-form">
       
       <!-- Personal Information Card -->
@@ -255,5 +264,141 @@
       </div>
 
     </form>
+    } @else {
+
+      <!-- ===== VIEW MODE (read-only) ===== -->
+      <div class="profile-view">
+        <mat-card class="section-card section-personal">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>person</mat-icon>
+              Informations personnelles
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="view-grid">
+              <div class="view-item">
+                <mat-icon>badge</mat-icon>
+                <div class="view-text">
+                  <span class="view-label">Nom complet</span>
+                  <span class="view-value">{{ profile?.fullName || '—' }}</span>
+                </div>
+              </div>
+              <div class="view-item">
+                <mat-icon>email</mat-icon>
+                <div class="view-text">
+                  <span class="view-label">Email</span>
+                  <span class="view-value">{{ profile?.email || '—' }}</span>
+                </div>
+              </div>
+              <div class="view-item">
+                <mat-icon>location_on</mat-icon>
+                <div class="view-text">
+                  <span class="view-label">Localisation</span>
+                  <span class="view-value">{{ profile?.location || '—' }}</span>
+                </div>
+              </div>
+              <div class="view-item">
+                <mat-icon>phone</mat-icon>
+                <div class="view-text">
+                  <span class="view-label">Téléphone</span>
+                  <span class="view-value">{{ profile?.phone || '—' }}</span>
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="section-card section-professional">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>work</mat-icon>
+              Informations professionnelles
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="view-grid">
+              <div class="view-item">
+                <mat-icon>work_outline</mat-icon>
+                <div class="view-text">
+                  <span class="view-label">Poste actuel</span>
+                  <span class="view-value">{{ profile?.currentPosition || '—' }}</span>
+                </div>
+              </div>
+              <div class="view-item">
+                <mat-icon>business</mat-icon>
+                <div class="view-text">
+                  <span class="view-label">Entreprise / École</span>
+                  <span class="view-value">{{ profile?.company || '—' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="view-item view-item--block">
+              <mat-icon>description</mat-icon>
+              <div class="view-text">
+                <span class="view-label">Biographie</span>
+                <span class="view-value view-value--multiline">{{ profile?.bio || '—' }}</span>
+              </div>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <div class="view-item view-item--block">
+              <mat-icon>upload_file</mat-icon>
+              <div class="view-text">
+                <span class="view-label">Curriculum Vitae</span>
+                @if (uploadedCvName) {
+                  <span class="view-value view-cv">
+                    <mat-icon class="view-cv-file">insert_drive_file</mat-icon>
+                    <span class="view-cv-name">{{ uploadedCvName }}</span>
+                    <button mat-icon-button class="cv-action cv-view" (click)="viewCv()" type="button" matTooltip="Voir le CV">
+                      <mat-icon>visibility</mat-icon>
+                    </button>
+                  </span>
+                } @else {
+                  <span class="view-value">Aucun CV importé</span>
+                }
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="section-card section-social">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>link</mat-icon>
+              Liens sociaux
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="view-grid">
+              <div class="view-item">
+                <mat-icon>link</mat-icon>
+                <div class="view-text">
+                  <span class="view-label">LinkedIn</span>
+                  @if (profile?.linkedinUrl) {
+                    <a class="view-value view-link" [href]="profile?.linkedinUrl" target="_blank" rel="noopener">{{ profile?.linkedinUrl }}</a>
+                  } @else {
+                    <span class="view-value">—</span>
+                  }
+                </div>
+              </div>
+              <div class="view-item">
+                <mat-icon>language</mat-icon>
+                <div class="view-text">
+                  <span class="view-label">Portfolio</span>
+                  @if (profile?.portfolioUrl) {
+                    <a class="view-value view-link" [href]="profile?.portfolioUrl" target="_blank" rel="noopener">{{ profile?.portfolioUrl }}</a>
+                  } @else {
+                    <span class="view-value">—</span>
+                  }
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    }
   }
 </div>

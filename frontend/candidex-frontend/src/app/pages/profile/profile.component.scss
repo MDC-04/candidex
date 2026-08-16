@@ -173,7 +173,8 @@
   min-height: 400px;
 }
 
-.profile-form {
+.profile-form,
+.profile-view {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -549,4 +550,112 @@
       }
     }
   }
+}
+
+/* ---------- Modifier button (hero, view mode) ---------- */
+.hero-actions {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.hero-edit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.75rem 1.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font-size: 0.98rem;
+  font-weight: 700;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  transition: background 0.2s var(--cx-ease), transform 0.2s var(--cx-ease);
+
+  mat-icon { font-size: 20px; width: 20px; height: 20px; }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.26);
+    transform: translateY(-1px);
+  }
+}
+
+/* ---------- View mode (read-only) ---------- */
+.profile-view {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  animation: heroIn 0.4s var(--cx-ease) both;
+
+  .view-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem 1.5rem;
+
+    @media (max-width: 600px) { grid-template-columns: 1fr; }
+  }
+
+  .view-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+
+    > mat-icon {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      font-size: 22px;
+      line-height: 24px;
+      color: var(--cx-primary);
+      margin-top: 2px;
+    }
+
+    &.view-item--block { margin-top: 1rem; }
+  }
+
+  .view-text {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-top: 3px;
+  }
+
+  .view-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--cx-text-muted);
+  }
+
+  .view-value {
+    font-size: 0.98rem;
+    font-weight: 600;
+    color: var(--cx-text);
+    word-break: break-word;
+
+    &--multiline { white-space: pre-line; font-weight: 500; line-height: 1.5; }
+  }
+
+  .view-link {
+    color: var(--cx-primary);
+    text-decoration: none;
+    &:hover { text-decoration: underline; }
+  }
+
+  .view-cv {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    .view-cv-file { color: var(--cx-primary); }
+    .view-cv-name { font-weight: 600; }
+  }
+
+  mat-divider { margin: 1.25rem 0; }
 }

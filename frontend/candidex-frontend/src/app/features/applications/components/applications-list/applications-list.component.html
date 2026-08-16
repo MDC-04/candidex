@@ -15,8 +15,9 @@
   <!-- Applications table -->
   <div class="table-container" *ngIf="data as data">
     
-    <!-- Filters bar -->
-    <div class="filters-bar" *ngIf="data.items.length > 0 || hasActiveFilters()">
+    <!-- Filters bar (single scrollable row on mobile with a right-edge fade hint) -->
+    <div class="filters-scroll" *ngIf="data.items.length > 0 || hasActiveFilters()">
+    <div class="filters-bar">
       <mat-form-field appearance="outline" class="search-field">
         <mat-label>Rechercher</mat-label>
         <input matInput [formControl]="searchControl" placeholder="Entreprise ou poste (min. 2 caractères)...">
@@ -29,6 +30,7 @@
       
       <mat-form-field appearance="outline" class="filter-field">
         <mat-label>Ville / Pays</mat-label>
+        <mat-icon matPrefix>place</mat-icon>
         <input matInput [formControl]="locationFilterControl" placeholder="Ex: Paris, France (min. 2 caractères)...">
         <button matSuffix mat-icon-button *ngIf="locationFilterControl.value" (click)="locationFilterControl.setValue('')">
           <mat-icon>close</mat-icon>
@@ -37,6 +39,7 @@
 
       <mat-form-field appearance="outline" class="filter-field">
         <mat-label>Statut</mat-label>
+        <mat-icon matPrefix>flag</mat-icon>
         <mat-select [formControl]="statusFilterControl">
           <mat-option *ngFor="let status of statusOptions" [value]="status">
             {{ getFilterLabel(status) }}
@@ -46,6 +49,7 @@
       
       <mat-form-field appearance="outline" class="filter-field">
         <mat-label>Source</mat-label>
+        <mat-icon matPrefix>hub</mat-icon>
         <mat-select [formControl]="sourceFilterControl">
           <mat-option *ngFor="let source of sourceOptions" [value]="source">
             {{ getFilterLabel(source) }}
@@ -55,8 +59,9 @@
       
       <button mat-stroked-button (click)="clearFilters()" class="clear-filters-btn">
         <mat-icon>clear_all</mat-icon>
-        Réinitialiser
+        <span class="btn-label">Réinitialiser</span>
       </button>
+    </div>
     </div>
     
     <!-- Empty state - no applications -->
@@ -86,8 +91,10 @@
       </div>
     </div>
 
-    <!-- Table with data -->
-    <table mat-table [dataSource]="displayItems" class="applications-table" [class.table-loading]="loading" *ngIf="displayItems.length > 0">
+    <!-- Table with data (horizontally scrollable on mobile, with right-edge fade hint) -->
+    <div class="table-scroll-wrap" *ngIf="displayItems.length > 0">
+    <div class="table-scroll">
+    <table mat-table [dataSource]="displayItems" class="applications-table" [class.table-loading]="loading">
         <!-- Company Column -->
         <ng-container matColumnDef="companyName">
           <th mat-header-cell *matHeaderCellDef>
@@ -229,6 +236,8 @@
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="table-row"></tr>
     </table>
+    </div>
+    </div>
 
     <!-- Pagination info -->
     <div class="pagination-info">

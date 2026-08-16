@@ -113,17 +113,19 @@ import { NotificationService } from '../../../core/services/notification.service
       animation: authIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
     }
 
-    .auth-brand { margin-bottom: 0.4rem; }
+    .auth-brand { text-align: center; margin-bottom: 0.5rem; }
     .auth-brand img {
-      height: 158px;
+      height: 300px;
       width: auto;
       object-fit: contain;
-      margin: -14px 0 -12px -12px;
+      margin: 0;
     }
 
     .auth-head { margin-bottom: 1.75rem; }
     .auth-eyebrow {
-      display: inline-block;
+      display: block;
+      width: fit-content;
+      margin: 0 auto 0.9rem;
       font-size: 0.72rem;
       font-weight: 700;
       letter-spacing: 0.14em;
@@ -132,7 +134,6 @@ import { NotificationService } from '../../../core/services/notification.service
       background: rgba(85, 102, 240, 0.10);
       padding: 0.25rem 0.65rem;
       border-radius: 999px;
-      margin-bottom: 0.75rem;
     }
     .auth-title {
       margin: 0 0 0.4rem;
@@ -288,8 +289,15 @@ import { NotificationService } from '../../../core/services/notification.service
 
     /* Stack on smaller screens: hide illustration, full-width form */
     @media (max-width: 900px) {
-      .auth-split { grid-template-columns: 1fr; }
+      .auth-split { grid-template-columns: 1fr; height: auto; min-height: 100vh; }
       .auth-right { display: none; }
+      .auth-left {
+        align-items: flex-start;
+        max-height: none;
+        overflow-y: visible;
+        padding: 2rem 1.25rem 3rem;
+      }
+      .auth-brand img { height: 240px; }
     }
   `]
 })

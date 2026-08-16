@@ -324,6 +324,7 @@ export class InterviewsPageComponent implements OnInit {
   }
 
   openPrepPack(interview: Interview): void {
+    if (this.isPast(interview)) return;
     const dialogRef = this.dialog.open(PrepPackDialogComponent, {
       width: '580px',
       maxHeight: '85vh',
@@ -346,6 +347,14 @@ export class InterviewsPageComponent implements OnInit {
         )
       });
     });
+  }
+
+  /** A past interview (or one already done/canceled) can no longer be prepared. */
+  isPast(interview: Interview): boolean {
+    const startOfToday = this.getStartOfDay(new Date());
+    return interview.status === InterviewStatus.DONE
+      || interview.status === InterviewStatus.CANCELED
+      || new Date(interview.startAt) < startOfToday;
   }
 
   private categorizeInterviews(): void {

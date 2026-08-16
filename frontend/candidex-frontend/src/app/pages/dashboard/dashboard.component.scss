@@ -525,6 +525,36 @@
   text-align: right;
 }
 
+/* Expand/collapse bar that folds away the empty (0%) statuses */
+.status-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px dashed var(--cx-border-strong);
+  border-radius: var(--cx-radius-md);
+  background: rgba(85, 102, 240, 0.04);
+  color: var(--cx-primary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s var(--cx-ease), border-color 0.2s var(--cx-ease);
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  &:hover {
+    background: rgba(85, 102, 240, 0.09);
+    border-color: var(--cx-primary);
+  }
+}
+
 .recent-list {
   display: flex;
   flex-direction: column;
@@ -698,7 +728,7 @@
   }
 
   .stat-card {
-    mat-icon { font-size: 36px; width: 36px; height: 36px; }
+    mat-icon { font-size: 22px; width: 42px; height: 42px; }
     .stat-value { font-size: 28px; }
   }
 

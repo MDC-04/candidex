@@ -115,7 +115,7 @@
             </div>
           } @else {
             <div class="status-list">
-              @for (stat of statusStats; track stat.status) {
+              @for (stat of visibleStatusStats; track stat.status) {
                 <div class="status-item">
                   <div class="status-info">
                     <span class="status-label">{{ stat.label }}</span>
@@ -128,6 +128,12 @@
                 </div>
               }
             </div>
+            @if (emptyStatusCount > 0) {
+              <button type="button" class="status-toggle" (click)="toggleEmptyStatuses()">
+                <mat-icon>{{ showEmptyStatuses ? 'expand_less' : 'expand_more' }}</mat-icon>
+                <span>{{ showEmptyStatuses ? 'Masquer les statuts vides' : (emptyStatusCount > 1 ? emptyStatusCount + ' statuts sans candidature' : emptyStatusCount + ' statut sans candidature') }}</span>
+              </button>
+            }
           }
         </mat-card-content>
       </mat-card>

@@ -231,7 +231,8 @@
     }
 
     <div class="card-actions">
-      <button mat-button color="primary" (click)="openPrepPack(iv)">
+      <button mat-button color="primary" (click)="openPrepPack(iv)" [disabled]="isPast(iv)"
+              [matTooltip]="isPast(iv) ? 'Entretien passé — préparation indisponible' : ''">
         <mat-icon>description</mat-icon> Préparer
       </button>
       @if (iv.meetingUrl && iv.status === 'SCHEDULED') {

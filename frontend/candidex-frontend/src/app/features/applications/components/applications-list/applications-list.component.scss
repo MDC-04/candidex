@@ -493,28 +493,85 @@
     }
 
     .table-container {
-      .filters-bar {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 10px;
+      /* Filters: a single horizontal row that scrolls, with a right-edge fade hint */
+      .filters-scroll {
+        position: relative;
 
-        /* Reset the flex basis (it becomes a HEIGHT in column mode → giant boxes) */
-        .search-field,
-        .filter-field,
-        .clear-filters-btn {
-          flex: 0 0 auto;
-          width: 100%;
-          min-width: 0;
-        }
-
-        .clear-filters-btn {
-          height: 44px;
-          justify-content: center;
+        &::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          width: 42px;
+          pointer-events: none;
+          background: linear-gradient(to right, rgba(255, 255, 255, 0), #fff 80%);
+          z-index: 2;
         }
       }
 
-      overflow-x: auto;
-      .applications-table { min-width: 800px; }
+      .filters-bar {
+        flex-direction: row;
+        flex-wrap: nowrap;
+        align-items: center;
+        gap: 8px;
+        padding: 12px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+
+        &::-webkit-scrollbar { display: none; }
+
+        .search-field {
+          flex: 0 0 46vw;
+          width: 46vw;
+          min-width: 158px;
+          align-self: center;
+        }
+
+        .filter-field {
+          flex: 0 0 42vw;
+          width: 42vw;
+          min-width: 148px;
+          align-self: center;
+        }
+
+        /* Reset shrinks to an icon-only button on mobile */
+        .clear-filters-btn {
+          flex: 0 0 auto;
+          width: 46px;
+          min-width: 46px;
+          height: 46px;
+          padding: 0;
+          justify-content: center;
+
+          .btn-label { display: none; }
+        }
+      }
+
+      /* Table: horizontal scroll with a right-edge fade hint */
+      .table-scroll-wrap {
+        position: relative;
+
+        &::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          width: 46px;
+          pointer-events: none;
+          background: linear-gradient(to right, rgba(255, 255, 255, 0), #fff 82%);
+          z-index: 2;
+        }
+      }
+
+      .table-scroll {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .applications-table { min-width: 760px; }
     }
   }
 }
